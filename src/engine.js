@@ -643,3 +643,61 @@ function uniq_(arr) {
   }
   return out;
 }
+/***********************
+ * TITLE SIMILARITY FIX
+ ***********************/
+function isTitleTooSimilar_(title, recentTitles) {
+  var t = normalizeTitleTokens_(title);
+  if (!t.length) return false;
+
+  for (var i = 0; i < recentTitles.length; i++) {
+    var r = normalizeTitleTokens_(recentTitles[i]);
+    if (!r.length) continue;
+    if (jaccard_(t, r) >= 0.55) return true;
+  }
+  return false;
+}
+
+function normalizeTitleTokens_(s) {
+  var stop = {
+    "a":1,"an":1,"and":1,"the":1,"to":1,"of":1,"for":1,"in":1,"on":1,"with":1,
+    "our":1,"my":1,"your":1,"simple":1,"quiet":1,"calm":1,"week":1,"sunday":1,"routine":1,"reset":1
+  };
+
+  var clean = String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+  var parts = clean.split(/\s+/).filter(Boolean);
+
+  var out = [];
+  var seen = {};
+
+  for (var i = 0; i < parts.length; i++) {
+    var w = parts[i];
+    if (w.length < 3) continue;
+    if (stop[w]) continue;
+    if (seen[w]) continue;
+    seen[w] = 1;
+    out.push(w);
+  }
+
+  return out;
+}
+
+function jaccard_(a, b) {
+  var setA = {}, setB = {};
+
+  for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
+  for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
+
+  var inter = 0, uni = 0;
+
+  for (var k in setA) {
+    uni++;
+    if (setB[k]) inter++;
+  }
+
+  for (var k2 in setB) {
+    if (!setA[k2]) uni++;
+  }
+
+  return uni ? (inter / uni) : 0;
+}
