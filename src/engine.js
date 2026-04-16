@@ -23,7 +23,7 @@ function generateEditorialPlanV2_(history) {
     '  "primaryKeyword": "clear search phrase, 2-6 words",\n' +
     '  "secondaryKeyword": "supporting search phrase, 2-6 words",\n' +
     '  "intent": "what the reader wants solved or decided",\n' +
-    '  "title": "max 72 chars, search-first, natural, specific",\n' +
+    'title": "SEO title using real search phrasing (max 65 chars). Must start with the main keyword. No creative or vague phrasing.",\n' +
     '  "readerProblem": "one sentence",\n' +
     '  "whyThisCanRank": "one sentence explaining specificity/usefulness",\n' +
     '  "experienceSeed": "one concrete lived detail"\n' +
