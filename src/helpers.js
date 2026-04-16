@@ -409,3 +409,8 @@ function cleanSeoTitle_(title, keyword) {
 
   return t;
 }
+function makeAmazonSearchLink_(query) {
+  var tag = String(PROPS.getProperty("AMAZON_TAG") || "").trim();
+  var base = "https://www.amazon.com/s?k=" + encodeURIComponent(query);
+  return tag ? (base + "&tag=" + encodeURIComponent(tag)) : base;
+}
