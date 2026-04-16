@@ -29,6 +29,15 @@ function generateEditorialPlanV2_(history) {
     '  "experienceSeed": "one concrete lived detail"\n' +
     "}\n\n" +
     "Rules:\n" +
+    "- Title MUST sound like something people actually type into Google\n" +
+"- Avoid clever or poetic phrasing\n" +
+"- Use formats like:\n" +
+"  • 'How to...'\n" +
+"  • 'Best way to...'\n" +
+"  • 'Simple ... system'\n" +
+"  • '... without ...'\n" +
+"- Put the most important keyword in the first 4 words\n" +
+"- Prefer clarity over creativity\n" +
     "- Avoid vague lifestyle titles.\n" +
     "- Prefer problem-solving, recipe, system, or buying-decision intent.\n" +
     "- Title should feel like a realistic Google result.\n" +
