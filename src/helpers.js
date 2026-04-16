@@ -1,6 +1,11 @@
 /****************************************************
  * TMFG V2 — HELPERS
- * Shared helpers for links, hubs, utils, WP site info
+ * Shared helpers for:
+ * - internal links
+ * - URL/site helpers
+ * - hubs
+ * - title similarity
+ * - generic utils
  ****************************************************/
 
 /***********************
@@ -74,34 +79,22 @@ function getInternalLinkCandidates_(rows, plan, maxLinks) {
   return picked;
 }
 
-function titleJaccardLite_(t1, t2) {
-  var a = normalizeTitleTokens_(t1);
-  var b = normalizeTitleTokens_(t2);
-  if (!a.length || !b.length) return 0;
-
-  var setA = {}, setB = {};
-  for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
-  for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
-
-  var inter = 0, uni = 0;
-  for (var k in setA) {
-    uni++;
-    if (setB[k]) inter++;
-  }
-  for (var k2 in setB) {
-    if (!setA[k2]) uni++;
-  }
-
-  return uni ? (inter / uni) : 0;
+/***********************
+ * AMAZON / URL HELPERS
+ ***********************/
+function makeAmazonSearchLink_(query) {
+  var tag = String(PROPS.getProperty("AMAZON_TAG") || "").trim();
+  var base = "https://www.amazon.com/s?k=" + encodeURIComponent(String(query || "").trim());
+  return tag ? (base + "&tag=" + encodeURIComponent(tag)) : base;
 }
 
-/***********************
- * URL HELPERS
- ***********************/
 function makeRelativeUrl_(url) {
   var s = String(url || "").trim();
   if (!s) return s;
-  if (s.indexOf("/") === 0 && s.indexOf("//") !== 0) return s;
+
+  if (s.indexOf("/") === 0 && s.indexOf("//") !== 0) {
+    return s;
+  }
 
   var m = s.match(/^https?:\/\/[^\/]+(\/.*)$/i);
   return (m && m[1]) ? m[1] : s;
@@ -110,7 +103,10 @@ function makeRelativeUrl_(url) {
 function isInternalUrl_(url) {
   var s = String(url || "").trim();
   if (!s) return false;
-  if (s.indexOf("/") === 0 && s.indexOf("//") !== 0) return true;
+
+  if (s.indexOf("/") === 0 && s.indexOf("//") !== 0) {
+    return true;
+  }
 
   try {
     var siteInfo = getWpSiteHomeCached_();
@@ -144,7 +140,9 @@ function getWpSiteHomeCached_() {
 
   var json = JSON.parse(res.getContentText());
   var siteUrl = String(json.URL || json.url || "").trim();
-  var hostMatch = siteUrl.match(/^https?:\/\/([^\/]+)$/i) || siteUrl.match(/^https?:\/\/([^\/]+)\//i);
+  var hostMatch =
+    siteUrl.match(/^https?:\/\/([^\/]+)$/i) ||
+    siteUrl.match(/^https?:\/\/([^\/]+)\//i);
 
   var info = {
     url: siteUrl,
@@ -162,7 +160,13 @@ function ensureHubsSheet_(ss) {
   var sh = ss.getSheetByName(HUBS_SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(HUBS_SHEET_NAME);
-    sh.getRange(1, 1, 1, 5).setValues([["CategorySlug", "HubPostId", "HubUrl", "HubTitle", "UpdatedAt"]]);
+    sh.getRange(1, 1, 1, 5).setValues([[
+      "CategorySlug",
+      "HubPostId",
+      "HubUrl",
+      "HubTitle",
+      "UpdatedAt"
+    ]]);
   }
   return sh;
 }
@@ -175,8 +179,13 @@ function ensureCategoryHub_(ss, categorySlug) {
     var slug = String(data[i][0] || "").trim();
     var hubId = String(data[i][1] || "").trim();
     var hubUrl = String(data[i][2] || "").trim();
+
     if (slug === categorySlug && hubId && hubUrl) {
-      return { id: hubId, url: hubUrl, title: String(data[i][3] || "").trim() };
+      return {
+        id: hubId,
+        url: hubUrl,
+        title: String(data[i][3] || "").trim()
+      };
     }
   }
 
@@ -184,12 +193,20 @@ function ensureCategoryHub_(ss, categorySlug) {
   var hubHtml = buildHubHtml_(categorySlug, ss.getActiveSheet());
   var created = createWpPost_(hubTitle, hubHtml, null, DEFAULT_STATUS, categorySlug);
 
-  var hubIdNew = String(created.ID || created.id || "");
-  var hubUrlNew = String(created.URL || created.url || "");
-  if (!hubIdNew || !hubUrlNew) throw new Error("Hub created but missing ID/URL.");
+  var hubIdNew = String(created.ID || created.id || "").trim();
+  var hubUrlNew = String(created.URL || created.url || "").trim();
+
+  if (!hubIdNew || !hubUrlNew) {
+    throw new Error("Hub created but missing ID/URL.");
+  }
 
   hubs.appendRow([categorySlug, hubIdNew, hubUrlNew, hubTitle, new Date()]);
-  return { id: hubIdNew, url: hubUrlNew, title: hubTitle };
+
+  return {
+    id: hubIdNew,
+    url: hubUrlNew,
+    title: hubTitle
+  };
 }
 
 function updateCategoryHub_(ss, categorySlug, mainSheet) {
@@ -213,7 +230,11 @@ function updateCategoryHub_(ss, categorySlug, mainSheet) {
 
   var hubHtml = buildHubHtml_(categorySlug, mainSheet);
 
-  var url = "https://public-api.wordpress.com/rest/v1.1/sites/" + encodeURIComponent(WP_SITE_ID) + "/posts/" + encodeURIComponent(hubId);
+  var url = "https://public-api.wordpress.com/rest/v1.1/sites/" +
+    encodeURIComponent(WP_SITE_ID) +
+    "/posts/" +
+    encodeURIComponent(hubId);
+
   var res = UrlFetchApp.fetch(url, {
     method: "post",
     contentType: "application/json",
@@ -253,7 +274,11 @@ function buildHubHtml_(categorySlug, mainSheet) {
     if (!title || !url) continue;
     if (cat !== categorySlug) continue;
 
-    posts.push({ title: title, url: url, idx: i });
+    posts.push({
+      title: title,
+      url: url,
+      idx: i
+    });
   }
 
   posts.sort(function(a, b) { return b.idx - a.idx; });
@@ -265,9 +290,11 @@ function buildHubHtml_(categorySlug, mainSheet) {
 
   return (
     '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;line-height:1.65;color:#333;max-width:720px;margin:0 auto;">' +
-    '<p style="font-size:18px;color:#555;">This hub collects our best posts on <strong>' + escapeHtml_(categorySlug.replace(/-/g, " ")) + '</strong>.</p>' +
-    '<ul style="padding-left:18px;margin:10px 0;">' + list + '</ul>' +
-    '<p style="font-size:12px;color:#999;margin-top:26px;">Updated automatically as new posts are published.</p>' +
+      '<p style="font-size:18px;color:#555;">This hub collects our best posts on <strong>' +
+      escapeHtml_(categorySlug.replace(/-/g, " ")) +
+      '</strong>.</p>' +
+      '<ul style="padding-left:18px;margin:10px 0;">' + list + '</ul>' +
+      '<p style="font-size:12px;color:#999;margin-top:26px;">Updated automatically as new posts are published.</p>' +
     '</div>'
   );
 }
@@ -287,10 +314,37 @@ function isTitleTooSimilar_(title, recentTitles) {
   return false;
 }
 
+function titleJaccardLite_(t1, t2) {
+  var a = normalizeTitleTokens_(t1);
+  var b = normalizeTitleTokens_(t2);
+  if (!a.length || !b.length) return 0;
+
+  var setA = {};
+  var setB = {};
+
+  for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
+  for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
+
+  var inter = 0;
+  var uni = 0;
+
+  for (var k in setA) {
+    uni++;
+    if (setB[k]) inter++;
+  }
+
+  for (var k2 in setB) {
+    if (!setA[k2]) uni++;
+  }
+
+  return uni ? (inter / uni) : 0;
+}
+
 function normalizeTitleTokens_(s) {
   var stop = {
     "a":1,"an":1,"and":1,"the":1,"to":1,"of":1,"for":1,"in":1,"on":1,"with":1,
-    "our":1,"my":1,"your":1,"simple":1,"quiet":1,"calm":1,"week":1,"sunday":1,"routine":1,"reset":1
+    "our":1,"my":1,"your":1,"simple":1,"quiet":1,"calm":1,"week":1,"sunday":1,"routine":1,"reset":1,
+    "best":1,"guide":1,"quick":1
   };
 
   var clean = String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
@@ -312,12 +366,14 @@ function normalizeTitleTokens_(s) {
 }
 
 function jaccard_(a, b) {
-  var setA = {}, setB = {};
+  var setA = {};
+  var setB = {};
 
   for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
   for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
 
-  var inter = 0, uni = 0;
+  var inter = 0;
+  var uni = 0;
 
   for (var k in setA) {
     uni++;
@@ -329,6 +385,36 @@ function jaccard_(a, b) {
   }
 
   return uni ? (inter / uni) : 0;
+}
+
+/***********************
+ * TITLE CLEANUP
+ ***********************/
+function cleanSeoTitle_(title, keyword) {
+  var t = String(title || "").trim();
+  var kw = String(keyword || "").trim();
+
+  if (!t && kw) return kw;
+  if (!t) return "";
+
+  t = t.replace(/[|]+/g, " ");
+  t = t.replace(/\s{2,}/g, " ").trim();
+
+  if (kw) {
+    var lower = t.toLowerCase();
+    var kwLower = kw.toLowerCase();
+
+    if (lower.indexOf(kwLower) !== 0) {
+      t = kw + " " + t;
+      t = t.replace(/\s{2,}/g, " ").trim();
+    }
+  }
+
+  if (t.length > 65) {
+    t = t.slice(0, 65).trim();
+  }
+
+  return t;
 }
 
 /***********************
@@ -374,6 +460,7 @@ function truncate_(s, n) {
 function uniq_(arr) {
   var seen = {};
   var out = [];
+
   for (var i = 0; i < arr.length; i++) {
     var v = String(arr[i] || "").trim();
     if (!v) continue;
@@ -381,36 +468,6 @@ function uniq_(arr) {
     seen[v] = 1;
     out.push(v);
   }
+
   return out;
-}
-function cleanSeoTitle_(title, keyword) {
-  var t = String(title || "").trim();
-
-  // fallback hvis tom
-  if (!t) {
-    return keyword;
-  }
-
-  // fjern for fancy tegn
-  t = t.replace(/[|:]/g, " ");
-
-  // hvis keyword ikke er først → flyt det
-  var lower = t.toLowerCase();
-  var kw = String(keyword || "").toLowerCase();
-
-  if (kw && lower.indexOf(kw) !== 0) {
-    t = keyword + " " + t;
-  }
-
-  // begræns længde
-  if (t.length > 65) {
-    t = t.slice(0, 65).trim();
-  }
-
-  return t;
-}
-function makeAmazonSearchLink_(query) {
-  var tag = String(PROPS.getProperty("AMAZON_TAG") || "").trim();
-  var base = "https://www.amazon.com/s?k=" + encodeURIComponent(query);
-  return tag ? (base + "&tag=" + encodeURIComponent(tag)) : base;
 }
