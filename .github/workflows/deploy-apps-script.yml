@@ -9,6 +9,7 @@ on:
       - '.github/workflows/deploy-apps-script.yml'
       - 'package.json'
       - '.claspignore'
+      - '.clasp.json'
 
 jobs:
   deploy:
@@ -30,7 +31,9 @@ jobs:
         run: |
           mkdir -p $HOME
           echo '${{ secrets.CLASPRC_JSON }}' > $HOME/.clasprc.json
-          echo '${{ secrets.CLASP_JSON }}' > ./.clasp.json
+
+      - name: Show target script
+        run: cat ./.clasp.json
 
       - name: Push to Apps Script
         run: npx clasp push -f
