@@ -46,11 +46,6 @@ jobs:
           echo "=== src/Code.gs head ==="
           head -n 20 src/Code.gs || true
 
-      - name: Show clasp login identity
-        run: |
-          echo "=== clasp login status ==="
-          npx clasp login --status
-
       - name: Push to Apps Script
         run: npx clasp push -f
 
@@ -70,3 +65,7 @@ jobs:
           find . -maxdepth 3 -type f | sort
           echo "=== pulled Code preview ==="
           head -n 20 src/Code.gs || head -n 20 Code.gs || true
+
+      - name: Fail fast if Code.gs is missing locally
+        run: |
+          test -f src/Code.gs
