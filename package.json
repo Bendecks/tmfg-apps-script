@@ -1,0 +1,10 @@
+{
+  "name": "tmfg-apps-script",
+  "private": true,
+  "devDependencies": {
+    "@google/clasp": "^3.0.6"
+  },
+  "scripts": {
+    "push": "clasp push -f"
+  }
+}
