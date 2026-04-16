@@ -383,3 +383,29 @@ function uniq_(arr) {
   }
   return out;
 }
+function cleanSeoTitle_(title, keyword) {
+  var t = String(title || "").trim();
+
+  // fallback hvis tom
+  if (!t) {
+    return keyword;
+  }
+
+  // fjern for fancy tegn
+  t = t.replace(/[|:]/g, " ");
+
+  // hvis keyword ikke er først → flyt det
+  var lower = t.toLowerCase();
+  var kw = String(keyword || "").toLowerCase();
+
+  if (kw && lower.indexOf(kw) !== 0) {
+    t = keyword + " " + t;
+  }
+
+  // begræns længde
+  if (t.length > 65) {
+    t = t.slice(0, 65).trim();
+  }
+
+  return t;
+}
