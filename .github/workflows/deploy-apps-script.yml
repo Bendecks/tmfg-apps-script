@@ -46,21 +46,29 @@ jobs:
           echo "=== src/Code.gs head ==="
           head -n 20 src/Code.gs || true
 
-      - name: Push to Apps Script
-        run: npx clasp push -f
-
-      - name: Verify clasp status
+      - name: Push and verify Apps Script content
         run: |
-          echo "=== clasp status ==="
+          echo "=== PUSH ==="
+          npx clasp push -f
+
+          echo "=== STATUS AFTER PUSH ==="
           npx clasp status --json || npx clasp status
-      - name: Compare local and pulled files
-        run: |
-          echo "=== local Code.gs preview ==="
-          head -n 20 src/Code.gs || true
-          echo "=== pulled Code.js preview ==="
-          head -n 20 verify_pull/src/Code.js || true
-    
 
-      - name: Fail fast if Code.gs is missing locally
-        run: |
-          test -f src/Code.gs
+          echo "=== LOCAL CODE PREVIEW ==="
+          head -n 20 src/Code.gs || true
+
+          echo "=== PULL REMOTE INTO FRESH FOLDER ==="
+          rm -rf verify_pull
+          mkdir verify_pull
+          cp .clasp.json verify_pull/.clasp.json
+          cd verify_pull
+          npx clasp pull
+
+          echo "=== PULLED FILES ==="
+          find . -maxdepth 3 -type f | sort
+
+          echo "=== PULLED CODE.JS PREVIEW ==="
+          head -n 40 src/Code.js || true
+
+          echo "=== PULLED CODE.GS PREVIEW ==="
+          head -n 40 src/Code.gs || true
