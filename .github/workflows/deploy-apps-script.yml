@@ -32,8 +32,19 @@ jobs:
           mkdir -p $HOME
           echo '${{ secrets.CLASPRC_JSON }}' > $HOME/.clasprc.json
 
-      - name: Show target script
-        run: cat ./.clasp.json
+      - name: Show repo .clasp.json
+        run: |
+          echo "=== .clasp.json from repo ==="
+          cat ./.clasp.json
 
       - name: Push to Apps Script
         run: npx clasp push -f
+
+      - name: Verify deploy target and file state
+        run: |
+          echo "=== clasp status ==="
+          npx clasp status --json || npx clasp status
+
+      - name: Fail fast if Code.gs is missing locally
+        run: |
+          test -f src/Code.gs
