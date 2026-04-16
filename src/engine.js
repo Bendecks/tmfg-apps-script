@@ -63,7 +63,7 @@ function generateEditorialPlanV2_(history) {
     plan.primaryKeyword = String(plan.primaryKeyword || "").trim();
     plan.secondaryKeyword = String(plan.secondaryKeyword || "").trim();
     plan.intent = String(plan.intent || "").trim();
-    plan.title = String(plan.title || "").trim().slice(0, 72);
+    plan.title = cleanSeoTitle_(plan.title, plan.primaryKeyword);
     plan.readerProblem = String(plan.readerProblem || "").trim();
     plan.whyThisCanRank = String(plan.whyThisCanRank || "").trim();
     plan.experienceSeed = String(plan.experienceSeed || "").trim();
