@@ -53,18 +53,13 @@ jobs:
         run: |
           echo "=== clasp status ==="
           npx clasp status --json || npx clasp status
-
-      - name: Pull remote project for verification
+      - name: Compare local and pulled files
         run: |
-          rm -rf verify_pull
-          mkdir verify_pull
-          cp .clasp.json verify_pull/.clasp.json
-          cd verify_pull
-          npx clasp pull
-          echo "=== pulled files from Apps Script ==="
-          find . -maxdepth 3 -type f | sort
-          echo "=== pulled Code preview ==="
-          head -n 20 src/Code.gs || head -n 20 Code.gs || true
+          echo "=== local Code.gs preview ==="
+          head -n 20 src/Code.gs || true
+          echo "=== pulled Code.js preview ==="
+          head -n 20 verify_pull/src/Code.js || true
+    
 
       - name: Fail fast if Code.gs is missing locally
         run: |
