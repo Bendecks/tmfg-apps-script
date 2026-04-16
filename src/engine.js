@@ -701,3 +701,94 @@ function jaccard_(a, b) {
 
   return uni ? (inter / uni) : 0;
 }
+/***********************
+ * INTERNAL LINKING FIX
+ ***********************/
+function getInternalLinkCandidates_(rows, plan, maxLinks) {
+  maxLinks = maxLinks || 3;
+  var pool = [];
+
+  for (var i = 1; i < rows.length; i++) {
+    var title = String(rows[i][0] || "").trim();
+    var status = String(rows[i][1] || "").trim().toLowerCase();
+    var url = String(rows[i][2] || "").trim();
+    var type = String(rows[i][4] || "").trim().toUpperCase();
+    var cat = String(rows[i][5] || "").trim();
+    var angle = String(rows[i][6] || "").trim();
+
+    if (status !== "done") continue;
+    if (!title || !url) continue;
+    if (title.toLowerCase() === String(plan.title || "").trim().toLowerCase()) continue;
+
+    pool.push({
+      title: title,
+      url: isInternalUrl_(url) ? makeRelativeUrl_(url) : url,
+      type: type,
+      categorySlug: cat,
+      angle: angle,
+      idx: i
+    });
+  }
+
+  if (!pool.length) return [];
+  pool.sort(function(a, b) { return b.idx - a.idx; });
+
+  var picked = [];
+  var used = {};
+
+  function score(it) {
+    var s = 0;
+    if (it.categorySlug === plan.categorySlug) s += 50;
+    if (it.type === plan.type) s += 20;
+    if (it.angle === plan.angle) s += 20;
+    s += Math.min(10, Math.floor(it.idx / 50));
+
+    var overlap = titleJaccardLite_(it.title, plan.title);
+    if (overlap >= 0.35) s -= 30;
+
+    return s;
+  }
+
+  while (picked.length < maxLinks) {
+    var best = null;
+    var bestScore = -999999;
+
+    for (var j = 0; j < pool.length; j++) {
+      var it = pool[j];
+      if (used[it.url]) continue;
+
+      var sc = score(it);
+      if (sc > bestScore) {
+        bestScore = sc;
+        best = it;
+      }
+    }
+
+    if (!best) break;
+    used[best.url] = true;
+    picked.push(best);
+  }
+
+  return picked;
+}
+
+function titleJaccardLite_(t1, t2) {
+  var a = normalizeTitleTokens_(t1);
+  var b = normalizeTitleTokens_(t2);
+  if (!a.length || !b.length) return 0;
+
+  var setA = {}, setB = {};
+  for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
+  for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
+
+  var inter = 0, uni = 0;
+  for (var k in setA) {
+    uni++;
+    if (setB[k]) inter++;
+  }
+  for (var k2 in setB) {
+    if (!setA[k2]) uni++;
+  }
+
+  return uni ? (inter / uni) : 0;
+}
