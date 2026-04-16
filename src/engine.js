@@ -792,3 +792,421 @@ function titleJaccardLite_(t1, t2) {
 
   return uni ? (inter / uni) : 0;
 }
+/***********************
+ * URL / SITE HELPERS
+ ***********************/
+function makeRelativeUrl_(url) {
+  var s = String(url || "").trim();
+  if (!s) return s;
+  if (s.indexOf("/") === 0 && s.indexOf("//") !== 0) return s;
+
+  var m = s.match(/^https?:\/\/[^\/]+(\/.*)$/i);
+  return (m && m[1]) ? m[1] : s;
+}
+
+function isInternalUrl_(url) {
+  var s = String(url || "").trim();
+  if (!s) return false;
+  if (s.indexOf("/") === 0 && s.indexOf("//") !== 0) return true;
+
+  try {
+    var siteInfo = getWpSiteHomeCached_();
+    if (!siteInfo || !siteInfo.host) return false;
+
+    var m = s.match(/^https?:\/\/([^\/]+)(\/.*)?$/i);
+    if (!m) return false;
+
+    return String(m[1] || "").toLowerCase() === siteInfo.host;
+  } catch (e) {
+    return false;
+  }
+}
+
+function getWpSiteHomeCached_() {
+  var cache = CacheService.getScriptCache();
+  var cached = cache.get("WP_SITE_HOME_INFO");
+  if (cached) return JSON.parse(cached);
+
+  var res = UrlFetchApp.fetch(
+    "https://public-api.wordpress.com/rest/v1.1/sites/" + encodeURIComponent(WP_SITE_ID),
+    {
+      headers: { Authorization: "Bearer " + WP_OAUTH_TOKEN },
+      muteHttpExceptions: true
+    }
+  );
+
+  if (res.getResponseCode() !== 200) {
+    throw new Error("Could not fetch WP site info.");
+  }
+
+  var json = JSON.parse(res.getContentText());
+  var siteUrl = String(json.URL || json.url || "").trim();
+  var hostMatch = siteUrl.match(/^https?:\/\/([^\/]+)$/i) || siteUrl.match(/^https?:\/\/([^\/]+)\//i);
+
+  var info = {
+    url: siteUrl,
+    host: hostMatch ? String(hostMatch[1] || "").toLowerCase() : ""
+  };
+
+  cache.put("WP_SITE_HOME_INFO", JSON.stringify(info), 21600);
+  return info;
+}
+
+/***********************
+ * HTML HELPERS
+ ***********************/
+function buildHtmlV2_(plan, ai, hub, candidates, inlineMediaMap) {
+  var parts = [];
+
+  parts.push('<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;line-height:1.68;color:#333;max-width:680px;margin:0 auto;">');
+
+  if (ai.seoSummary) {
+    parts.push('<p style="font-size:17px;color:#4b4b4b;margin:0 0 14px 0;">' + escapeHtml_(ai.seoSummary) + '</p>');
+  }
+
+  if (hub && hub.url) {
+    var hubHref = isInternalUrl_(hub.url) ? makeRelativeUrl_(hub.url) : hub.url;
+    parts.push(
+      '<div style="margin:16px 0;padding:14px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
+      '<strong>Start here:</strong> ' +
+      '<a href="' + escapeAttr_(hubHref) + '" style="text-decoration:none;font-weight:700;">' +
+      escapeHtml_(hub.title || "Explore the hub") +
+      '</a></div>'
+    );
+  }
+
+  if (ai.intro) {
+    parts.push('<p style="font-size:18px;color:#555;margin:0 0 16px 0;">' + escapeHtml_(ai.intro) + '</p>');
+  }
+
+  if (inlineMediaMap && inlineMediaMap.after_intro) {
+    parts.push(renderImageBlock_(inlineMediaMap.after_intro));
+  }
+
+  if (ai.experienceBox && ai.experienceBox.title && ai.experienceBox.text) {
+    parts.push(
+      '<div style="background:#f8f8f8;padding:18px;border-radius:12px;border:1px solid #eee;margin:20px 0;">' +
+      '<strong>' + escapeHtml_(ai.experienceBox.title) + '</strong>' +
+      '<p style="margin:8px 0 0 0;color:#444;">' + escapeHtml_(ai.experienceBox.text) + '</p>' +
+      '</div>'
+    );
+  }
+
+  var inlineLinks = (candidates || []).slice(0, 2);
+
+  for (var i = 0; i < ai.sections.length; i++) {
+    var s = ai.sections[i];
+    var pText = String(s.p || "");
+    var pHtml = escapeHtml_(pText);
+
+    if (inlineLinks[i] && shouldInlineLink_(pText)) {
+      pHtml = injectInlineLinkIntoEscapedParagraph_(pHtml, inlineLinks[i]);
+    }
+
+    parts.push('<h2 style="margin:24px 0 8px 0;">' + escapeHtml_(s.h2) + '</h2>');
+    parts.push('<p style="margin:0 0 12px 0;color:#444;">' + pHtml + '</p>');
+
+    if (i === 1 && inlineMediaMap && inlineMediaMap.mid_post) {
+      parts.push(renderImageBlock_(inlineMediaMap.mid_post));
+    }
+  }
+
+  if (ai.whatChanged && ai.whatChanged.length) {
+    parts.push('<div style="margin:20px 0;">');
+    parts.push('<h2 style="margin:0 0 8px 0;">What changed for us</h2>');
+    parts.push('<ul style="padding-left:20px;margin:0;">');
+    for (var j = 0; j < ai.whatChanged.length; j++) {
+      parts.push('<li>' + escapeHtml_(ai.whatChanged[j]) + '</li>');
+    }
+    parts.push('</ul></div>');
+  }
+
+  if (ai.affiliate && ai.affiliate.enabled && ai.affiliate.items && ai.affiliate.items.length) {
+    parts.push(renderAffiliateBlock_(ai.affiliate));
+  }
+
+  if (ai.faq && ai.faq.length) {
+    parts.push('<h2 style="margin-top:28px;">FAQ</h2>');
+    for (var k = 0; k < ai.faq.length; k++) {
+      parts.push('<h3 style="margin:16px 0 6px 0;font-size:16px;">' + escapeHtml_(ai.faq[k].q) + '</h3>');
+      parts.push('<p style="margin:0 0 10px 0;color:#444;">' + escapeHtml_(ai.faq[k].a) + '</p>');
+    }
+  }
+
+  if (ai.cta) {
+    parts.push('<p style="margin-top:18px;color:#444;"><em>' + escapeHtml_(ai.cta) + '</em></p>');
+  }
+
+  if (candidates && candidates.length) {
+    parts.push(buildInternalLinksBlock_(candidates, plan));
+  }
+
+  parts.push('</div>');
+  return parts.join("");
+}
+
+function renderAffiliateBlock_(affiliate) {
+  var items = affiliate.items.slice(0, 2).map(function(it) {
+    var url = makeAmazonSearchLink_(it.query);
+    return (
+      '<div style="padding:14px;border:1px solid #eee;border-radius:12px;margin:12px 0;background:#fff;">' +
+      '<div style="font-weight:700;margin-bottom:6px;">' + escapeHtml_(it.query) + '</div>' +
+      '<p style="margin:0 0 10px 0;color:#444;">' + escapeHtml_(it.reason) + '</p>' +
+      '<a href="' + escapeAttr_(url) + '" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:700;">View on Amazon</a>' +
+      '</div>'
+    );
+  }).join("");
+
+  return (
+    '<div style="margin:28px 0;padding:18px;border:1px solid #eee;border-radius:14px;background:#fafafa;">' +
+      '<h2 style="margin:0 0 10px 0;">' + escapeHtml_(affiliate.label || "What we would buy") + '</h2>' +
+      items +
+    '</div>'
+  );
+}
+
+function renderImageBlock_(url) {
+  return (
+    '<div style="margin:18px 0;">' +
+      '<img src="' + escapeAttr_(url) + '" style="width:100%;height:auto;border-radius:14px;display:block;" />' +
+    '</div>'
+  );
+}
+
+function buildInternalLinksBlock_(candidates, plan) {
+  var items = candidates.slice(0, 3).map(function(it) {
+    var href = isInternalUrl_(it.url) ? makeRelativeUrl_(it.url) : it.url;
+    return '<li style="margin:10px 0;"><a href="' + escapeAttr_(href) + '" style="text-decoration:none;font-weight:700;">' + escapeHtml_(it.title) + '</a></li>';
+  }).join("");
+
+  return (
+    '<div style="margin-top:28px;padding:18px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
+      '<h2 style="margin:0 0 10px 0;">You might also find helpful</h2>' +
+      '<ul style="margin:0;padding-left:18px;">' + items + '</ul>' +
+    '</div>'
+  );
+}
+
+function shouldInlineLink_(plainText) {
+  var t = String(plainText || "");
+  if (t.length < 180) return false;
+  if (t.indexOf("http") !== -1) return false;
+  return true;
+}
+
+function injectInlineLinkIntoEscapedParagraph_(escapedParagraph, candidate) {
+  var text = String(escapedParagraph || "");
+  var parts = text.split(". ");
+  if (parts.length < 2) return text;
+
+  var href = isInternalUrl_(candidate.url) ? makeRelativeUrl_(candidate.url) : candidate.url;
+  var link = ' <a href="' + escapeAttr_(href) + '" style="text-decoration:underline;">' + escapeHtml_(candidate.title) + '</a>';
+
+  parts[0] = parts[0] + "." + link;
+  return parts.join(". ");
+}
+
+/***********************
+ * WORDPRESS HELPERS
+ ***********************/
+function uploadWpMedia_(blob, title) {
+  var meta = uploadWpMediaAndReturnMeta_(blob, title);
+  return meta.id;
+}
+
+function uploadWpMediaAndReturnMeta_(blob, title) {
+  var safe = slugify_(title || "upload");
+  var ct = String(blob.getContentType() || "image/png").toLowerCase();
+  var ext = (ct.indexOf("jpeg") !== -1 || ct.indexOf("jpg") !== -1) ? "jpg" : "png";
+  blob.setName(safe + "." + ext);
+
+  var res = UrlFetchApp.fetch(
+    "https://public-api.wordpress.com/rest/v1.1/sites/" + encodeURIComponent(WP_SITE_ID) + "/media/new",
+    {
+      method: "post",
+      headers: { Authorization: "Bearer " + WP_OAUTH_TOKEN },
+      payload: { "media[]": blob, title: title || "upload" },
+      muteHttpExceptions: true
+    }
+  );
+
+  var code = res.getResponseCode();
+  var body = res.getContentText();
+  if (code !== 200 && code !== 201) {
+    throw new Error("Media upload failed HTTP " + code + ": " + truncate_(body, 900));
+  }
+
+  var json = JSON.parse(body);
+  var item = (json && json.media && json.media[0]) ? json.media[0] : null;
+  if (!item || !item.ID) throw new Error("Media upload ok but no ID returned.");
+
+  return { id: item.ID, url: item.URL || item.url || "" };
+}
+
+function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
+  var payload = { title: title, content: html, status: status };
+  if (featuredMediaId) payload.featured_image = featuredMediaId;
+  if (categorySlug) payload.categories = [categorySlug];
+
+  var res = UrlFetchApp.fetch(
+    "https://public-api.wordpress.com/rest/v1.1/sites/" + encodeURIComponent(WP_SITE_ID) + "/posts/new",
+    {
+      method: "post",
+      contentType: "application/json",
+      headers: { Authorization: "Bearer " + WP_OAUTH_TOKEN },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    }
+  );
+
+  var code = res.getResponseCode();
+  var body = res.getContentText();
+  if (code !== 200 && code !== 201) {
+    throw new Error("Create post failed HTTP " + code + ": " + truncate_(body, 1000));
+  }
+
+  return JSON.parse(body);
+}
+
+/***********************
+ * AMAZON / LINK HELPERS
+ ***********************/
+function makeAmazonSearchLink_(query) {
+  var tag = String(PROPS.getProperty("AMAZON_TAG") || "").trim();
+  var base = "https://www.amazon.com/s?k=" + encodeURIComponent(query);
+  return tag ? (base + "&tag=" + encodeURIComponent(tag)) : base;
+}
+
+/***********************
+ * TITLE SIMILARITY
+ ***********************/
+function isTitleTooSimilar_(title, recentTitles) {
+  var t = normalizeTitleTokens_(title);
+  if (!t.length) return false;
+
+  for (var i = 0; i < recentTitles.length; i++) {
+    var r = normalizeTitleTokens_(recentTitles[i]);
+    if (!r.length) continue;
+    if (jaccard_(t, r) >= 0.55) return true;
+  }
+  return false;
+}
+
+function titleJaccardLite_(t1, t2) {
+  var a = normalizeTitleTokens_(t1);
+  var b = normalizeTitleTokens_(t2);
+  if (!a.length || !b.length) return 0;
+
+  var setA = {}, setB = {};
+  for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
+  for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
+
+  var inter = 0, uni = 0;
+  for (var k in setA) { uni++; if (setB[k]) inter++; }
+  for (var k2 in setB) { if (!setA[k2]) uni++; }
+  return uni ? (inter / uni) : 0;
+}
+
+function normalizeTitleTokens_(s) {
+  var stop = {
+    "a":1,"an":1,"and":1,"the":1,"to":1,"of":1,"for":1,"in":1,"on":1,"with":1,
+    "our":1,"my":1,"your":1,"simple":1,"quiet":1,"calm":1,"week":1,"sunday":1,"routine":1,"reset":1
+  };
+
+  var clean = String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+  var parts = clean.split(/\s+/).filter(Boolean);
+  var out = [];
+  var seen = {};
+
+  for (var i = 0; i < parts.length; i++) {
+    var w = parts[i];
+    if (w.length < 3) continue;
+    if (stop[w]) continue;
+    if (seen[w]) continue;
+    seen[w] = 1;
+    out.push(w);
+  }
+  return out;
+}
+
+function jaccard_(a, b) {
+  var setA = {}, setB = {};
+  for (var i = 0; i < a.length; i++) setA[a[i]] = 1;
+  for (var j = 0; j < b.length; j++) setB[b[j]] = 1;
+
+  var inter = 0, uni = 0;
+  for (var k in setA) { uni++; if (setB[k]) inter++; }
+  for (var k2 in setB) { if (!setA[k2]) uni++; }
+  return uni ? (inter / uni) : 0;
+}
+
+/***********************
+ * INTERNAL LINKING
+ ***********************/
+function getInternalLinkCandidates_(rows, plan, maxLinks) {
+  maxLinks = maxLinks || 3;
+  var pool = [];
+
+  for (var i = 1; i < rows.length; i++) {
+    var title = String(rows[i][0] || "").trim();
+    var status = String(rows[i][1] || "").trim().toLowerCase();
+    var url = String(rows[i][2] || "").trim();
+    var type = String(rows[i][4] || "").trim().toUpperCase();
+    var cat = String(rows[i][5] || "").trim();
+    var angle = String(rows[i][6] || "").trim();
+
+    if (status !== "done") continue;
+    if (!title || !url) continue;
+    if (title.toLowerCase() === String(plan.title || "").trim().toLowerCase()) continue;
+
+    pool.push({
+      title: title,
+      url: isInternalUrl_(url) ? makeRelativeUrl_(url) : url,
+      type: type,
+      categorySlug: cat,
+      angle: angle,
+      idx: i
+    });
+  }
+
+  if (!pool.length) return [];
+  pool.sort(function(a, b){ return b.idx - a.idx; });
+
+  var picked = [];
+  var used = {};
+
+  function score(it) {
+    var s = 0;
+    if (it.categorySlug === plan.categorySlug) s += 50;
+    if (it.type === plan.type) s += 20;
+    if (it.angle === plan.angle) s += 20;
+    s += Math.min(10, Math.floor(it.idx / 50));
+
+    var overlap = titleJaccardLite_(it.title, plan.title);
+    if (overlap >= 0.35) s -= 30;
+
+    return s;
+  }
+
+  while (picked.length < maxLinks) {
+    var best = null;
+    var bestScore = -999999;
+
+    for (var j = 0; j < pool.length; j++) {
+      var it = pool[j];
+      if (used[it.url]) continue;
+
+      var sc = score(it);
+      if (sc > bestScore) {
+        bestScore = sc;
+        best = it;
+      }
+    }
+
+    if (!best) break;
+    used[best.url] = true;
+    picked.push(best);
+  }
+
+  return picked;
+}
