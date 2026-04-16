@@ -37,14 +37,36 @@ jobs:
           echo "=== .clasp.json from repo ==="
           cat ./.clasp.json
 
+      - name: Show local files
+        run: |
+          echo "=== pwd ==="
+          pwd
+          echo "=== repo tree ==="
+          find . -maxdepth 3 -type f | sort
+          echo "=== src/Code.gs head ==="
+          head -n 20 src/Code.gs || true
+
+      - name: Show clasp login identity
+        run: |
+          echo "=== clasp login status ==="
+          npx clasp login --status
+
       - name: Push to Apps Script
         run: npx clasp push -f
 
-      - name: Verify deploy target and file state
+      - name: Verify clasp status
         run: |
           echo "=== clasp status ==="
           npx clasp status --json || npx clasp status
 
-      - name: Fail fast if Code.gs is missing locally
+      - name: Pull remote project for verification
         run: |
-          test -f src/Code.gs
+          rm -rf verify_pull
+          mkdir verify_pull
+          cp .clasp.json verify_pull/.clasp.json
+          cd verify_pull
+          npx clasp pull
+          echo "=== pulled files from Apps Script ==="
+          find . -maxdepth 3 -type f | sort
+          echo "=== pulled Code preview ==="
+          head -n 20 src/Code.gs || head -n 20 Code.gs || true
