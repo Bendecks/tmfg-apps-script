@@ -1,5 +1,5 @@
 /****************************************************
- * TMFG PERSONAL MACHINE — SEO + HUMANIZED + ROBUST V1
+ * TMFG PERSONAL mMACHINE — SEO + HUMANIZED + ROBUST V1
  *
  * Purpose:
  * - Generate personal, human-feeling blog posts
