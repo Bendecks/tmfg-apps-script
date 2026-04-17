@@ -1,5 +1,5 @@
 /****************************************************
- * TMFG PERSONAL MACHINE — engine.js (CONFIG-SHEET VERSION)
+ * TMFG PERSONAL MACHINE — engine.js (FULL + HUMANIZER)
  *
  * Sensitive values stay in Script Properties:
  *   GEMINI_API_KEY
@@ -17,9 +17,6 @@
  *
  * Config sheet headers:
  * A Key | B Value
- *
- * To queue a new post:
- * - Put "Queued" in column B on an empty row in the main sheet
  ****************************************************/
 
 /***********************
@@ -32,7 +29,7 @@ var WP_SITE_ID = mustProp_("WP_SITE_ID");
 var AMAZON_TAG = String(PROPS.getProperty("AMAZON_TAG") || "").trim();
 
 /***********************
- * NON-SENSITIVE CONFIG (read from sheet)
+ * NON-SENSITIVE CONFIG (read from Config sheet)
  ***********************/
 function getConfigMap_() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Config");
@@ -55,8 +52,6 @@ function getConfig_(key, fallback) {
   return CONFIG[key] !== undefined ? CONFIG[key] : fallback;
 }
 
-// Important: CONFIG is evaluated at runtime load.
-// If you change Config values and want new values immediately, re-run script fresh.
 var CONFIG = getConfigMap_();
 
 var PERSONAL_DEFAULT_STATUS = String(getConfig_("PERSONAL_DEFAULT_STATUS", "publish")).toLowerCase();
@@ -156,19 +151,19 @@ function runPersonalMachine() {
         var history = getHistory_(rows, 40);
         var plan = generateEditorialPlan_(history);
 
-        // Write plan to main sheet
+        // Write plan to sheet
         sheet.getRange(rowIndex, 1).setValue(plan.title);
         sheet.getRange(rowIndex, 5).setValue(plan.type);
         sheet.getRange(rowIndex, 6).setValue(plan.categorySlug);
         sheet.getRange(rowIndex, 7).setValue(plan.angle);
 
-        // Ensure category hub exists
+        // Ensure hub exists
         var hub = ensureCategoryHub_(ss, plan.categorySlug, sheet);
 
         // Generate article JSON
         var ai = generatePersonalPostJson_(plan, history);
 
-        // Optional featured image
+        // Featured image
         var mediaId = null;
         if (PERSONAL_INCLUDE_FEATURED_IMAGE) {
           var heroKeyword = String(ai.imageKeyword || ai.keyword || plan.title).trim();
@@ -176,13 +171,13 @@ function runPersonalMachine() {
           mediaId = uploadWpMedia_(heroBlob, "featured-" + slugify_(plan.title));
         }
 
-        // Smart internal links
+        // Internal links
         var candidates = getInternalLinkCandidates_(rows, plan, 2);
 
-        // Build article HTML
+        // Build HTML
         var html = buildPersonalHtml_(plan, ai, hub, candidates);
 
-        // Create WP post
+        // Create post
         var post = createWpPost_(plan.title, html, mediaId, PERSONAL_DEFAULT_STATUS, plan.categorySlug);
 
         // Mark done
@@ -192,7 +187,7 @@ function runPersonalMachine() {
           "OK | " + plan.type + " | " + plan.categorySlug + " | " + plan.angle + " | Img:" + (mediaId ? "yes" : "no")
         );
 
-        // Update hub after new post exists
+        // Update hub after post exists
         updateCategoryHub_(ss, plan.categorySlug, sheet);
 
         processed += 1;
@@ -305,6 +300,11 @@ function generateEditorialPlan_(history) {
   throw new Error("Could not generate a diverse editorial plan after 3 attempts.");
 }
 
+// Backward-compatible alias
+function generateEditorialPlanV2_(history) {
+  return generateEditorialPlan_(history);
+}
+
 function isTitleTooSimilar_(title, recentTitles) {
   var lower = String(title || "").toLowerCase();
   if (lower.indexOf("our ") === 0 && lower.indexOf("sunday") !== -1 && lower.indexOf(" week") !== -1) return true;
@@ -356,6 +356,65 @@ function jaccard_(a, b) {
 }
 
 /***********************
+ * HUMANIZER LAYER
+ ***********************/
+function humanizeText_(text) {
+  if (!text) return text;
+
+  if (Math.random() < 0.4) {
+    var openers = [
+      "This started out pretty simple.",
+      "We didn't plan this at all.",
+      "This came from a slightly messy situation.",
+      "Not something we thought much about at first.",
+      "This was more accidental than planned."
+    ];
+    text = openers[Math.floor(Math.random() * openers.length)] + " " + text;
+  }
+
+  return text;
+}
+
+function humanizeSections_(sections) {
+  if (!sections || !sections.length) return sections;
+
+  return sections.map(function(s) {
+    var text = String(s.p || "");
+
+    if (Math.random() < 0.3) {
+      var friction = [
+        "At first, this didn't really stick.",
+        "Honestly, we almost gave up on this.",
+        "It felt like extra work in the beginning.",
+        "We forgot to use it the first few days.",
+        "It didn't work perfectly right away."
+      ];
+      text = friction[Math.floor(Math.random() * friction.length)] + " " + text;
+    }
+
+    if (Math.random() < 0.25) {
+      text = text.replace(/\.$/, "") + ", which helped more than expected.";
+    }
+
+    if (Math.random() < 0.2) {
+      var details = [
+        "Usually right after getting home.",
+        "Most days around dinner time.",
+        "Especially on the more chaotic days.",
+        "When everyone is a bit tired.",
+        "On the days where everything feels rushed."
+      ];
+      text += " " + details[Math.floor(Math.random() * details.length)];
+    }
+
+    return {
+      h2: s.h2,
+      p: text
+    };
+  });
+}
+
+/***********************
  * ARTICLE JSON
  ***********************/
 function generatePersonalPostJson_(plan, history) {
@@ -390,6 +449,11 @@ function generatePersonalPostJson_(plan, history) {
     "- No corporate phrases.\n" +
     "- Short paragraphs only.\n\n" +
 
+    "MANDATORY HUMAN ELEMENTS:\n" +
+    "- Include one small moment where something didn't work immediately.\n" +
+    "- Include one slightly imperfect or messy situation.\n" +
+    "- Avoid sounding too clean or perfectly structured.\n\n" +
+
     "AFFILIATE RULE:\n" +
     "- Only enable if the product is naturally used in the story.\n" +
     "- Max 1 product.\n\n" +
@@ -413,6 +477,10 @@ function generatePersonalPostJson_(plan, history) {
   if (!ai.softAffiliate || typeof ai.softAffiliate !== "object") {
     ai.softAffiliate = { enabled: false, item: { name: "", query: "", why: "" } };
   }
+
+  ai.intro = humanizeText_(ai.intro);
+  ai.takeaway = humanizeText_(ai.takeaway);
+  ai.sections = humanizeSections_(ai.sections);
 
   return ai;
 }
@@ -729,16 +797,16 @@ function buildSoftAffiliateBlock_(softAffiliate) {
   var query = String(item.query || "").trim();
   var why = String(item.why || "").trim();
 
-if (!name || !query) return "";
+  if (!name || !query) return "";
 
-var url = buildAmazonSearchUrl_(query);
+  var url = buildAmazonSearchUrl_(query);
 
-return '<div style="margin-top:24px;padding:16px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
-  '<h3 style="margin:0 0 10px 0;">What made it easier</h3>' +
-  '<div style="font-weight:600;">' + escapeHtml_(name) + '</div>' +
-  (why ? ('<div style="margin-top:6px;color:#666;">' + escapeHtml_(why) + '</div>') : '') +
-  '<div style="margin-top:10px;"><a href="' + escapeAttr_(url) + '" target="_blank" rel="nofollow sponsored" style="font-weight:600;text-decoration:none;">Check it on Amazon</a></div>' +
-  '</div>';
+  return '<div style="margin-top:24px;padding:16px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
+    '<h3 style="margin:0 0 10px 0;">What made it easier</h3>' +
+    '<div style="font-weight:600;">' + escapeHtml_(name) + '</div>' +
+    (why ? ('<div style="margin-top:6px;color:#666;">' + escapeHtml_(why) + '</div>') : '') +
+    '<div style="margin-top:10px;"><a href="' + escapeAttr_(url) + '" target="_blank" rel="nofollow sponsored" style="font-weight:600;text-decoration:none;">Check it on Amazon</a></div>' +
+    '</div>';
 }
 
 function buildAmazonSearchUrl_(query) {
@@ -785,7 +853,6 @@ function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
   var payload = { title: title, content: html, status: status };
   if (featuredMediaId) payload.featured_image = featuredMediaId;
 
-  // IMPORTANT: array format
   if (categorySlug) payload.categories = [categorySlug];
 
   var res = UrlFetchApp.fetch(
