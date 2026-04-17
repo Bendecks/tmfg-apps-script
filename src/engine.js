@@ -1,49 +1,86 @@
 /****************************************************
- * TMFG PERSONAL MACHINE — engine.js (ALL-IN)
- * - Auto plan: Title + Type + CategorySlug + Angle
- * - Anti-repeat + real diversity
- * - WP.com create post
- * - Optional featured image (family caricature)
- * - Internal linking + hub linking
- * - Category hubs (auto-create + auto-update)
- * - Relative internal links to reduce self-pings
+ * TMFG PERSONAL MACHINE — engine.js (CONFIG-SHEET VERSION)
  *
- * Sheet headers:
+ * Sensitive values stay in Script Properties:
+ *   GEMINI_API_KEY
+ *   WP_OAUTH_TOKEN
+ *   WP_SITE_ID
+ *   AMAZON_TAG (optional)
+ *
+ * Non-sensitive values are read from sheet tab: Config
+ *
+ * Main sheet headers:
  * A Title | B Status | C Post URL | D Notes | E Type | F CategorySlug | G Angle
+ *
+ * Hubs sheet headers:
+ * A CategorySlug | B HubPostId | C HubUrl | D HubTitle | E UpdatedAt
+ *
+ * Config sheet headers:
+ * A Key | B Value
+ *
+ * To queue a new post:
+ * - Put "Queued" in column B on an empty row in the main sheet
  ****************************************************/
 
+/***********************
+ * SENSITIVE CONFIG (Script Properties only)
+ ***********************/
 var PROPS = PropertiesService.getScriptProperties();
-
-// ===== Required =====
 var GEMINI_API_KEY = mustProp_("GEMINI_API_KEY");
 var WP_OAUTH_TOKEN = mustProp_("WP_OAUTH_TOKEN");
 var WP_SITE_ID = mustProp_("WP_SITE_ID");
+var AMAZON_TAG = String(PROPS.getProperty("AMAZON_TAG") || "").trim();
 
-// ===== Controls =====
-var PERSONAL_DEFAULT_STATUS = String(PROPS.getProperty("PERSONAL_DEFAULT_STATUS") || "publish").toLowerCase();
-var PERSONAL_MAX_POSTS_PER_RUN = parseInt(PROPS.getProperty("PERSONAL_MAX_POSTS_PER_RUN") || "1", 10) || 1;
-var PERSONAL_INCLUDE_FEATURED_IMAGE =
-  String(PROPS.getProperty("PERSONAL_INCLUDE_FEATURED_IMAGE") || "true").toLowerCase() === "true";
+/***********************
+ * NON-SENSITIVE CONFIG (read from sheet)
+ ***********************/
+function getConfigMap_() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Config");
+  if (!sheet) return {};
 
-// ===== Site =====
-var SITE_HOME_URL = String(PROPS.getProperty("SITE_HOME_URL") || "https://themodernfamilyguide.wordpress.com").replace(/\/+$/, "");
+  var data = sheet.getDataRange().getValues();
+  var map = {};
 
-// ===== Models =====
+  for (var i = 1; i < data.length; i++) {
+    var key = String(data[i][0] || "").trim();
+    var value = String(data[i][1] || "").trim();
+    if (!key) continue;
+    map[key] = value;
+  }
+
+  return map;
+}
+
+function getConfig_(key, fallback) {
+  return CONFIG[key] !== undefined ? CONFIG[key] : fallback;
+}
+
+// Important: CONFIG is evaluated at runtime load.
+// If you change Config values and want new values immediately, re-run script fresh.
+var CONFIG = getConfigMap_();
+
+var PERSONAL_DEFAULT_STATUS = String(getConfig_("PERSONAL_DEFAULT_STATUS", "publish")).toLowerCase();
+var PERSONAL_MAX_POSTS_PER_RUN = parseInt(getConfig_("PERSONAL_MAX_POSTS_PER_RUN", "1"), 10) || 1;
+var PERSONAL_INCLUDE_FEATURED_IMAGE = String(getConfig_("PERSONAL_INCLUDE_FEATURED_IMAGE", "true")).toLowerCase() === "true";
+
+var SITE_HOME_URL = String(getConfig_("SITE_HOME_URL", "https://themodernfamilyguide.wordpress.com")).replace(/\/+$/, "");
+var AMAZON_DOMAIN = String(getConfig_("AMAZON_DOMAIN", "de")).trim();
+
 var GEMINI_TEXT_MODEL = "models/gemini-2.5-flash";
-var GEMINI_IMAGE_MODEL = String(PROPS.getProperty("GEMINI_IMAGE_MODEL") || "gemini-3.1-flash-image-preview").trim();
+var GEMINI_IMAGE_MODEL = String(getConfig_("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-image-preview")).trim();
 
-// ===== Voice =====
-var BLOG_VOICE = String(PROPS.getProperty("BLOG_VOICE") ||
+var BLOG_VOICE = String(getConfig_("BLOG_VOICE",
   "Warm, honest, slightly reflective but practical modern Scandinavian family voice. Calm, grounded, lightly humorous. Short paragraphs. No fluff. No corporate tone. No therapy jargon."
-).trim();
+)).trim();
 
-// ===== Family visual identity =====
-var FAMILY_VISUAL_PROFILE = String(PROPS.getProperty("FAMILY_VISUAL_PROFILE") || "").trim();
-var FAMILY_IMAGE_LOCK_STYLE = String(PROPS.getProperty("FAMILY_IMAGE_LOCK_STYLE") ||
+var FAMILY_VISUAL_PROFILE = String(getConfig_("FAMILY_VISUAL_PROFILE", "")).trim();
+var FAMILY_IMAGE_LOCK_STYLE = String(getConfig_("FAMILY_IMAGE_LOCK_STYLE",
   "clean cartoon caricature, soft shading, modern family illustration, consistent character design across images"
-).trim();
+)).trim();
 
-// ===== Category slugs =====
+/***********************
+ * STATIC ENUMS
+ ***********************/
 var CATEGORY_SLUGS = [
   "family-finance-life",
   "home-organization",
@@ -56,7 +93,6 @@ var CATEGORY_SLUGS = [
   "work-life-balance"
 ];
 
-// ===== Post types =====
 var POST_TYPES = [
   "PERSONAL_STORY",
   "SUNDAY_RESET",
@@ -66,7 +102,6 @@ var POST_TYPES = [
   "RECIPE_NOTE"
 ];
 
-// ===== Editorial angles =====
 var ANGLES = [
   "SYSTEMS_AND_ROUTINES",
   "LOW_ENERGY_MODE",
@@ -83,6 +118,7 @@ var ANGLES = [
 ];
 
 var HUBS_SHEET_NAME = "Hubs";
+var CONFIG_SHEET_NAME = "Config";
 
 /***********************
  * ENTRY POINT
@@ -94,6 +130,11 @@ function runPersonalMachine() {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getActiveSheet();
+
+    if (sheet.getName() === HUBS_SHEET_NAME || sheet.getName() === CONFIG_SHEET_NAME) {
+      throw new Error("runPersonalMachine() must be run from your main content sheet, not Hubs or Config.");
+    }
+
     var rows = sheet.getDataRange().getValues();
 
     ensureHubsSheet_(ss);
@@ -115,19 +156,19 @@ function runPersonalMachine() {
         var history = getHistory_(rows, 40);
         var plan = generateEditorialPlan_(history);
 
-        // Write plan to sheet
+        // Write plan to main sheet
         sheet.getRange(rowIndex, 1).setValue(plan.title);
         sheet.getRange(rowIndex, 5).setValue(plan.type);
         sheet.getRange(rowIndex, 6).setValue(plan.categorySlug);
         sheet.getRange(rowIndex, 7).setValue(plan.angle);
 
-        // Ensure hub exists
+        // Ensure category hub exists
         var hub = ensureCategoryHub_(ss, plan.categorySlug, sheet);
 
-        // Generate content
+        // Generate article JSON
         var ai = generatePersonalPostJson_(plan, history);
 
-        // Featured image
+        // Optional featured image
         var mediaId = null;
         if (PERSONAL_INCLUDE_FEATURED_IMAGE) {
           var heroKeyword = String(ai.imageKeyword || ai.keyword || plan.title).trim();
@@ -135,13 +176,13 @@ function runPersonalMachine() {
           mediaId = uploadWpMedia_(heroBlob, "featured-" + slugify_(plan.title));
         }
 
-        // Internal links
+        // Smart internal links
         var candidates = getInternalLinkCandidates_(rows, plan, 2);
 
-        // Build HTML
+        // Build article HTML
         var html = buildPersonalHtml_(plan, ai, hub, candidates);
 
-        // Create post
+        // Create WP post
         var post = createWpPost_(plan.title, html, mediaId, PERSONAL_DEFAULT_STATUS, plan.categorySlug);
 
         // Mark done
@@ -151,7 +192,7 @@ function runPersonalMachine() {
           "OK | " + plan.type + " | " + plan.categorySlug + " | " + plan.angle + " | Img:" + (mediaId ? "yes" : "no")
         );
 
-        // Update hub after post exists
+        // Update hub after new post exists
         updateCategoryHub_(ss, plan.categorySlug, sheet);
 
         processed += 1;
@@ -162,6 +203,7 @@ function runPersonalMachine() {
         processed += 1;
       }
     }
+
   } finally {
     lock.releaseLock();
   }
@@ -283,6 +325,7 @@ function normalizeTitleTokens_(s) {
     "a":1,"an":1,"and":1,"the":1,"to":1,"of":1,"for":1,"in":1,"on":1,"with":1,
     "our":1,"my":1,"your":1,"simple":1,"quiet":1,"calm":1,"week":1,"sunday":1,"routine":1,"reset":1,"rhythms":1
   };
+
   var clean = String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
   var parts = clean.split(/\s+/).filter(Boolean);
   var out = [];
@@ -313,7 +356,7 @@ function jaccard_(a, b) {
 }
 
 /***********************
- * POST JSON
+ * ARTICLE JSON
  ***********************/
 function generatePersonalPostJson_(plan, history) {
   var recentTitles = history.titles.slice(0, 15).map(function(t){ return "- " + t; }).join("\n");
@@ -469,7 +512,6 @@ function getInternalLinkCandidates_(rows, plan, maxLinks) {
     if (!title || !url) continue;
     if (title === plan.title) continue;
 
-    // only same category OR same problem/angle
     if (cat === plan.categorySlug || angle === plan.angle) {
       pool.push({ title: title, url: url, categorySlug: cat, angle: angle });
     }
@@ -479,7 +521,7 @@ function getInternalLinkCandidates_(rows, plan, maxLinks) {
   return pool.slice(0, maxLinks);
 }
 
-function buildInternalLinksBlock_(candidates, plan) {
+function buildInternalLinksBlock_(candidates) {
   if (!candidates || !candidates.length) return "";
 
   var items = candidates.map(function(it) {
@@ -672,9 +714,8 @@ function buildPersonalHtml_(plan, ai, hub, candidates) {
     : "";
 
   var affiliateBlock = buildSoftAffiliateBlock_(ai.softAffiliate);
-
   var cta = ai.cta ? ('<p style="margin-top:18px;color:#444;"><em>' + escapeHtml_(ai.cta) + "</em></p>") : "";
-  var related = buildInternalLinksBlock_(candidates, plan);
+  var related = buildInternalLinksBlock_(candidates);
 
   return '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;line-height:1.65;color:#333;max-width:650px;margin:0 auto;">' +
     hubLink + intro + sections + takeaway + affiliateBlock + cta + related + "</div>";
@@ -702,10 +743,10 @@ function buildSoftAffiliateBlock_(softAffiliate) {
 
 function buildAmazonSearchUrl_(query) {
   var q = encodeURIComponent(String(query || "").trim());
-  var tag = encodeURIComponent(String(PROPS.getProperty("AMAZON_TAG") || "").trim());
-  var domain = String(PROPS.getProperty("AMAZON_DOMAIN") || "de").trim();
-  if (!tag) return "https://www.amazon." + domain + "/s?k=" + q;
-  return "https://www.amazon." + domain + "/s?k=" + q + "&tag=" + tag;
+  if (!AMAZON_TAG) {
+    return "https://www.amazon." + AMAZON_DOMAIN + "/s?k=" + q;
+  }
+  return "https://www.amazon." + AMAZON_DOMAIN + "/s?k=" + q + "&tag=" + encodeURIComponent(AMAZON_TAG);
 }
 
 /***********************
@@ -744,7 +785,7 @@ function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
   var payload = { title: title, content: html, status: status };
   if (featuredMediaId) payload.featured_image = featuredMediaId;
 
-  // array format fixed category assignment
+  // IMPORTANT: array format
   if (categorySlug) payload.categories = [categorySlug];
 
   var res = UrlFetchApp.fetch(
@@ -769,7 +810,7 @@ function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
 }
 
 /***********************
- * RELATIVE URL HELPERS
+ * RELATIVE LINK HELPERS
  ***********************/
 function stripQueryAndHash_(u) {
   var s = String(u || "").trim();
