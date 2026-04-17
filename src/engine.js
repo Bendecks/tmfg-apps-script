@@ -1,574 +1,717 @@
 /****************************************************
- * TMFG V2 — ENGINE
- * Search-first content engine
+ * TMFG PERSONAL MACHINE — engine.js (ALL-IN)
+ * - Auto plan: Title + Type + CategorySlug + Angle
+ * - Anti-repeat + real diversity
+ * - WP.com create post
+ * - Optional featured image (family caricature)
+ * - Internal linking + hub linking
+ * - Category hubs (auto-create + auto-update)
+ * - Relative internal links to reduce self-pings
+ *
+ * Sheet headers:
+ * A Title | B Status | C Post URL | D Notes | E Type | F CategorySlug | G Angle
  ****************************************************/
 
+var PROPS = PropertiesService.getScriptProperties();
+
+// ===== Required =====
+var GEMINI_API_KEY = mustProp_("GEMINI_API_KEY");
+var WP_OAUTH_TOKEN = mustProp_("WP_OAUTH_TOKEN");
+var WP_SITE_ID = mustProp_("WP_SITE_ID");
+
+// ===== Controls =====
+var PERSONAL_DEFAULT_STATUS = String(PROPS.getProperty("PERSONAL_DEFAULT_STATUS") || "publish").toLowerCase();
+var PERSONAL_MAX_POSTS_PER_RUN = parseInt(PROPS.getProperty("PERSONAL_MAX_POSTS_PER_RUN") || "1", 10) || 1;
+var PERSONAL_INCLUDE_FEATURED_IMAGE =
+  String(PROPS.getProperty("PERSONAL_INCLUDE_FEATURED_IMAGE") || "true").toLowerCase() === "true";
+
+// ===== Site =====
+var SITE_HOME_URL = String(PROPS.getProperty("SITE_HOME_URL") || "https://themodernfamilyguide.wordpress.com").replace(/\/+$/, "");
+
+// ===== Models =====
+var GEMINI_TEXT_MODEL = "models/gemini-2.5-flash";
+var GEMINI_IMAGE_MODEL = String(PROPS.getProperty("GEMINI_IMAGE_MODEL") || "gemini-3.1-flash-image-preview").trim();
+
+// ===== Voice =====
+var BLOG_VOICE = String(PROPS.getProperty("BLOG_VOICE") ||
+  "Warm, honest, slightly reflective but practical modern Scandinavian family voice. Calm, grounded, lightly humorous. Short paragraphs. No fluff. No corporate tone. No therapy jargon."
+).trim();
+
+// ===== Family visual identity =====
+var FAMILY_VISUAL_PROFILE = String(PROPS.getProperty("FAMILY_VISUAL_PROFILE") || "").trim();
+var FAMILY_IMAGE_LOCK_STYLE = String(PROPS.getProperty("FAMILY_IMAGE_LOCK_STYLE") ||
+  "clean cartoon caricature, soft shading, modern family illustration, consistent character design across images"
+).trim();
+
+// ===== Category slugs =====
+var CATEGORY_SLUGS = [
+  "family-finance-life",
+  "home-organization",
+  "kids-activities-fun",
+  "parenting-hacks-tips",
+  "recipes-meals",
+  "relationship",
+  "stuff-that-doesnt-fit-in-a-box",
+  "travel-outings",
+  "work-life-balance"
+];
+
+// ===== Post types =====
+var POST_TYPES = [
+  "PERSONAL_STORY",
+  "SUNDAY_RESET",
+  "REAL_LIFE_HACKS",
+  "FAMILY_ACTIVITY",
+  "RELATIONSHIP_MINI",
+  "RECIPE_NOTE"
+];
+
+// ===== Editorial angles =====
+var ANGLES = [
+  "SYSTEMS_AND_ROUTINES",
+  "LOW_ENERGY_MODE",
+  "TIME_SAVING",
+  "MONEY_SAVING",
+  "CONFLICT_REDUCTION",
+  "KID_BEHAVIOR",
+  "HOME_RESET",
+  "MEAL_SIMPLIFICATION",
+  "TRAVEL_PREP",
+  "EMOTIONAL_REFLECTION",
+  "MINIMALISM",
+  "REAL_WORLD_EXAMPLE"
+];
+
+var HUBS_SHEET_NAME = "Hubs";
+
 /***********************
- * EDITORIAL PLAN V2
+ * ENTRY POINT
  ***********************/
-function generateEditorialPlanV2_(history) {
-  var recentTitles = history.titles.slice(0, 25);
-  var recentTypes = uniq_(history.types.slice(0, 3));
-  var recentCats = uniq_(history.categories.slice(0, 3));
-  var recentAngles = uniq_(history.angles.slice(0, 3));
+function runPersonalMachine() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) return;
+
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getActiveSheet();
+    var rows = sheet.getDataRange().getValues();
+
+    ensureHubsSheet_(ss);
+
+    var processed = 0;
+
+    for (var i = 1; i < rows.length; i++) {
+      if (processed >= PERSONAL_MAX_POSTS_PER_RUN) break;
+
+      var rowIndex = i + 1;
+      var status = String(rows[i][1] || "").trim().toLowerCase();
+
+      if (status !== "queued") continue;
+
+      try {
+        sheet.getRange(rowIndex, 3).setValue("");
+        sheet.getRange(rowIndex, 4).setValue("");
+
+        var history = getHistory_(rows, 40);
+        var plan = generateEditorialPlan_(history);
+
+        // Write plan to sheet
+        sheet.getRange(rowIndex, 1).setValue(plan.title);
+        sheet.getRange(rowIndex, 5).setValue(plan.type);
+        sheet.getRange(rowIndex, 6).setValue(plan.categorySlug);
+        sheet.getRange(rowIndex, 7).setValue(plan.angle);
+
+        // Ensure hub exists
+        var hub = ensureCategoryHub_(ss, plan.categorySlug, sheet);
+
+        // Generate content
+        var ai = generatePersonalPostJson_(plan, history);
+
+        // Featured image
+        var mediaId = null;
+        if (PERSONAL_INCLUDE_FEATURED_IMAGE) {
+          var heroKeyword = String(ai.imageKeyword || ai.keyword || plan.title).trim();
+          var heroBlob = generateHeroImage_(plan.title, heroKeyword, plan.categorySlug, plan.angle);
+          mediaId = uploadWpMedia_(heroBlob, "featured-" + slugify_(plan.title));
+        }
+
+        // Internal links
+        var candidates = getInternalLinkCandidates_(rows, plan, 2);
+
+        // Build HTML
+        var html = buildPersonalHtml_(plan, ai, hub, candidates);
+
+        // Create post
+        var post = createWpPost_(plan.title, html, mediaId, PERSONAL_DEFAULT_STATUS, plan.categorySlug);
+
+        // Mark done
+        sheet.getRange(rowIndex, 2).setValue("Done");
+        sheet.getRange(rowIndex, 3).setValue(post.URL || post.url || "");
+        sheet.getRange(rowIndex, 4).setValue(
+          "OK | " + plan.type + " | " + plan.categorySlug + " | " + plan.angle + " | Img:" + (mediaId ? "yes" : "no")
+        );
+
+        // Update hub after post exists
+        updateCategoryHub_(ss, plan.categorySlug, sheet);
+
+        processed += 1;
+
+      } catch (e) {
+        sheet.getRange(rowIndex, 2).setValue("Error");
+        sheet.getRange(rowIndex, 4).setValue(truncate_(String((e && e.message) ? e.message : e), 900));
+        processed += 1;
+      }
+    }
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/***********************
+ * HISTORY
+ ***********************/
+function getHistory_(rows, limit) {
+  var hist = { titles: [], types: [], categories: [], angles: [] };
+
+  for (var i = rows.length - 1; i >= 1; i--) {
+    var title = String(rows[i][0] || "").trim();
+    var status = String(rows[i][1] || "").trim().toLowerCase();
+    var type = String(rows[i][4] || "").trim().toUpperCase();
+    var cat = String(rows[i][5] || "").trim();
+    var angle = String(rows[i][6] || "").trim();
+
+    if (!title) continue;
+    if (status !== "done" && status !== "queued") continue;
+
+    hist.titles.push(title);
+    if (type) hist.types.push(type);
+    if (cat) hist.categories.push(cat);
+    if (angle) hist.angles.push(angle);
+
+    if (hist.titles.length >= limit) break;
+  }
+
+  return hist;
+}
+
+/***********************
+ * EDITORIAL PLAN
+ ***********************/
+function generateEditorialPlan_(history) {
+  var bannedTypes = uniq_(history.types.slice(0, 2));
+  var bannedCats = uniq_(history.categories.slice(0, 2));
+  var bannedAngles = uniq_(history.angles.slice(0, 2));
+  var recentTitles = history.titles.slice(0, 15);
 
   var prompt =
     "Return ONLY valid JSON. No markdown.\n\n" +
     "{\n" +
-    '  "cluster": "ONE of: ' + CLUSTERS.join(", ") + '",\n' +
+    '  "title": "Max 70 chars. Concrete + specific. Not generic.",\n' +
     '  "type": "ONE of: ' + POST_TYPES.join(", ") + '",\n' +
     '  "categorySlug": "ONE of: ' + CATEGORY_SLUGS.join(", ") + '",\n' +
     '  "angle": "ONE of: ' + ANGLES.join(", ") + '",\n' +
-    '  "toneMode": "ONE of: ' + TONE_MODES.join(", ") + '",\n' +
-    '  "primaryKeyword": "clear search phrase, 2-6 words",\n' +
-    '  "secondaryKeyword": "supporting search phrase, 2-6 words",\n' +
-    '  "intent": "what the reader wants solved or decided",\n' +
-    'title": "SEO title using real search phrasing (max 65 chars). Must start with the main keyword. No creative or vague phrasing.",\n' +
-    '  "readerProblem": "one sentence",\n' +
-    '  "whyThisCanRank": "one sentence explaining specificity/usefulness",\n' +
-    '  "experienceSeed": "one concrete lived detail"\n' +
+    '  "hook": "One sentence: what makes this different / why now",\n' +
+    '  "scenario": "One sentence: a concrete real-life situation"\n' +
     "}\n\n" +
-    "Rules:\n" +
-    "- Title MUST sound like something people actually type into Google\n" +
-"- Avoid clever or poetic phrasing\n" +
-"- Use formats like:\n" +
-"  • 'How to...'\n" +
-"  • 'Best way to...'\n" +
-"  • 'Simple ... system'\n" +
-"  • '... without ...'\n" +
-"- Put the most important keyword in the first 4 words\n" +
-"- Prefer clarity over creativity\n" +
-    "- Avoid vague lifestyle titles.\n" +
-    "- Prefer problem-solving, recipe, system, or buying-decision intent.\n" +
-    "- Title should feel like a realistic Google result.\n" +
-    "- Never mention family member names.\n" +
-    "- Avoid repeating recent patterns.\n" +
-    "- Avoid polished AI-sounding phrasing.\n\n" +
-    "Recent titles:\n" + recentTitles.map(function(t){ return "- " + t; }).join("\n") + "\n\n" +
-    "Recent type/category/angle to avoid repeating too much:\n" +
-    "- types: " + (recentTypes.length ? recentTypes.join(", ") : "(none)") + "\n" +
-    "- categories: " + (recentCats.length ? recentCats.join(", ") : "(none)") + "\n" +
-    "- angles: " + (recentAngles.length ? recentAngles.join(", ") : "(none)") + "\n\n" +
-    "Voice:\n" + BLOG_VOICE;
 
-  for (var attempt = 1; attempt <= 4; attempt++) {
+    "HARD RULES:\n" +
+    "- Avoid mentioning any family member names.\n" +
+    "- Do NOT create a synonym rewrite of recent titles.\n" +
+    "- Avoid title patterns like:\n" +
+    "  'Our ... routine'\n" +
+    "  'Simple ... for a better ...'\n" +
+    "  'How we ...'\n" +
+    "  'Quiet ... week'\n" +
+    "- Prefer specificity: time limit, friction point, conflict, low-energy moment, real scenario.\n" +
+    "- Make the idea genuinely different.\n\n" +
+
+    "BANNED (do not pick):\n" +
+    "- type: " + (bannedTypes.length ? bannedTypes.join(", ") : "(none)") + "\n" +
+    "- categorySlug: " + (bannedCats.length ? bannedCats.join(", ") : "(none)") + "\n" +
+    "- angle: " + (bannedAngles.length ? bannedAngles.join(", ") : "(none)") + "\n\n" +
+
+    "Recent titles to avoid imitating:\n" +
+    recentTitles.map(function(t){ return "- " + t; }).join("\n") + "\n\n" +
+
+    "Voice:\n" + BLOG_VOICE + "\n";
+
+  for (var attempt = 1; attempt <= 3; attempt++) {
     var raw = geminiText_(prompt);
-    var plan = parseJsonObjectWithRepair_(raw);
+    var plan = JSON.parse(extractJsonObject_(raw));
 
-    plan.cluster = String(plan.cluster || "").trim();
-    plan.type = String(plan.type || "").trim();
+    plan.title = String(plan.title || "").trim().slice(0, 70);
+    plan.type = String(plan.type || "").trim().toUpperCase();
     plan.categorySlug = String(plan.categorySlug || "").trim();
     plan.angle = String(plan.angle || "").trim();
-    plan.toneMode = String(plan.toneMode || "").trim().toUpperCase();
-    plan.primaryKeyword = String(plan.primaryKeyword || "").trim();
-    plan.secondaryKeyword = String(plan.secondaryKeyword || "").trim();
-    plan.intent = String(plan.intent || "").trim();
-    plan.title = cleanSeoTitle_(plan.title, plan.primaryKeyword);
-    plan.readerProblem = String(plan.readerProblem || "").trim();
-    plan.whyThisCanRank = String(plan.whyThisCanRank || "").trim();
-    plan.experienceSeed = String(plan.experienceSeed || "").trim();
+    plan.hook = String(plan.hook || "").trim();
+    plan.scenario = String(plan.scenario || "").trim();
 
-    if (CLUSTERS.indexOf(plan.cluster) === -1) continue;
+    if (!plan.title) continue;
     if (POST_TYPES.indexOf(plan.type) === -1) continue;
     if (CATEGORY_SLUGS.indexOf(plan.categorySlug) === -1) continue;
     if (ANGLES.indexOf(plan.angle) === -1) continue;
-    if (TONE_MODES.indexOf(plan.toneMode) === -1) continue;
-    if (!plan.primaryKeyword || !plan.title) continue;
-    if (isTitleTooSimilar_(plan.title, recentTitles)) continue;
+
+    if (bannedTypes.indexOf(plan.type) !== -1) continue;
+    if (bannedCats.indexOf(plan.categorySlug) !== -1) continue;
+    if (bannedAngles.indexOf(plan.angle) !== -1) continue;
+
+    if (isTitleTooSimilar_(plan.title, history.titles.slice(0, 10))) continue;
 
     return plan;
   }
 
-  throw new Error("Could not generate valid editorial plan v2.");
+  throw new Error("Could not generate a diverse editorial plan after 3 attempts.");
+}
+
+function isTitleTooSimilar_(title, recentTitles) {
+  var lower = String(title || "").toLowerCase();
+  if (lower.indexOf("our ") === 0 && lower.indexOf("sunday") !== -1 && lower.indexOf(" week") !== -1) return true;
+
+  var t = normalizeTitleTokens_(title);
+  if (!t.length) return false;
+
+  for (var i = 0; i < recentTitles.length; i++) {
+    var r = normalizeTitleTokens_(recentTitles[i]);
+    if (!r.length) continue;
+    if (jaccard_(t, r) >= 0.55) return true;
+  }
+  return false;
+}
+
+function normalizeTitleTokens_(s) {
+  var stop = {
+    "a":1,"an":1,"and":1,"the":1,"to":1,"of":1,"for":1,"in":1,"on":1,"with":1,
+    "our":1,"my":1,"your":1,"simple":1,"quiet":1,"calm":1,"week":1,"sunday":1,"routine":1,"reset":1,"rhythms":1
+  };
+  var clean = String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+  var parts = clean.split(/\s+/).filter(Boolean);
+  var out = [];
+  var seen = {};
+
+  for (var i = 0; i < parts.length; i++) {
+    var w = parts[i];
+    if (w.length < 3) continue;
+    if (stop[w]) continue;
+    if (seen[w]) continue;
+    seen[w] = 1;
+    out.push(w);
+  }
+
+  return out;
+}
+
+function jaccard_(a, b) {
+  var A = {}, B = {};
+  for (var i = 0; i < a.length; i++) A[a[i]] = 1;
+  for (var j = 0; j < b.length; j++) B[b[j]] = 1;
+
+  var inter = 0, uni = 0;
+  for (var k in A) { uni++; if (B[k]) inter++; }
+  for (var k2 in B) { if (!A[k2]) uni++; }
+
+  return uni ? inter / uni : 0;
 }
 
 /***********************
- * CONTENT GENERATION V2
+ * POST JSON
  ***********************/
-function generateSearchFirstPostJson_(plan, history) {
-  var recentTitles = history.titles.slice(0, 20).map(function(t){ return "- " + t; }).join("\n");
-
-  var schema =
-    "Return ONLY valid JSON. No markdown.\n\n" +
-    "{\n" +
-    '  "hook": "short raw human opening, max 5 lines",\n' +
-    '  "seoSummary": "1-2 short sentences stating exactly what the post helps with",\n' +
-    '  "intro": "2-3 short sentences max",\n' +
-    '  "system": {\n' +
-    '    "title": "name of simple system",\n' +
-    '    "steps": ["step 1","step 2","step 3","step 4"]\n' +
-    "  },\n" +
-    '  "experienceBox": {\n' +
-    '    "title": "short heading",\n' +
-    '    "text": "2-4 sentences with a real household moment"\n' +
-    "  },\n" +
-    '  "sections": [\n' +
-    '    {"h2":"Heading","p":"Short paragraph"},\n' +
-    '    {"h2":"Heading","p":"Short paragraph"},\n' +
-    '    {"h2":"Heading","p":"Short paragraph"}\n' +
-    "  ],\n" +
-    '  "mistake": "one real mistake parents make",\n' +
-    '  "whatChanged": ["short practical takeaway 1","short practical takeaway 2","short practical takeaway 3"],\n' +
-    '  "faq": [\n' +
-    '    {"q":"Question","a":"2-4 sentences"},\n' +
-    '    {"q":"Question","a":"2-4 sentences"}\n' +
-    "  ],\n" +
-    '  "cta": "1 sentence",\n' +
-    '  "affiliate": {\n' +
-    '    "enabled": true,\n' +
-    '    "label": "What we would buy",\n' +
-    '    "items": [\n' +
-    '      {"query":"specific product search","reason":"why it helps"},\n' +
-    '      {"query":"specific product search","reason":"why it helps"}\n' +
-    "    ]\n" +
-    "  },\n" +
-    '  "imageSlots": [\n' +
-    '    {"slot":"after_intro","brief":"realistic image brief"},\n' +
-    '    {"slot":"mid_post","brief":"realistic image brief"}\n' +
-    "  ]\n" +
-    "}\n\n" +
-    "CRITICAL RULES:\n" +
-    "- Start with a REAL human situation, not a generic intro.\n" +
-    "- Write like a tired but practical parent, not an expert.\n" +
-    "- Keep sentences slightly imperfect and natural.\n" +
-    "- Introduce ONE simple system early.\n" +
-    "- Remove over-explaining.\n" +
-    "- No generic advice.\n" +
-    "- No 'in today's world' phrasing.\n" +
-    "- Add ONE real-life mistake.\n" +
-    "- Keep it short and useful.\n" +
-    "- Make it feel lived, not written.\n" +
-    "- Use the primary and secondary keyword naturally.\n" +
-    "- No URLs.\n" +
-    "- Never mention family member names.\n" +
-    "- For RECIPE_SEO include ingredients, steps, timing and substitutions inside sections.\n" +
-    "- For PROBLEM_SOLVER include who it's for, tradeoffs and practical recommendation.\n" +
-    "- For SYSTEM_POST include setup, rule, failure point and how to keep it going.\n" +
-    "- For EXPERIENCE_POST keep it tighter and more personal but still useful.\n" +
-    "- Amazon queries must be specific product searches, not vague category words.\n" +
-    "- imageSlots max 2 and only if helpful.\n\n" +
-    "Recent titles:\n" + recentTitles + "\n\n" +
-    "Voice:\n" + BLOG_VOICE;
+function generatePersonalPostJson_(plan, history) {
+  var recentTitles = history.titles.slice(0, 15).map(function(t){ return "- " + t; }).join("\n");
 
   var prompt =
-    "Blog: The Modern Family Guide\n" +
-    "Cluster: " + plan.cluster + "\n" +
-    "Type: " + plan.type + "\n" +
-    "CategorySlug: " + plan.categorySlug + "\n" +
-    "Angle: " + plan.angle + "\n" +
-    "ToneMode: " + plan.toneMode + "\n" +
-    "PrimaryKeyword: " + plan.primaryKeyword + "\n" +
-    "SecondaryKeyword: " + plan.secondaryKeyword + "\n" +
-    "Intent: " + plan.intent + "\n" +
+    "Return ONLY valid JSON. No markdown.\n\n" +
+    "{\n" +
+    '  "keyword": "1-3 words",\n' +
+    '  "imageKeyword": "1-3 words",\n' +
+    '  "intro": "1-2 sentences",\n' +
+    '  "sections": [\n' +
+    '    {"h2":"Heading","p":"Max 2 sentences"},\n' +
+    '    {"h2":"Heading","p":"Max 2 sentences"},\n' +
+    '    {"h2":"Heading","p":"Max 2 sentences"}\n' +
+    "  ],\n" +
+    '  "takeaway": "1 short sentence",\n' +
+    '  "cta": "1 natural sentence",\n' +
+    '  "softAffiliate": {\n' +
+    '    "enabled": false,\n' +
+    '    "item": {"name":"","query":"","why":""}\n' +
+    "  }\n" +
+    "}\n\n" +
+
+    "STRICT RULES:\n" +
+    "- Keep the post SHORT. Do NOT expand simple ideas.\n" +
+    "- Sound like a real parent, not a content machine.\n" +
+    "- Include a small friction, hesitation, or imperfect moment.\n" +
+    "- No names.\n" +
+    "- No URLs.\n" +
+    "- NEVER use: 'game changer', 'this changed everything'.\n" +
+    "- No corporate phrases.\n" +
+    "- Short paragraphs only.\n\n" +
+
+    "AFFILIATE RULE:\n" +
+    "- Only enable if the product is naturally used in the story.\n" +
+    "- Max 1 product.\n\n" +
+
+    "CONTEXT:\n" +
     "Title: " + plan.title + "\n" +
-    "ReaderProblem: " + plan.readerProblem + "\n" +
-    "WhyThisCanRank: " + plan.whyThisCanRank + "\n" +
-    "ExperienceSeed: " + plan.experienceSeed + "\n\n" +
-    "Type directive:\n" + postTypeDirectiveV2_(plan.type) + "\n\n" +
-    "Angle directive:\n" + angleDirectiveV2_(plan.angle) + "\n\n" +
-    "Tone directive:\n" + toneDirective_(plan.toneMode) + "\n\n" +
-    schema;
+    "Type: " + plan.type + "\n" +
+    "Category: " + plan.categorySlug + "\n" +
+    "Angle: " + plan.angle + "\n" +
+    "Hook: " + plan.hook + "\n" +
+    "Scenario: " + plan.scenario + "\n\n" +
 
-  for (var attempt = 1; attempt <= 4; attempt++) {
-    var raw = geminiText_(prompt);
-    var ai = parseJsonObjectWithRepair_(raw);
+    "Recent titles (avoid similarity):\n" + recentTitles + "\n\n" +
+    "Voice: " + BLOG_VOICE;
 
-    if (!ai || typeof ai !== "object") continue;
+  var ai = JSON.parse(extractJsonObject_(geminiText_(prompt)));
 
-    ai.hook = String(ai.hook || "").trim();
-    ai.seoSummary = String(ai.seoSummary || "").trim();
-    ai.intro = String(ai.intro || "").trim();
-    ai.cta = String(ai.cta || "").trim();
-    ai.mistake = String(ai.mistake || "").trim();
+  if (!Array.isArray(ai.sections)) ai.sections = [];
+  ai.sections = ai.sections.slice(0, 3);
 
-    ai.system = ai.system && typeof ai.system === "object" ? ai.system : {};
-    ai.system.title = String(ai.system.title || "").trim();
-    if (!Array.isArray(ai.system.steps)) ai.system.steps = [];
-    ai.system.steps = ai.system.steps.slice(0, 4).map(function(x){ return String(x || "").trim(); }).filter(Boolean);
+  if (!ai.softAffiliate || typeof ai.softAffiliate !== "object") {
+    ai.softAffiliate = { enabled: false, item: { name: "", query: "", why: "" } };
+  }
 
-    ai.experienceBox = ai.experienceBox && typeof ai.experienceBox === "object" ? ai.experienceBox : {};
-    ai.experienceBox.title = String(ai.experienceBox.title || "").trim();
-    ai.experienceBox.text = String(ai.experienceBox.text || "").trim();
+  return ai;
+}
 
-    if (!Array.isArray(ai.sections)) ai.sections = [];
-    if (!Array.isArray(ai.faq)) ai.faq = [];
-    if (!Array.isArray(ai.whatChanged)) ai.whatChanged = [];
-    if (!ai.affiliate || typeof ai.affiliate !== "object") ai.affiliate = { enabled: false, items: [] };
-    if (!Array.isArray(ai.affiliate.items)) ai.affiliate.items = [];
-    if (!Array.isArray(ai.imageSlots)) ai.imageSlots = [];
+/***********************
+ * GEMINI TEXT
+ ***********************/
+function geminiText_(prompt) {
+  var url = "https://generativelanguage.googleapis.com/v1beta/" + GEMINI_TEXT_MODEL + ":generateContent?key=" + encodeURIComponent(GEMINI_API_KEY);
 
-    ai.sections = ai.sections.slice(0, 5).map(function(s){
-      return {
-        h2: String((s && s.h2) ? s.h2 : "").trim(),
-        p: String((s && s.p) ? s.p : "").trim()
-      };
-    }).filter(function(s){ return s.h2 && s.p; });
+  var res = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    muteHttpExceptions: true
+  });
 
-    ai.faq = ai.faq.slice(0, 3).map(function(f){
-      return {
-        q: String((f && f.q) ? f.q : "").trim(),
-        a: String((f && f.a) ? f.a : "").trim()
-      };
-    }).filter(function(f){ return f.q && f.a; });
+  var code = res.getResponseCode();
+  var body = res.getContentText();
 
-    ai.whatChanged = ai.whatChanged.slice(0, 5).map(function(x){
-      return String(x || "").trim();
-    }).filter(Boolean);
+  if (code !== 200) throw new Error("Gemini(text) HTTP " + code + ": " + truncate_(body, 800));
 
-    ai.affiliate.enabled = !!ai.affiliate.enabled;
-    ai.affiliate.label = String(ai.affiliate.label || "What we would buy").trim();
-    ai.affiliate.items = ai.affiliate.items.slice(0, 2).map(function(it){
-      return {
-        query: String((it && it.query) ? it.query : "").trim(),
-        reason: String((it && it.reason) ? it.reason : "").trim()
-      };
-    }).filter(function(it){ return it.query && it.reason; });
+  var json = JSON.parse(body);
+  var text = json && json.candidates && json.candidates[0] && json.candidates[0].content &&
+    json.candidates[0].content.parts && json.candidates[0].content.parts[0]
+      ? json.candidates[0].content.parts[0].text
+      : "";
 
-    ai.imageSlots = ai.imageSlots.slice(0, 2).map(function(it){
-      return {
-        slot: String((it && it.slot) ? it.slot : "").trim(),
-        brief: String((it && it.brief) ? it.brief : "").trim()
-      };
-    }).filter(function(it){ return it.slot && it.brief; });
+  if (!text) throw new Error("Gemini returned empty response.");
+  return text;
+}
 
-    if (!ai.intro || !ai.sections.length) continue;
+/***********************
+ * GEMINI IMAGE
+ ***********************/
+function generateHeroImage_(title, keyword, categorySlug, angle) {
+  var familyLine = FAMILY_VISUAL_PROFILE ? ("Family reference: " + FAMILY_VISUAL_PROFILE + "\n") : "";
 
-    if (plan.type !== "PROBLEM_SOLVER") {
-      ai.affiliate.enabled = false;
-      ai.affiliate.items = [];
+  var prompt =
+    "Create a 16:9 blog featured image.\n" +
+    "Style: " + FAMILY_IMAGE_LOCK_STYLE + ". Modern Scandinavian home vibe.\n" +
+    familyLine +
+    "Scene: " + keyword + " in a modern family-life setting.\n" +
+    "Context: \"" + title + "\". Category: " + categorySlug + ". Angle: " + angle + ".\n" +
+    "Rules: no text, no watermarks, no logos, no recognizable brands, avoid names.\n" +
+    "Important: consistent character design across images.\n";
+
+  var url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(GEMINI_IMAGE_MODEL) + ":generateContent";
+
+  var res = UrlFetchApp.fetch(url, {
+    method: "post",
+    headers: { "x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json" },
+    payload: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { responseModalities: ["Image"], imageConfig: { aspectRatio: "16:9" } }
+    }),
+    muteHttpExceptions: true
+  });
+
+  var code = res.getResponseCode();
+  var body = res.getContentText();
+
+  if (code !== 200) throw new Error("Gemini(image) HTTP " + code + ": " + truncate_(body, 900));
+
+  var json = JSON.parse(body);
+  var parts = json && json.candidates && json.candidates[0] && json.candidates[0].content
+    ? (json.candidates[0].content.parts || [])
+    : [];
+
+  for (var i = 0; i < parts.length; i++) {
+    var inline = parts[i].inlineData || parts[i].inline_data;
+    if (inline && inline.data) {
+      var mime = inline.mimeType || inline.mime_type || "image/png";
+      var bytes = Utilities.base64Decode(inline.data);
+      return Utilities.newBlob(bytes, mime, "hero-" + slugify_(keyword) + ".png");
     }
-
-    return ai;
   }
 
-  throw new Error("Could not generate valid search-first post JSON.");
+  throw new Error("Gemini(image) returned no inline image data.");
 }
 
 /***********************
- * DIRECTIVES
+ * INTERNAL LINKS
  ***********************/
-function postTypeDirectiveV2_(type) {
-  switch (type) {
-    case "RECIPE_SEO":
-      return "Write like a recipe post that should rank. Include ingredients, steps, timing, substitutions, and what makes this recipe convenient.";
-    case "PROBLEM_SOLVER":
-      return "Write like a buyer/problem-solving article. Include who it is for, why it works, tradeoffs, and a practical recommendation.";
-    case "SYSTEM_POST":
-      return "Write like a practical system article. Include setup, rule, failure point, and how to keep it working.";
-    case "EXPERIENCE_POST":
-    default:
-      return "Write as an experience-led but useful post. Keep it grounded in a real moment and end with practical value.";
+function getInternalLinkCandidates_(rows, plan, maxLinks) {
+  maxLinks = maxLinks || 2;
+  var pool = [];
+
+  for (var i = 1; i < rows.length; i++) {
+    var title = String(rows[i][0] || "").trim();
+    var status = String(rows[i][1] || "").trim().toLowerCase();
+    var url = String(rows[i][2] || "").trim();
+    var cat = String(rows[i][5] || "").trim();
+    var angle = String(rows[i][6] || "").trim();
+
+    if (status !== "done") continue;
+    if (!title || !url) continue;
+    if (title === plan.title) continue;
+
+    // only same category OR same problem/angle
+    if (cat === plan.categorySlug || angle === plan.angle) {
+      pool.push({ title: title, url: url, categorySlug: cat, angle: angle });
+    }
   }
+
+  pool.reverse();
+  return pool.slice(0, maxLinks);
 }
 
-function angleDirectiveV2_(angle) {
-  switch (angle) {
-    case "BUYING_DECISION": return "Make the choice practical. Emphasise tradeoffs, best fit, and why someone would choose one solution over another.";
-    case "LOW_ENERGY_MODE": return "Keep the solution realistic for tired parents. No idealized routines.";
-    case "TIME_SAVING": return "Show exactly where time is saved and in what part of the day.";
-    case "MONEY_SAVING": return "Show practical savings without sounding cheap or deprived.";
-    case "CONFLICT_REDUCTION": return "Reduce friction with one clear boundary, one phrase, or one environmental change.";
-    case "HOME_RESET": return "Emphasise visible relief and the smallest workable reset.";
-    case "MEAL_SIMPLIFICATION": return "Make the food system feel easier to repeat on a hard weekday.";
-    case "EMOTIONAL_REFLECTION": return "Ground the emotion in a real moment and keep it useful.";
-    case "REAL_WORLD_EXAMPLE": return "Use one concrete household moment as the base for the advice.";
-    default: return "Keep the advice specific, grounded and repeatable.";
-  }
-}
+function buildInternalLinksBlock_(candidates, plan) {
+  if (!candidates || !candidates.length) return "";
 
-function toneDirective_(toneMode) {
-  switch (toneMode) {
-    case "TIRED": return "Tone: tired but capable, low-drama, honest.";
-    case "LIGHTLY_FUNNY": return "Tone: warm, dry, lightly funny, never cheesy.";
-    case "REFLECTIVE": return "Tone: thoughtful and grounded, but still direct.";
-    case "RELIEVED": return "Tone: calm relief after something finally helped.";
-    case "PRACTICAL":
-    default: return "Tone: practical, direct, quietly reassuring.";
-  }
+  var items = candidates.map(function(it) {
+    var href = toRelativeIfSameSite_(stripQueryAndHash_(it.url));
+
+    return '<li style="margin:10px 0;">' +
+      '<a href="' + escapeAttr_(href) + '" style="font-weight:600;text-decoration:none;">' +
+      escapeHtml_(it.title) +
+      "</a></li>";
+  }).join("");
+
+  return '<div style="margin-top:24px;">' +
+    '<h3 style="margin-bottom:10px;">Related reads</h3>' +
+    '<ul style="padding-left:18px;">' + items + "</ul>" +
+    "</div>";
 }
 
 /***********************
- * HTML BUILDING
+ * HUBS
  ***********************/
-function buildHtmlV2_(plan, ai, hub, candidates, inlineMediaMap) {
-  var parts = [];
+function ensureHubsSheet_(ss) {
+  var sh = ss.getSheetByName(HUBS_SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(HUBS_SHEET_NAME);
+    sh.getRange(1, 1, 1, 5).setValues([["CategorySlug", "HubPostId", "HubUrl", "HubTitle", "UpdatedAt"]]);
+  }
+  return sh;
+}
 
-  parts.push('<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;line-height:1.68;color:#333;max-width:680px;margin:0 auto;">');
+function ensureCategoryHub_(ss, categorySlug, mainSheet) {
+  var hubs = ensureHubsSheet_(ss);
+  var data = hubs.getDataRange().getValues();
 
-  if (ai.hook) {
-    parts.push('<p style="font-size:20px;font-weight:600;color:#333;margin:0 0 12px 0;">' + escapeHtml_(ai.hook) + '</p>');
+  for (var i = 1; i < data.length; i++) {
+    var slug = String(data[i][0] || "").trim();
+    var hubId = String(data[i][1] || "").trim();
+    var hubUrl = String(data[i][2] || "").trim();
+    var hubTitle = String(data[i][3] || "").trim();
+
+    if (slug === categorySlug && hubId && hubUrl) {
+      return { id: hubId, url: hubUrl, title: hubTitle };
+    }
   }
 
-  if (ai.seoSummary) {
-    parts.push('<p style="font-size:17px;color:#4b4b4b;margin:0 0 14px 0;">' + escapeHtml_(ai.seoSummary) + '</p>');
+  var newHubTitle = hubTitleForCategory_(categorySlug);
+  var hubHtml = buildHubHtml_(categorySlug, mainSheet);
+
+  var created = createWpPost_(newHubTitle, hubHtml, null, PERSONAL_DEFAULT_STATUS, categorySlug);
+  var newHubId = String(created.ID || created.id || "");
+  var newHubUrl = String(created.URL || created.url || "");
+
+  if (!newHubId || !newHubUrl) throw new Error("Hub created but missing ID/URL.");
+
+  hubs.appendRow([categorySlug, newHubId, newHubUrl, newHubTitle, new Date()]);
+  return { id: newHubId, url: newHubUrl, title: newHubTitle };
+}
+
+function updateCategoryHub_(ss, categorySlug, mainSheet) {
+  var hubs = ensureHubsSheet_(ss);
+  var data = hubs.getDataRange().getValues();
+
+  var hubRow = -1;
+  var hubId = "";
+  var hubTitle = "";
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0] || "").trim() === categorySlug) {
+      hubRow = i + 1;
+      hubId = String(data[i][1] || "").trim();
+      hubTitle = String(data[i][3] || "").trim();
+      break;
+    }
   }
 
+  if (hubRow === -1 || !hubId) return;
+
+  var hubHtml = buildHubHtml_(categorySlug, mainSheet);
+
+  var url = "https://public-api.wordpress.com/rest/v1.1/sites/" + encodeURIComponent(WP_SITE_ID) + "/posts/" + encodeURIComponent(hubId);
+  var res = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    headers: { Authorization: "Bearer " + WP_OAUTH_TOKEN },
+    payload: JSON.stringify({ title: hubTitle || hubTitleForCategory_(categorySlug), content: hubHtml }),
+    muteHttpExceptions: true
+  });
+
+  var code = res.getResponseCode();
+  if (code !== 200 && code !== 201) {
+    throw new Error("Hub update failed HTTP " + code + ": " + truncate_(res.getContentText(), 900));
+  }
+
+  hubs.getRange(hubRow, 5).setValue(new Date());
+}
+
+function hubTitleForCategory_(slug) {
+  var pretty = String(slug || "").replace(/-/g, " ");
+  pretty = pretty.charAt(0).toUpperCase() + pretty.slice(1);
+  return "The Modern Family Guide to " + pretty;
+}
+
+function buildHubHtml_(categorySlug, mainSheet) {
+  var rows = mainSheet.getDataRange().getValues();
+  var posts = [];
+
+  for (var i = 1; i < rows.length; i++) {
+    var title = String(rows[i][0] || "").trim();
+    var status = String(rows[i][1] || "").trim().toLowerCase();
+    var url = String(rows[i][2] || "").trim();
+    var cat = String(rows[i][5] || "").trim();
+    var angle = String(rows[i][6] || "").trim();
+
+    if (status !== "done") continue;
+    if (!title || !url) continue;
+    if (cat !== categorySlug) continue;
+
+    posts.push({ title: title, url: url, angle: angle || "OTHER", idx: i });
+  }
+
+  posts.sort(function(a, b){ return b.idx - a.idx; });
+
+  var grouped = {};
+  for (var j = 0; j < posts.length; j++) {
+    var a = posts[j].angle || "OTHER";
+    if (!grouped[a]) grouped[a] = [];
+    grouped[a].push(posts[j]);
+  }
+
+  var intro =
+    '<p style="font-size:18px;color:#555;">This hub collects our best posts on <strong>' +
+    escapeHtml_(categorySlug.replace(/-/g, " ")) +
+    '</strong> — grouped by angle, so you can find what you need fast.</p>';
+
+  var sections = "";
+  var angleKeys = Object.keys(grouped);
+
+  angleKeys.sort(function(x, y) {
+    var ix = ANGLES.indexOf(x);
+    var iy = ANGLES.indexOf(y);
+    if (ix === -1) ix = 999;
+    if (iy === -1) iy = 999;
+    return ix - iy;
+  });
+
+  for (var k = 0; k < angleKeys.length; k++) {
+    var angle = angleKeys[k];
+    var nice = angle.replace(/_/g, " ").toLowerCase();
+    nice = nice.charAt(0).toUpperCase() + nice.slice(1);
+
+    var list = grouped[angle].slice(0, 30).map(function(p) {
+      var href = toRelativeIfSameSite_(stripQueryAndHash_(p.url));
+      return '<li style="margin:8px 0;"><a href="' + escapeAttr_(href) + '">' + escapeHtml_(p.title) + "</a></li>";
+    }).join("");
+
+    sections += '<h2 style="margin-top:26px;">' + escapeHtml_(nice) + "</h2>" +
+      '<ul style="padding-left:18px;margin:10px 0;">' + list + "</ul>";
+  }
+
+  var footer = '<p style="font-size:12px;color:#999;margin-top:26px;">Updated automatically as new posts are published.</p>';
+
+  return '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;line-height:1.65;color:#333;max-width:720px;margin:0 auto;">' +
+    intro + sections + footer + "</div>";
+}
+
+/***********************
+ * HTML BUILDER
+ ***********************/
+function buildPersonalHtml_(plan, ai, hub, candidates) {
+  var hubLink = "";
   if (hub && hub.url) {
-    var hubHref = isInternalUrl_(hub.url) ? makeRelativeUrl_(hub.url) : hub.url;
-    parts.push(
+    var hubHref = toRelativeIfSameSite_(stripQueryAndHash_(hub.url));
+    hubLink =
       '<div style="margin:16px 0;padding:14px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
       '<strong>Start here:</strong> ' +
       '<a href="' + escapeAttr_(hubHref) + '" style="text-decoration:none;font-weight:700;">' +
       escapeHtml_(hub.title || "Explore the hub") +
-      '</a></div>'
-    );
+      "</a></div>";
   }
 
-  if (ai.intro) {
-    parts.push('<p style="font-size:18px;color:#555;margin:0 0 16px 0;">' + escapeHtml_(ai.intro) + '</p>');
-  }
+  var intro = '<p style="font-size:18px;color:#555;margin:0 0 16px 0;">' + escapeHtml_(ai.intro || "") + "</p>";
 
-  if (inlineMediaMap && inlineMediaMap.after_intro) {
-    parts.push(renderImageBlock_(inlineMediaMap.after_intro));
-  }
-
-  if (ai.system && ai.system.steps && ai.system.steps.length) {
-    parts.push('<h2>' + escapeHtml_(ai.system.title || "The simple system we use") + '</h2>');
-    parts.push('<ol style="padding-left:22px;margin:0 0 16px 0;">');
-    for (var si = 0; si < ai.system.steps.length; si++) {
-      parts.push('<li style="margin:8px 0;">' + escapeHtml_(ai.system.steps[si]) + '</li>');
-    }
-    parts.push('</ol>');
-  }
-
-  if (ai.experienceBox && ai.experienceBox.title && ai.experienceBox.text) {
-    parts.push(
-      '<div style="background:#f8f8f8;padding:18px;border-radius:12px;border:1px solid #eee;margin:20px 0;">' +
-      '<strong>' + escapeHtml_(ai.experienceBox.title) + '</strong>' +
-      '<p style="margin:8px 0 0 0;color:#444;">' + escapeHtml_(ai.experienceBox.text) + '</p>' +
-      '</div>'
-    );
-  }
-
-  if (ai.mistake) {
-    parts.push('<div style="background:#fff3cd;padding:12px;border-radius:8px;margin:16px 0;">');
-    parts.push('<strong>What we got wrong:</strong> ' + escapeHtml_(ai.mistake));
-    parts.push('</div>');
-  }
-
-  var inlineLinks = (candidates || []).slice(0, 2);
-
-  for (var i = 0; i < ai.sections.length; i++) {
-    var s = ai.sections[i];
-    var pText = String(s.p || "");
-    var pHtml = escapeHtml_(pText);
-
-    if (inlineLinks[i] && shouldInlineLink_(pText)) {
-      pHtml = injectInlineLinkIntoEscapedParagraph_(pHtml, inlineLinks[i]);
-    }
-
-    parts.push('<h2 style="margin:24px 0 8px 0;">' + escapeHtml_(s.h2) + '</h2>');
-    parts.push('<p style="margin:0 0 12px 0;color:#444;">' + pHtml + '</p>');
-
-    if (i === 1 && inlineMediaMap && inlineMediaMap.mid_post) {
-      parts.push(renderImageBlock_(inlineMediaMap.mid_post));
-    }
-  }
-
-  if (ai.whatChanged && ai.whatChanged.length) {
-    parts.push('<div style="margin:20px 0;">');
-    parts.push('<h2 style="margin:0 0 8px 0;">What changed for us</h2>');
-    parts.push('<ul style="padding-left:20px;margin:0;">');
-    for (var j = 0; j < ai.whatChanged.length; j++) {
-      parts.push('<li>' + escapeHtml_(ai.whatChanged[j]) + '</li>');
-    }
-    parts.push('</ul></div>');
-  }
-
-  if (ai.affiliate && ai.affiliate.enabled && ai.affiliate.items && ai.affiliate.items.length) {
-    parts.push(renderAffiliateBlock_(ai.affiliate));
-  }
-
-  if (ai.faq && ai.faq.length) {
-    parts.push('<h2 style="margin-top:28px;">FAQ</h2>');
-    for (var k = 0; k < ai.faq.length; k++) {
-      parts.push('<h3 style="margin:16px 0 6px 0;font-size:16px;">' + escapeHtml_(ai.faq[k].q) + '</h3>');
-      parts.push('<p style="margin:0 0 10px 0;color:#444;">' + escapeHtml_(ai.faq[k].a) + '</p>');
-    }
-  }
-
-  if (ai.cta) {
-    parts.push('<p style="margin-top:18px;color:#444;"><em>' + escapeHtml_(ai.cta) + '</em></p>');
-  }
-
-  if (candidates && candidates.length) {
-    parts.push(buildInternalLinksBlock_(candidates, plan));
-  }
-
-  parts.push('</div>');
-  return parts.join("");
-}
-
-function renderAffiliateBlock_(affiliate) {
-  var items = affiliate.items.slice(0, 2).map(function(it){
-    var url = makeAmazonSearchLink_(it.query);
-    return (
-      '<div style="padding:14px;border:1px solid #eee;border-radius:12px;margin:12px 0;background:#fff;">' +
-      '<div style="font-weight:700;margin-bottom:6px;">' + escapeHtml_(it.query) + '</div>' +
-      '<p style="margin:0 0 10px 0;color:#444;">' + escapeHtml_(it.reason) + '</p>' +
-      '<a href="' + escapeAttr_(url) + '" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:700;">View on Amazon</a>' +
-      '</div>'
-    );
+  var sections = (ai.sections || []).map(function(s) {
+    return '<h2 style="margin:22px 0 8px 0;">' + escapeHtml_(s.h2 || "") + "</h2>" +
+      '<p style="margin:0 0 10px 0;color:#444;">' + escapeHtml_(s.p || "") + "</p>";
   }).join("");
 
-  return (
-    '<div style="margin:28px 0;padding:18px;border:1px solid #eee;border-radius:14px;background:#fafafa;">' +
-      '<h2 style="margin:0 0 10px 0;">' + escapeHtml_(affiliate.label || "What we would buy") + '</h2>' +
-      items +
-    '</div>'
-  );
+  var takeaway = ai.takeaway
+    ? '<div style="background:#f8f8f8;padding:18px;border-radius:12px;border:1px solid #eee;margin:24px 0;"><strong>Takeaway:</strong> ' +
+      escapeHtml_(ai.takeaway) + "</div>"
+    : "";
+
+  var affiliateBlock = buildSoftAffiliateBlock_(ai.softAffiliate);
+
+  var cta = ai.cta ? ('<p style="margin-top:18px;color:#444;"><em>' + escapeHtml_(ai.cta) + "</em></p>") : "";
+  var related = buildInternalLinksBlock_(candidates, plan);
+
+  return '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;line-height:1.65;color:#333;max-width:650px;margin:0 auto;">' +
+    hubLink + intro + sections + takeaway + affiliateBlock + cta + related + "</div>";
 }
 
-function renderImageBlock_(url) {
-  return (
-    '<div style="margin:18px 0;">' +
-      '<img src="' + escapeAttr_(url) + '" style="width:100%;height:auto;border-radius:14px;display:block;" />' +
-    '</div>'
-  );
+function buildSoftAffiliateBlock_(softAffiliate) {
+  if (!softAffiliate || !softAffiliate.enabled || !softAffiliate.item) return "";
+
+  var item = softAffiliate.item;
+  var name = String(item.name || "").trim();
+  var query = String(item.query || "").trim();
+  var why = String(item.why || "").trim();
+
+  if (!name || !query) return "";
+
+  var url = buildAmazonSearchUrl_(query);
+
+  return '<div style="margin-top:24px;padding:16px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
+    '<h3 style="margin:0 0 10px 0;">What made it easier</h3>' +
+    '<div style="font-weight:600;">' + escapeHtml_(name) + "</div>" +
+    (why ? ('<div style="margin-top:6px;color:#666;">' + escapeHtml_(why) + "</div>') : "") +
+    '<div style="margin-top:10px;"><a href="' + escapeAttr_(url) + '" target="_blank" rel="nofollow sponsored" style="font-weight:600;text-decoration:none;">Check it on Amazon</a></div>' +
+    "</div>";
 }
 
-function buildInternalLinksBlock_(candidates, plan) {
-  var items = candidates.slice(0, 3).map(function(it){
-    var href = isInternalUrl_(it.url) ? makeRelativeUrl_(it.url) : it.url;
-    return '<li style="margin:10px 0;"><a href="' + escapeAttr_(href) + '" style="text-decoration:none;font-weight:700;">' + escapeHtml_(it.title) + '</a></li>';
-  }).join("");
-
-  return (
-    '<div style="margin-top:28px;padding:18px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
-      '<h2 style="margin:0 0 10px 0;">You might also find helpful</h2>' +
-      '<ul style="margin:0;padding-left:18px;">' + items + '</ul>' +
-    '</div>'
-  );
-}
-
-function shouldInlineLink_(plainText) {
-  var t = String(plainText || "");
-  if (t.length < 180) return false;
-  if (t.indexOf("http") !== -1) return false;
-  return true;
-}
-
-function injectInlineLinkIntoEscapedParagraph_(escapedParagraph, candidate) {
-  var text = String(escapedParagraph || "");
-  var parts = text.split(". ");
-  if (parts.length < 2) return text;
-
-  var href = isInternalUrl_(candidate.url) ? makeRelativeUrl_(candidate.url) : candidate.url;
-  var link = ' <a href="' + escapeAttr_(href) + '" style="text-decoration:underline;">' + escapeHtml_(candidate.title) + '</a>';
-
-  parts[0] = parts[0] + "." + link;
-  return parts.join(". ");
+function buildAmazonSearchUrl_(query) {
+  var q = encodeURIComponent(String(query || "").trim());
+  var tag = encodeURIComponent(String(PROPS.getProperty("AMAZON_TAG") || "").trim());
+  var domain = String(PROPS.getProperty("AMAZON_DOMAIN") || "de").trim();
+  if (!tag) return "https://www.amazon." + domain + "/s?k=" + q;
+  return "https://www.amazon." + domain + "/s?k=" + q + "&tag=" + tag;
 }
 
 /***********************
- * IMAGES
- ***********************/
-function buildHeroImageBrief_(plan, ai) {
-  var realism =
-    IMAGE_STYLE_MODE === "realistic"
-      ? "A realistic everyday family-life image in a modern Scandinavian home. Natural light. Slightly imperfect. No text, no logos, no stock-photo vibe."
-      : "A clean family-life image. Natural and helpful. No text, no logos.";
-
-  var familyLine = FAMILY_VISUAL_PROFILE ? ("Family visual note: " + FAMILY_VISUAL_PROFILE + ". ") : "";
-
-  var prompt =
-    realism + " " +
-    familyLine +
-    "Topic: " + plan.primaryKeyword + ". " +
-    "Intent: " + plan.intent + ". " +
-    "Article title: " + plan.title + ". " +
-    "Scene should feel useful and believable, not stylized.";
-
-  return { prompt: prompt };
-}
-
-function uploadInlineImages_(plan, imageSlots) {
-  var out = {};
-  for (var i = 0; i < imageSlots.length; i++) {
-    var slot = imageSlots[i];
-    try {
-      var brief = buildInlineImageBrief_(plan, slot.brief);
-      var blob = generateImageFromBrief_(brief, "inline-" + slugify_(plan.title) + "-" + (i + 1) + ".png");
-      var media = uploadWpMediaAndReturnMeta_(blob, "inline-" + slugify_(plan.title) + "-" + (i + 1));
-      if (media && media.url) out[slot.slot] = media.url;
-    } catch (e) {}
-  }
-  return out;
-}
-
-function buildInlineImageBrief_(plan, brief) {
-  var realism =
-    IMAGE_STYLE_MODE === "realistic"
-      ? "Create a realistic, helpful, natural-light family-life image in a Scandinavian home. Slightly imperfect. No text. No logos."
-      : "Create a natural family-life image. No text. No logos.";
-  return realism + " Context: " + plan.title + ". Brief: " + brief;
-}
-
-function generateImageFromBrief_(prompt, fileName) {
-  var lastErr = null;
-
-  for (var attempt = 1; attempt <= GEMINI_IMAGE_MAX_RETRIES; attempt++) {
-    try {
-      var url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(GEMINI_IMAGE_MODEL) + ":generateContent";
-      var res = UrlFetchApp.fetch(url, {
-        method: "post",
-        headers: { "x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json" },
-        payload: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["Image"],
-            imageConfig: { aspectRatio: "16:9" }
-          }
-        }),
-        muteHttpExceptions: true
-      });
-
-      var code = res.getResponseCode();
-      var body = res.getContentText();
-
-      if (code === 200) {
-        var json = JSON.parse(body);
-        var parts = (json && json.candidates && json.candidates[0] && json.candidates[0].content)
-          ? (json.candidates[0].content.parts || [])
-          : [];
-
-        for (var i = 0; i < parts.length; i++) {
-          var part = parts[i];
-          var inline = part.inlineData || part.inline_data;
-          if (inline && inline.data) {
-            var mime = inline.mimeType || inline.mime_type || "image/png";
-            var bytes = Utilities.base64Decode(inline.data);
-            return Utilities.newBlob(bytes, mime, fileName || "image.png");
-          }
-        }
-        throw new Error("Gemini(image) returned no inline image data.");
-      }
-
-      if (code === 429 || code === 503) {
-        lastErr = new Error("Gemini(image) HTTP " + code + ": " + truncate_(body, 500));
-        Utilities.sleep(2000 * attempt);
-        continue;
-      }
-
-      throw new Error("Gemini(image) HTTP " + code + ": " + truncate_(body, 800));
-    } catch (e) {
-      lastErr = e;
-      Utilities.sleep(1500 * attempt);
-    }
-  }
-
-  throw lastErr || new Error("Image generation failed after retries.");
-}
-
-/***********************
- * WORDPRESS
+ * WP HELPERS
  ***********************/
 function uploadWpMedia_(blob, title) {
-  var meta = uploadWpMediaAndReturnMeta_(blob, title);
-  return meta.id;
-}
-
-function uploadWpMediaAndReturnMeta_(blob, title) {
   var safe = slugify_(title || "upload");
   var ct = String(blob.getContentType() || "image/png").toLowerCase();
   var ext = (ct.indexOf("jpeg") !== -1 || ct.indexOf("jpg") !== -1) ? "jpg" : "png";
@@ -586,20 +729,22 @@ function uploadWpMediaAndReturnMeta_(blob, title) {
 
   var code = res.getResponseCode();
   var body = res.getContentText();
+
   if (code !== 200 && code !== 201) {
     throw new Error("Media upload failed HTTP " + code + ": " + truncate_(body, 900));
   }
 
   var json = JSON.parse(body);
-  var item = (json && json.media && json.media[0]) ? json.media[0] : null;
-  if (!item || !item.ID) throw new Error("Media upload ok but no ID returned.");
-
-  return { id: item.ID, url: item.URL || item.url || "" };
+  var id = json && json.media && json.media[0] ? json.media[0].ID : null;
+  if (!id) throw new Error("Media upload ok but no ID returned.");
+  return id;
 }
 
 function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
   var payload = { title: title, content: html, status: status };
   if (featuredMediaId) payload.featured_image = featuredMediaId;
+
+  // array format fixed category assignment
   if (categorySlug) payload.categories = [categorySlug];
 
   var res = UrlFetchApp.fetch(
@@ -615,6 +760,7 @@ function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
 
   var code = res.getResponseCode();
   var body = res.getContentText();
+
   if (code !== 200 && code !== 201) {
     throw new Error("Create post failed HTTP " + code + ": " + truncate_(body, 1000));
   }
@@ -623,109 +769,84 @@ function createWpPost_(title, html, featuredMediaId, status, categorySlug) {
 }
 
 /***********************
- * GEMINI / JSON
+ * RELATIVE URL HELPERS
  ***********************/
-function geminiText_(prompt) {
-  var lastErr = null;
+function stripQueryAndHash_(u) {
+  var s = String(u || "").trim();
+  return s.split("#")[0].split("?")[0];
+}
 
-  for (var attempt = 1; attempt <= GEMINI_TEXT_MAX_RETRIES; attempt++) {
-    try {
-      var url = "https://generativelanguage.googleapis.com/v1beta/" + GEMINI_TEXT_MODEL + ":generateContent?key=" + encodeURIComponent(GEMINI_API_KEY);
+function toRelativeIfSameSite_(absoluteUrl) {
+  var u = String(absoluteUrl || "").trim();
+  if (!u) return u;
 
-      var res = UrlFetchApp.fetch(url, {
-        method: "post",
-        contentType: "application/json",
-        payload: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        }),
-        muteHttpExceptions: true
-      });
-
-      var code = res.getResponseCode();
-      var body = res.getContentText();
-
-      if (code === 200) {
-        var json = JSON.parse(body);
-        var text = json &&
-          json.candidates &&
-          json.candidates[0] &&
-          json.candidates[0].content &&
-          json.candidates[0].content.parts &&
-          json.candidates[0].content.parts[0]
-            ? json.candidates[0].content.parts[0].text
-            : "";
-
-        if (!text) throw new Error("Gemini returned empty response.");
-        return text;
-      }
-
-      if (code === 429 || code === 503) {
-        lastErr = new Error("Gemini(text) HTTP " + code + ": " + truncate_(body, 400));
-        Utilities.sleep(1400 * attempt);
-        continue;
-      }
-
-      throw new Error("Gemini(text) HTTP " + code + ": " + truncate_(body, 700));
-    } catch (e) {
-      lastErr = e;
-      Utilities.sleep(1000 * attempt);
-    }
+  if (u.indexOf(SITE_HOME_URL) === 0) {
+    var rel = u.slice(SITE_HOME_URL.length);
+    if (!rel) return "/";
+    return rel.charAt(0) === "/" ? rel : ("/" + rel);
   }
 
-  throw lastErr || new Error("Gemini(text) failed after retries.");
+  return u;
 }
 
-function parseJsonObjectWithRepair_(text) {
-  var cleaned = cleanModelText_(text);
-
-  try {
-    return JSON.parse(extractJsonObject_(cleaned));
-  } catch (e1) {}
-
-  try {
-    var repaired = repairCommonJsonIssues_(extractJsonObject_(cleaned));
-    return JSON.parse(repaired);
-  } catch (e2) {}
-
-  throw new Error("Could not parse model JSON.");
-}
-
-function cleanModelText_(text) {
-  return String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
+/***********************
+ * UTILS
+ ***********************/
+function mustProp_(key) {
+  var v = PROPS.getProperty(key);
+  if (!v) throw new Error("Missing Script Property: " + key);
+  return v;
 }
 
 function extractJsonObject_(text) {
-  var cleaned = String(text || "").trim();
-  var start = cleaned.indexOf("{");
-  if (start < 0) throw new Error("JSON start not found.");
-
-  var depth = 0;
-  var inString = false;
-  var escape = false;
-  var end = -1;
-
-  for (var i = start; i < cleaned.length; i++) {
-    var ch = cleaned.charAt(i);
-    if (escape) { escape = false; continue; }
-    if (ch === "\\") { if (inString) escape = true; continue; }
-    if (ch === "\"") { inString = !inString; continue; }
-    if (!inString) {
-      if (ch === "{") depth++;
-      if (ch === "}") {
-        depth--;
-        if (depth === 0) { end = i; break; }
-      }
-    }
-  }
-
-  if (end < 0) throw new Error("JSON end not found.");
-  return cleaned.substring(start, end + 1);
+  var cleaned = String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
+  var a = cleaned.indexOf("{");
+  var b = cleaned.lastIndexOf("}");
+  if (a < 0 || b <= a) throw new Error("Could not extract JSON.");
+  return cleaned.slice(a, b + 1);
 }
 
-function repairCommonJsonIssues_(jsonText) {
-  var s = String(jsonText || "");
-  s = s.replace(/[“”]/g, "\"").replace(/[‘’]/g, "'");
-  s = s.replace(/,\s*([}\]])/g, "$1");
-  s = s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
-  return s;
+function slugify_(s) {
+  return String(s || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "item";
+}
+
+function escapeHtml_(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAttr_(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function truncate_(s, n) {
+  var x = String(s || "");
+  return x.length > n ? x.slice(0, n) + "..." : x;
+}
+
+function uniq_(arr) {
+  var seen = {};
+  var out = [];
+
+  for (var i = 0; i < arr.length; i++) {
+    var v = String(arr[i] || "").trim();
+    if (!v || seen[v]) continue;
+    seen[v] = 1;
+    out.push(v);
+  }
+
+  return out;
 }
