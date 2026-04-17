@@ -729,16 +729,16 @@ function buildSoftAffiliateBlock_(softAffiliate) {
   var query = String(item.query || "").trim();
   var why = String(item.why || "").trim();
 
-  if (!name || !query) return "";
+if (!name || !query) return "";
 
-  var url = buildAmazonSearchUrl_(query);
+var url = buildAmazonSearchUrl_(query);
 
-  return '<div style="margin-top:24px;padding:16px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
-    '<h3 style="margin:0 0 10px 0;">What made it easier</h3>' +
-    '<div style="font-weight:600;">' + escapeHtml_(name) + "</div>" +
-    (why ? ('<div style="margin-top:6px;color:#666;">' + escapeHtml_(why) + "</div>') : "") +
-    '<div style="margin-top:10px;"><a href="' + escapeAttr_(url) + '" target="_blank" rel="nofollow sponsored" style="font-weight:600;text-decoration:none;">Check it on Amazon</a></div>' +
-    "</div>";
+return '<div style="margin-top:24px;padding:16px;border:1px solid #eee;border-radius:12px;background:#fafafa;">' +
+  '<h3 style="margin:0 0 10px 0;">What made it easier</h3>' +
+  '<div style="font-weight:600;">' + escapeHtml_(name) + '</div>' +
+  (why ? ('<div style="margin-top:6px;color:#666;">' + escapeHtml_(why) + '</div>') : '') +
+  '<div style="margin-top:10px;"><a href="' + escapeAttr_(url) + '" target="_blank" rel="nofollow sponsored" style="font-weight:600;text-decoration:none;">Check it on Amazon</a></div>' +
+  '</div>';
 }
 
 function buildAmazonSearchUrl_(query) {
