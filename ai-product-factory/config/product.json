@@ -1,0 +1,13 @@
+{
+  "brand": "The Modern Family Guide",
+  "product_name": "AI Job Search Kit",
+  "price_usd": 9,
+  "audience": "job seekers who want faster applications",
+  "deliverables": [
+    "50 resume prompts",
+    "50 cover letter prompts",
+    "30 interview prompts",
+    "job tracker csv",
+    "quick start pdf"
+  ]
+}
