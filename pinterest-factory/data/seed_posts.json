@@ -1,6 +1,72 @@
 [
-  {"title":"Cheap Family Dinners Using the Same Ingredients","url":"https://themodernfamilyguide.wordpress.com/2026/04/18/cheap-family-dinners-using-the-same-ingredients/","category":"Easy Meals"},
-  {"title":"The 10-Minute Evening Reset That Keeps Your Home Under Control","url":"https://themodernfamilyguide.wordpress.com/2026/04/18/the-10-minute-evening-reset-that-keeps-your-home-under-control/","category":"Home Organization"},
-  {"title":"Rainy Day Activities for Kids (That Don’t End in Chaos)","url":"https://themodernfamilyguide.wordpress.com/2026/04/18/rainy-day-activities-for-kids-that-dont-end-in-chaos/","category":"Kids Activities"},
-  {"title":"Simple Money Habits That Make Family Life Easier","url":"https://themodernfamilyguide.wordpress.com/2026/04/18/simple-money-habits-that-make-family-life-easier/","category":"Family Finance"}
+  {
+    "title": "Bored Kids at Home? 25 Zero-Cost Activities That Actually Work",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/17/bored-kids-at-home-25-zero-cost-activities-that-actually-work/",
+    "category": "Kids Activities",
+    "primaryKeyword": "bored kids at home",
+    "secondaryKeywords": ["indoor kids activities", "screen free activities for kids", "free kids activities", "activities for kids at home"]
+  },
+  {
+    "title": "Cheap Family Dinners Using the Same Ingredients",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/18/cheap-family-dinners-using-the-same-ingredients/",
+    "category": "Easy Meals",
+    "primaryKeyword": "cheap family dinners",
+    "secondaryKeywords": ["budget family meals", "easy family meals", "family dinner ideas", "meal planning on a budget"]
+  },
+  {
+    "title": "Easy Family Meal Ideas for Tired Weeknights",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/17/easy-family-meal-ideas-for-tired-weeknights/",
+    "category": "Easy Meals",
+    "primaryKeyword": "easy family meals",
+    "secondaryKeywords": ["weeknight dinner ideas", "easy dinners for family", "quick family dinners", "busy family meals"]
+  },
+  {
+    "title": "The 10-Minute Evening Reset That Keeps Your Home Under Control",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/18/the-10-minute-evening-reset-that-keeps-your-home-under-control/",
+    "category": "Home Organization",
+    "primaryKeyword": "evening reset routine",
+    "secondaryKeywords": ["home reset routine", "home organization ideas", "tidy home routine", "simple home systems"]
+  },
+  {
+    "title": "Easy Home Organization Fixes That Actually Stick",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/17/easy-home-organization-fixes-that-actually-stick/",
+    "category": "Home Organization",
+    "primaryKeyword": "home organization ideas",
+    "secondaryKeywords": ["home organization hacks", "organizing ideas for home", "family organization ideas", "organized home"]
+  },
+  {
+    "title": "Rainy Day Activities for Kids (That Don’t End in Chaos)",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/18/rainy-day-activities-for-kids-that-dont-end-in-chaos/",
+    "category": "Kids Activities",
+    "primaryKeyword": "rainy day activities for kids",
+    "secondaryKeywords": ["indoor kids activities", "screen free activities for kids", "kids activities at home", "boredom busters for kids"]
+  },
+  {
+    "title": "How to Get Kids to Listen Without Raising Your Voice",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/18/how-to-get-kids-to-listen-without-raising-your-voice/",
+    "category": "Parenting",
+    "primaryKeyword": "how to get kids to listen",
+    "secondaryKeywords": ["parenting tips", "kids won't listen", "positive parenting tips", "gentle parenting tips"]
+  },
+  {
+    "title": "Simple Money Habits That Make Family Life Easier",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/18/simple-money-habits-that-make-family-life-easier/",
+    "category": "Family Finance",
+    "primaryKeyword": "family budget tips",
+    "secondaryKeywords": ["money saving tips", "budgeting tips for families", "frugal living tips", "simple money habits"]
+  },
+  {
+    "title": "The Entryway That Actually Works: How We Tamed the Chaos at Our Front Door with 4 Kids",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/02/22/the-entryway-that-actually-works-how-we-tamed-the-chaos-at-our-front-door-with-4-kids/",
+    "category": "Home Organization",
+    "primaryKeyword": "entryway organization",
+    "secondaryKeywords": ["mudroom ideas", "family organization ideas", "organized home", "home organization hacks"]
+  },
+  {
+    "title": "Picky Eater Dinner: Simple Backup Meal When Kids Refuse",
+    "url": "https://themodernfamilyguide.wordpress.com/2026/04/17/picky-eater-dinner-simple-backup-meal-when-kids-refuse/",
+    "category": "Easy Meals",
+    "primaryKeyword": "picky eater dinner ideas",
+    "secondaryKeywords": ["picky eaters", "easy dinners for kids", "family dinner ideas", "kids food ideas"]
+  }
 ]
