@@ -1,17 +1,38 @@
 name: Build Product
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r ai-product-factory/requirements.txt
-      - run: python ai-product-factory/src/generate_product.py
-      - uses: actions/upload-artifact@v4
+
+      - name: Install dependencies
+        run: pip install -r ai-product-factory/requirements.txt
+
+      - name: Generate product files
+        run: python ai-product-factory/src/generate_product.py
+
+      - name: Show generated files
+        run: ls -la ai-product-factory/dist
+
+      - name: Create ZIP package
+        run: |
+          cd ai-product-factory/dist
+          zip -r ../ai-job-search-kit.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: ai-job-search-kit
-          path: ai-product-factory/dist/
+          path: ai-product-factory/ai-job-search-kit.zip
+          if-no-files-found: error
+          retention-days: 30
