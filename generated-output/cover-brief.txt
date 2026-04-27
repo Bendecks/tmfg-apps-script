@@ -1,0 +1,5 @@
+Title: Learn to Read Practice Book
+Subtitle: A practical workbook for children starting reading
+Hook: Simple practical workbook
+Trim: 6x9
+Audience: children starting reading

@@ -1,8 +1,8 @@
 {
-  "product_name": "Quiet Activities for Kids",
-  "niche": "parents",
-  "audience": "parents of children aged 3-8",
-  "price_usd": 9,
-  "generated_with_gemini": true,
-  "buyer_package": "quiet-activities-for-kids.zip"
+  "product": "Learn to Read Practice Book",
+  "niche": "reading",
+  "audience": "children starting reading",
+  "trim_size": "6x9",
+  "page_target": 120,
+  "generated_with_gemini": true
 }
