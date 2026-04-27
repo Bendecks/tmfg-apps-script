@@ -1,0 +1,12 @@
+AI Job Search Kit - Prompt Pack
+
+1. Rewrite my resume summary for this job description while keeping it honest and specific.
+
+2. Turn these bullet points into achievement-focused resume bullets with measurable impact.
+
+3. Write a concise cover letter that sounds natural and avoids corporate clichés.
+
+4. Create 10 interview questions likely for this role and give me strong answer outlines.
+
+5. Compare my resume against this job description and list the biggest gaps.
+
