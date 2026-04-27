@@ -1,13 +1,27 @@
 {
   "brand": "The Modern Family Guide",
-  "product_name": "AI Job Search Kit",
+  "mode": "money",
   "price_usd": 9,
-  "audience": "job seekers who want faster applications",
-  "deliverables": [
-    "50 resume prompts",
-    "50 cover letter prompts",
-    "30 interview prompts",
-    "job tracker csv",
-    "quick start pdf"
+  "rotation": [
+    {
+      "niche": "make money online",
+      "product_name": "AI Side Hustle Starter Kit",
+      "audience": "beginners who want realistic extra income ideas"
+    },
+    {
+      "niche": "career growth",
+      "product_name": "Salary Negotiation Toolkit",
+      "audience": "employees who want higher pay and better offers"
+    },
+    {
+      "niche": "dating confidence",
+      "product_name": "Modern Dating Texting Pack",
+      "audience": "men and women who want better dating conversations"
+    },
+    {
+      "niche": "fitness motivation",
+      "product_name": "30 Day Motivation Reset",
+      "audience": "people who struggle staying consistent"
+    }
   ]
 }
