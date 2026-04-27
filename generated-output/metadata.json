@@ -1,14 +1,6 @@
 {
-  "product_name": "AI Job Search Kit",
-  "brand": "The Modern Family Guide",
-  "audience": "job seekers who want faster applications",
-  "generated_with_gemini": false,
-  "files": [
-    "promo-posts.txt",
-    "sales-page.txt",
-    "quick-start-guide.pdf",
-    "gumroad-description.txt",
-    "job-tracker.csv",
-    "prompt-pack.txt"
-  ]
+  "product_name": "30 Day Motivation Reset",
+  "niche": "fitness motivation",
+  "audience": "people who struggle staying consistent",
+  "generated_with_gemini": false
 }
