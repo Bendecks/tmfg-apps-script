@@ -1,23 +1,27 @@
 {
   "brand": "The Modern Family Guide",
-  "mode": "kdp",
-  "trim_size": "6x9",
-  "page_target": 120,
+  "mode": "kids_kdp",
+  "trim_size": "8.5x11",
+  "page_target": 110,
+  "output_root": "generated-output/books",
   "rotation": [
     {
-      "niche": "parents",
-      "product_name": "Quiet Activities for Kids",
-      "audience": "parents of children aged 3-8"
+      "niche": "kids quiet activities",
+      "product_name": "101 Quiet Activities for Kids Ages 3-8",
+      "audience": "parents who need screen-free calm activities for home, travel, restaurants and rainy days",
+      "book_type": "activity book"
     },
     {
-      "niche": "money",
-      "product_name": "First Side Hustle Workbook",
-      "audience": "beginners who want extra income"
+      "niche": "road trip activity book",
+      "product_name": "Road Trip Activity Book for Kids Ages 4-8",
+      "audience": "families who want screen-free travel entertainment for children",
+      "book_type": "activity book"
     },
     {
-      "niche": "reading",
-      "product_name": "Learn to Read Practice Book",
-      "audience": "children starting reading"
+      "niche": "rainy day kids activities",
+      "product_name": "Rainy Day Busy Book for Kids Ages 3-7",
+      "audience": "parents who need easy indoor activities for young children",
+      "book_type": "activity book"
     }
   ]
 }
