@@ -2,5 +2,7 @@
   "product_name": "AI Side Hustle Starter Kit",
   "niche": "make money online",
   "audience": "beginners who want realistic extra income ideas",
-  "generated_with_gemini": true
+  "price_usd": 9,
+  "generated_with_gemini": true,
+  "buyer_package": "ai-side-hustle-starter-kit.zip"
 }
