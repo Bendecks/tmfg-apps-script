@@ -3,17 +3,37 @@ name: Build Product
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r ai-product-factory/requirements.txt
-      - run: python ai-product-factory/src/generate_product.py
-      - run: |
+
+      - name: Install dependencies
+        run: pip install -r ai-product-factory/requirements.txt
+
+      - name: Generate product files
+        run: python ai-product-factory/src/generate_product.py
+
+      - name: Copy output to repo folder
+        run: |
           mkdir -p generated-output
           cp -r ai-product-factory/dist/* generated-output/
-      - run: ls -la generated-output
+          ls -la generated-output
+
+      - name: Commit generated output
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update generated product output
+          file_pattern: generated-output/*
