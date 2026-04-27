@@ -1,12 +1,23 @@
 {
   "brand": "The Modern Family Guide",
-  "mode": "money",
-  "price_usd": 9,
+  "mode": "kdp",
+  "trim_size": "6x9",
+  "page_target": 120,
   "rotation": [
     {
-      "niche": "make money online",
-      "product_name": "AI Side Hustle Starter Kit",
-      "audience": "beginners who want realistic extra income ideas"
+      "niche": "parents",
+      "product_name": "Quiet Activities for Kids",
+      "audience": "parents of children aged 3-8"
+    },
+    {
+      "niche": "money",
+      "product_name": "First Side Hustle Workbook",
+      "audience": "beginners who want extra income"
+    },
+    {
+      "niche": "reading",
+      "product_name": "Learn to Read Practice Book",
+      "audience": "children starting reading"
     }
   ]
 }
