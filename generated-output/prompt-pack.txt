@@ -1,1 +1,79 @@
-Give me a step by step plan for success in fitness motivation.
+Write a blog post intro about [topic] using AI.
+
+Generate 5 social media captions for [product/service].
+
+Create an email subject line that gets high open rates for [email type].
+
+Suggest 3 unique selling propositions for [product/service].
+
+Write a product description for [product] targeting [target audience].
+
+Brainstorm 10 keywords related to [topic] for SEO.
+
+Develop an outline for a blog post on [topic].
+
+Rewrite this sentence to be more engaging: [sentence].
+
+Summarize this article in 3 bullet points: [article link].
+
+Generate 5 ideas for a social media contest for [brand].
+
+Create a call to action for [landing page].
+
+Write a short script for a promotional video for [product].
+
+Develop a customer persona for [target audience].
+
+Generate 3 headline options for [blog post].
+
+Write a compelling 'About Us' page for [website].
+
+Suggest 5 improvements for this website: [website link].
+
+Create an ad copy for [product] on [platform].
+
+Write a thank you email to a new subscriber.
+
+Generate 3 ideas for a free lead magnet to attract [target audience].
+
+Write a short testimonial for [product/service].
+
+Create a list of frequently asked questions about [topic].
+
+Generate a list of potential clients for [service].
+
+Write a cold email outreach template for [service].
+
+Create a pricing structure for [service].
+
+Generate 5 ideas for blog post titles on [topic].
+
+Write a script for a podcast intro.
+
+Create a set of instructions for [task] using AI.
+
+Generate a list of potential partnership opportunities for [business].
+
+Write a disclaimer for [website].
+
+Create a privacy policy for [website].
+
+Generate ideas for online course modules about [topic].
+
+Write a job description for [role] related to AI.
+
+Create a list of interview questions for [role] related to AI.
+
+Generate 5 ideas for a newsletter about [topic].
+
+Write a launch announcement for [product].
+
+Create a press release for [company].
+
+Generate 3 different marketing slogans for [product/service].
+
+Write 3 examples of social media posts promoting [offer].
+
+Create a frequently asked questions page on topic [topic].
+
+List 5 competitors offering similar services.
