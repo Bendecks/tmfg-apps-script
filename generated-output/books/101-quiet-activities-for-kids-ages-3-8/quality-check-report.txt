@@ -1,11 +1,7 @@
-AI COVER MODE
+DIRECT IMAGE GENERATION MODE
 
-Files created:
-- cover-front.png
-- thumbnail-preview.png
-- amazon-mobile-preview.png
-- gemini-cover-prompt.txt
-- canva-cover-brief.txt
-
-Best practice:
-Generate final cover in Gemini/Canva using prompt file.
+Check:
+- title readable on thumbnail
+- no spelling mistakes
+- looks premium
+- compare variants
