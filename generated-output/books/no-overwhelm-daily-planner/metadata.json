@@ -1,6 +1,5 @@
 {
   "product": "No Overwhelm Daily Planner",
-  "engine": "system_v2",
-  "days": 30,
-  "progression": true
+  "engine": "product_feel_v1",
+  "system": true
 }
