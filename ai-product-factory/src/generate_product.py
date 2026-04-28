@@ -1,7 +1,9 @@
-import os, json, re
+import os, json, re, glob
 from pathlib import Path
 from datetime import datetime
-from reportlab.pdfgen import canvas
+import svgwrite
+import cairosvg
+from PIL import Image
 
 BASE=Path(__file__).resolve().parents[1]
 DIST=BASE/'dist'
@@ -12,131 +14,67 @@ rotation=config.get('rotation',[])
 seed=int(datetime.utcnow().strftime('%Y%m%d'))
 selected=rotation[seed % len(rotation)] if rotation else {}
 PRODUCT=selected.get('product_name','Planner')
-AUDIENCE=selected.get('audience','people')
 slug=re.sub(r'[^a-z0-9]+','-',PRODUCT.lower()).strip('-')
 BOOK=BOOKS_ROOT/slug
 BOOK.mkdir(parents=True,exist_ok=True)
-for f in BOOK.glob('*'):
-    if f.is_file(): f.unlink()
 
-subtitle='A 30-Day Action System (Not Just a Planner)'
+PAGES=BOOK/'pages'
+PAGES.mkdir(parents=True,exist_ok=True)
 
-w,h=(432,648)
-pdf=canvas.Canvas(str(BOOK/f'{slug}-interior.pdf'),pagesize=(w,h))
+WIDTH=816
+HEIGHT=1056
+MARGIN=60
 
-# ===== HOOK PAGES =====
-pdf.setFont('Helvetica-Bold',18)
-pdf.drawCentredString(w/2,500,PRODUCT[:40])
-pdf.setFont('Helvetica',11)
-pdf.drawCentredString(w/2,470,subtitle)
-pdf.showPage()
+def draw_box(dwg,x,y,w,h,label):
+    dwg.add(dwg.rect(insert=(x,y),size=(w,h),rx=14,ry=14,fill="#fff",stroke="#111",stroke_width=2))
+    dwg.add(dwg.text(label.upper(),insert=(x+14,y+26),font_size=16,font_family="Arial"))
 
-pdf.setFont('Helvetica-Bold',16)
-pdf.drawString(36,560,'This Only Works If You Do This')
-pdf.setFont('Helvetica',10)
-rules=[
- 'You commit to ONE action daily.',
- 'You stop planning and start executing.',
- 'You track real actions, not ideas.',
- 'You accept imperfect progress.',
- 'You do not skip days.'
-]
-y=520
-for r in rules:
-    pdf.drawString(36,y,'• '+r); y-=24
-pdf.showPage()
 
-pdf.setFont('Helvetica-Bold',16)
-pdf.drawString(36,560,'Your Commitment')
-pdf.setFont('Helvetica',10)
-pdf.drawString(36,520,'If you follow this for 30 days, your situation WILL change.')
-pdf.line(36,480,396,480)
-pdf.drawString(36,460,'Signature:')
-pdf.line(36,440,200,440)
-pdf.drawString(36,400,'Start Date:')
-pdf.line(36,380,200,380)
-pdf.showPage()
+def render_page(day):
+    dwg=svgwrite.Drawing(str(PAGES/f"page_{day}.svg"),size=(WIDTH,HEIGHT))
+    dwg.add(dwg.rect((0,0),(WIDTH,HEIGHT),fill="#f7f7f5"))
 
-# ===== SYSTEM WITH VISUAL STRUCTURE =====
-for day in range(1,31):
-    pdf.setFont('Helvetica-Bold',14)
-    pdf.drawString(36,600,f'Day {day}')
+    dwg.add(dwg.text(f"Day {day}",insert=(MARGIN,70),font_size=34,font_weight="bold"))
 
-    pdf.setLineWidth(1)
-    pdf.rect(36,520,360,60)
-    pdf.setFont('Helvetica-Bold',10)
-    pdf.drawString(42,565,'FOCUS')
-
-    pdf.setFont('Helvetica',10)
-    if day <= 5:
-        prompt='Small action. Remove friction.'
-    elif day <= 15:
-        prompt='Action that creates feedback.'
-    elif day <= 25:
-        prompt='Repeat what worked.'
+    if day<=5:
+        prompt="Start small. Remove friction."
+    elif day<=15:
+        prompt="Do something that creates feedback."
+    elif day<=25:
+        prompt="Repeat what worked."
     else:
-        prompt='Focus on results.'
+        prompt="Focus on real results."
 
-    pdf.drawString(42,540,prompt)
+    dwg.add(dwg.text(prompt,insert=(MARGIN,120),font_size=18,fill="#333"))
 
-    # Action box
-    pdf.rect(36,430,360,60)
-    pdf.drawString(42,470,'Your action:')
+    y=160
+    sections=["Focus","Action","Result","Learning"]
 
-    # Result box
-    pdf.rect(36,340,360,60)
-    pdf.drawString(42,380,'Result:')
-
-    # Learning box
-    pdf.rect(36,250,360,60)
-    pdf.drawString(42,290,'What did you learn?')
-
-    # Variation every 3rd day
-    if day % 3 == 0:
-        pdf.rect(36,170,360,50)
-        pdf.drawString(42,200,'What would make this easier tomorrow?')
-
-    pdf.showPage()
-
-# ===== WEEKLY RESET WITH MORE FEEL =====
-for w_i in range(1,5):
-    pdf.setFont('Helvetica-Bold',14)
-    pdf.drawString(36,600,f'Weekly Reset {w_i}')
-
-    sections=[
-        'Biggest win',
-        'What actually worked',
-        'What wasted time',
-        'What to repeat',
-        'What to eliminate'
-    ]
-
-    y=550
     for s in sections:
-        pdf.rect(36,y,360,50)
-        pdf.drawString(42,y+30,s)
-        y-=70
+        draw_box(dwg,MARGIN,y,WIDTH-2*MARGIN,140,s)
+        y+=170
 
-    pdf.showPage()
+    if day%3==0:
+        draw_box(dwg,MARGIN,y,WIDTH-2*MARGIN,120,"Make it easier tomorrow")
 
-pdf.save()
+    dwg.save()
 
-# SALES FILES
-(BOOK/'title-subtitle.txt').write_text(PRODUCT+'\n'+subtitle)
+for d in range(1,31):
+    render_page(d)
 
-(BOOK/'description.txt').write_text(
- f"{PRODUCT} is a 30-day execution system for {AUDIENCE}.\n\nThis is not a passive planner. It forces action.\n\nEach page is designed to remove overthinking, guide decisions, and build momentum fast.\n\nIf you want progress instead of planning, this is for you.")
+# convert SVG → PNG
+for svg_file in glob.glob(str(PAGES/'*.svg')):
+    cairosvg.svg2png(url=svg_file,write_to=svg_file.replace('.svg','.png'))
 
-(BOOK/'keywords.txt').write_text(
- 'execution planner\naction system\n30 day planner\nproductivity system\nside hustle planner\nfocus journal\nmomentum system'
-)
+# combine PDF
+images=[]
+for i in range(1,31):
+    img=Image.open(PAGES/f"page_{i}.png").convert("RGB")
+    images.append(img)
 
-(BOOK/'metadata.json').write_text(json.dumps({
- 'product':PRODUCT,
- 'engine':'product_feel_v1',
- 'system':True
-},indent=2))
+images[0].save(BOOK/f"{slug}-interior.pdf",save_all=True,append_images=images[1:])
 
+(BOOK/'metadata.json').write_text(json.dumps({'product':PRODUCT,'engine':'svg_design','pages':30},indent=2))
 (BOOKS_ROOT/'LATEST_BOOK.txt').write_text(slug+'\n'+PRODUCT+'\n')
 
-print('Product Feel Engine LIVE:',slug)
+print("SVG DESIGN ENGINE COMPLETE",slug)
