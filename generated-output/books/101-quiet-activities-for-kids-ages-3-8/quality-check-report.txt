@@ -1,0 +1,13 @@
+QUALITY CHECK
+
+Title present: PASS
+Interior pages target: 110
+Interior file: PASS
+Cover draft file: PASS
+Keywords count: 7
+Manual checks still needed:
+- Open PDF and inspect margins
+- Check no duplicate pages
+- Verify title spelling
+- Review cover readability on mobile
+- Upload preview in KDP
