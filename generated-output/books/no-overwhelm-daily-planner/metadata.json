@@ -1,5 +1,6 @@
 {
   "product": "No Overwhelm Daily Planner",
-  "engine": "product_feel_v1",
-  "system": true
+  "engine": "svg_design",
+  "pages": 30,
+  "pdf_export": "reportlab_embed_png"
 }
