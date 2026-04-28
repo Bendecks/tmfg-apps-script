@@ -24,103 +24,119 @@ subtitle='A 30-Day Action System (Not Just a Planner)'
 w,h=(432,648)
 pdf=canvas.Canvas(str(BOOK/f'{slug}-interior.pdf'),pagesize=(w,h))
 
-# STRONG INTRO
+# ===== HOOK PAGES =====
 pdf.setFont('Helvetica-Bold',18)
 pdf.drawCentredString(w/2,500,PRODUCT[:40])
 pdf.setFont('Helvetica',11)
 pdf.drawCentredString(w/2,470,subtitle)
 pdf.showPage()
 
-pdf.setFont('Helvetica-Bold',14)
-pdf.drawString(36,580,'Stop Planning. Start Moving.')
+pdf.setFont('Helvetica-Bold',16)
+pdf.drawString(36,560,'This Only Works If You Do This')
 pdf.setFont('Helvetica',10)
-intro=[
- 'This is not a planner full of empty pages.',
- 'This is a system designed to force progress.',
- 'You only need ONE action per day.',
- 'Small actions → momentum → results.',
- 'Do not skip. Do not overthink. Just act.'
+rules=[
+ 'You commit to ONE action daily.',
+ 'You stop planning and start executing.',
+ 'You track real actions, not ideas.',
+ 'You accept imperfect progress.',
+ 'You do not skip days.'
 ]
-y=540
-for i in intro:
-    pdf.drawString(36,y,'- '+i)
-    y-=25
+y=520
+for r in rules:
+    pdf.drawString(36,y,'• '+r); y-=24
 pdf.showPage()
 
-# 30 DAY STRUCTURE WITH PROGRESSION
+pdf.setFont('Helvetica-Bold',16)
+pdf.drawString(36,560,'Your Commitment')
+pdf.setFont('Helvetica',10)
+pdf.drawString(36,520,'If you follow this for 30 days, your situation WILL change.')
+pdf.line(36,480,396,480)
+pdf.drawString(36,460,'Signature:')
+pdf.line(36,440,200,440)
+pdf.drawString(36,400,'Start Date:')
+pdf.line(36,380,200,380)
+pdf.showPage()
+
+# ===== SYSTEM WITH VISUAL STRUCTURE =====
 for day in range(1,31):
     pdf.setFont('Helvetica-Bold',14)
     pdf.drawString(36,600,f'Day {day}')
 
+    pdf.setLineWidth(1)
+    pdf.rect(36,520,360,60)
     pdf.setFont('Helvetica-Bold',10)
-    pdf.drawString(36,560,'YOUR FOCUS')
+    pdf.drawString(42,565,'FOCUS')
 
     pdf.setFont('Helvetica',10)
-
     if day <= 5:
-        prompt='Do something small. Remove friction. What is the easiest possible useful action?'
+        prompt='Small action. Remove friction.'
     elif day <= 15:
-        prompt='Now push slightly harder. What action creates real-world feedback?'
+        prompt='Action that creates feedback.'
     elif day <= 25:
-        prompt='Focus on repetition. What can you do again that already worked?'
+        prompt='Repeat what worked.'
     else:
-        prompt='Focus on results. What action directly leads to money or output?'
+        prompt='Focus on results.'
 
-    pdf.drawString(36,540,prompt)
+    pdf.drawString(42,540,prompt)
 
-    pdf.drawString(36,500,'Your action:')
-    pdf.line(36,480,396,480)
+    # Action box
+    pdf.rect(36,430,360,60)
+    pdf.drawString(42,470,'Your action:')
 
-    pdf.drawString(36,450,'Result (what actually happened?):')
-    pdf.line(36,430,396,430)
+    # Result box
+    pdf.rect(36,340,360,60)
+    pdf.drawString(42,380,'Result:')
 
-    pdf.drawString(36,400,'What did you learn?')
-    pdf.line(36,380,396,380)
+    # Learning box
+    pdf.rect(36,250,360,60)
+    pdf.drawString(42,290,'What did you learn?')
 
-    pdf.drawString(36,350,'Next step (tomorrow):')
-    pdf.line(36,330,396,330)
+    # Variation every 3rd day
+    if day % 3 == 0:
+        pdf.rect(36,170,360,50)
+        pdf.drawString(42,200,'What would make this easier tomorrow?')
 
     pdf.showPage()
 
-# WEEKLY REVIEWS WITH DEPTH
+# ===== WEEKLY RESET WITH MORE FEEL =====
 for w_i in range(1,5):
     pdf.setFont('Helvetica-Bold',14)
     pdf.drawString(36,600,f'Weekly Reset {w_i}')
-    pdf.setFont('Helvetica',10)
 
-    pdf.drawString(36,560,'What actually worked? (not what felt productive)')
-    pdf.line(36,540,396,540)
+    sections=[
+        'Biggest win',
+        'What actually worked',
+        'What wasted time',
+        'What to repeat',
+        'What to eliminate'
+    ]
 
-    pdf.drawString(36,500,'What wasted time?')
-    pdf.line(36,480,396,480)
-
-    pdf.drawString(36,440,'What should you repeat next week?')
-    pdf.line(36,420,396,420)
-
-    pdf.drawString(36,380,'What will you cut completely?')
-    pdf.line(36,360,396,360)
+    y=550
+    for s in sections:
+        pdf.rect(36,y,360,50)
+        pdf.drawString(42,y+30,s)
+        y-=70
 
     pdf.showPage()
 
 pdf.save()
 
-# BETTER SALES TEXT
+# SALES FILES
 (BOOK/'title-subtitle.txt').write_text(PRODUCT+'\n'+subtitle)
 
 (BOOK/'description.txt').write_text(
- f"{PRODUCT} is not just another planner. It is a 30-day execution system designed for {AUDIENCE} who are tired of overthinking and want real progress.\n\nInstead of empty pages, you get guided daily prompts that force action, weekly resets that eliminate wasted effort, and a simple structure that builds momentum fast.\n\nIf you struggle to follow through, this system fixes that.")
+ f"{PRODUCT} is a 30-day execution system for {AUDIENCE}.\n\nThis is not a passive planner. It forces action.\n\nEach page is designed to remove overthinking, guide decisions, and build momentum fast.\n\nIf you want progress instead of planning, this is for you.")
 
 (BOOK/'keywords.txt').write_text(
- '30 day planner\nmake money planner\nexecution system\naction planner\nside hustle system\nfocus journal\nproductivity system'
+ 'execution planner\naction system\n30 day planner\nproductivity system\nside hustle planner\nfocus journal\nmomentum system'
 )
 
 (BOOK/'metadata.json').write_text(json.dumps({
  'product':PRODUCT,
- 'engine':'system_v2',
- 'days':30,
- 'progression':True
+ 'engine':'product_feel_v1',
+ 'system':True
 },indent=2))
 
 (BOOKS_ROOT/'LATEST_BOOK.txt').write_text(slug+'\n'+PRODUCT+'\n')
 
-print('System Engine V2 LIVE:',slug)
+print('Product Feel Engine LIVE:',slug)
