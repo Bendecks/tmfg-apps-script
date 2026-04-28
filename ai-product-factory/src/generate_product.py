@@ -12,60 +12,64 @@ config=json.loads((BASE/'config'/'product.json').read_text())
 rotation=config.get('rotation',[])
 seed=int(datetime.utcnow().strftime('%Y%m%d'))
 selected=rotation[seed % len(rotation)] if rotation else {}
-PRODUCT=selected.get('product_name','Kids Activity Book')
+PRODUCT=selected.get('product_name','Planner')
+AUDIENCE=selected.get('audience','people')
 slug=re.sub(r'[^a-z0-9]+','-',PRODUCT.lower()).strip('-')
 BOOK=BOOKS_ROOT/slug
 BOOK.mkdir(parents=True,exist_ok=True)
 for f in BOOK.glob('*'):
     if f.is_file(): f.unlink()
-subtitle='Screen-Free Activities for Home, Travel, and Rainy Days'
+subtitle='A Simple System to Take Action and See Progress'
 
-# interior placeholder
-w,h=(612,792)
+# interior PDF
+w,h=(432,648)
 pdf=canvas.Canvas(str(BOOK/f'{slug}-interior.pdf'),pagesize=(w,h))
-pdf.setFont('Helvetica-Bold',24)
-pdf.drawCentredString(w/2,700,PRODUCT[:50])
+pdf.setFont('Helvetica-Bold',18)
+pdf.drawCentredString(w/2,500,PRODUCT[:40])
+pdf.setFont('Helvetica',11)
+pdf.drawCentredString(w/2,470,subtitle)
 pdf.showPage()
+
+for i in range(1,121):
+    t=i%4
+    pdf.setFont('Helvetica-Bold',12)
+    pdf.drawString(36,620,f'Page {i}')
+    pdf.setFont('Helvetica',10)
+    if t==0:
+        pdf.drawString(36,580,'Today\'s Goal:'); pdf.line(36,560,396,560)
+        pdf.drawString(36,520,'1 Action:'); pdf.line(36,500,396,500)
+        pdf.drawString(36,460,'Result:'); pdf.line(36,440,396,440)
+    elif t==1:
+        pdf.drawString(36,580,'Idea:'); pdf.line(36,560,396,560)
+        pdf.drawString(36,520,'Effort:'); pdf.line(36,500,396,500)
+    elif t==2:
+        pdf.drawString(36,580,'Action Taken:'); pdf.line(36,560,396,560)
+        pdf.drawString(36,520,'Outcome:'); pdf.line(36,500,396,500)
+    else:
+        pdf.drawString(36,580,'Weekly Reflection:'); pdf.line(36,560,396,560)
+    pdf.showPage()
 pdf.save()
 
-prompt=f'''Premium Amazon KDP kids activity book cover, vertical 3:4 ratio. Title text: {PRODUCT}. Subtitle text: {subtitle}. Bold readable typography, bright playful modern colors, clean white space, bestselling thumbnail style, cheerful icons like crayons stars puzzle pieces, no clutter, no watermark, highly readable on mobile, polished commercial design, no people.'''
-(BOOK/'gemini-cover-prompt.txt').write_text(prompt,encoding='utf-8')
-
+# cover generation (AI)
+prompt=f'Amazon KDP book cover, minimal clean modern design, bold typography, title {PRODUCT}, subtitle {subtitle}, professional look'
 cover_created=False
 try:
     from google import genai
     from google.genai import types
     client=genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-    resp=client.models.generate_images(
-        model='imagen-4.0-generate-001',
-        prompt=prompt,
-        config=types.GenerateImagesConfig(number_of_images=3, aspect_ratio='3:4')
-    )
-    names=['cover-front.png','cover-variant-a.png','cover-variant-b.png']
-    for i,img in enumerate(resp.generated_images[:3]):
-        img.image.save(BOOK/f'{slug}-{names[i]}')
+    resp=client.models.generate_images(model='imagen-4.0-generate-001',prompt=prompt,config=types.GenerateImagesConfig(number_of_images=1,aspect_ratio='3:4'))
+    resp.generated_images[0].image.save(BOOK/f'{slug}-cover-front.png')
     cover_created=True
-except Exception as e:
-    # fallback placeholder
-    size=(1600,2560)
-    img=Image.new('RGB',size,(255,255,255))
+except:
+    img=Image.new('RGB',(1600,2560),(255,255,255))
     d=ImageDraw.Draw(img)
-    d.rounded_rectangle((70,70,1530,2490),radius=30,outline=(20,20,20),width=8)
-    d.text((140,180),PRODUCT[:34],fill=(0,0,0))
-    d.text((140,280),subtitle[:46],fill=(70,70,70))
+    d.text((200,400),PRODUCT,fill=(0,0,0))
     img.save(BOOK/f'{slug}-cover-front.png')
-    img.save(BOOK/f'{slug}-cover-variant-a.png')
-    img.save(BOOK/f'{slug}-cover-variant-b.png')
 
-base=Image.open(BOOK/f'{slug}-cover-front.png')
-thumb=base.copy(); thumb.thumbnail((300,480)); thumb.save(BOOK/'thumbnail-preview.png')
-mobile=base.copy(); mobile.thumbnail((220,352)); mobile.save(BOOK/'amazon-mobile-preview.png')
-
-(BOOK/'canva-cover-brief.txt').write_text('Optional: refine generated cover in Canva if needed.',encoding='utf-8')
+# metadata
 (BOOK/'title-subtitle.txt').write_text(PRODUCT+'\n'+subtitle,encoding='utf-8')
-(BOOK/'description.txt').write_text(PRODUCT+' gives families ready-to-use quiet activities for travel, home, restaurants, and rainy days.',encoding='utf-8')
-(BOOK/'keywords.txt').write_text('kids activity book\nquiet activities for kids\ntravel activity book\nrainy day kids book\nscreen free activities\nrestaurant kids activities\nindoor activity book',encoding='utf-8')
-(BOOK/'quality-check-report.txt').write_text('DIRECT IMAGE GENERATION MODE\n\nCheck:\n- title readable on thumbnail\n- no spelling mistakes\n- looks premium\n- compare variants\n',encoding='utf-8')
-(BOOK/'metadata.json').write_text(json.dumps({'product':PRODUCT,'folder':f'generated-output/books/{slug}','ai_cover_ready':True,'cover_generated_in_code':cover_created},indent=2),encoding='utf-8')
+(BOOK/'description.txt').write_text(f'{PRODUCT} helps {AUDIENCE} take action and make progress.',encoding='utf-8')
+(BOOK/'keywords.txt').write_text('planner\ntracker\nproductivity\nmoney\nside hustle\ndaily planner\ngoals',encoding='utf-8')
+(BOOK/'metadata.json').write_text(json.dumps({'product':PRODUCT,'type':'money_kdp','cover_generated':cover_created},indent=2),encoding='utf-8')
 (BOOKS_ROOT/'LATEST_BOOK.txt').write_text(slug+'\n'+PRODUCT+'\n',encoding='utf-8')
-print('Direct image cover package generated:',slug)
+print('Money generator ready:',slug)
