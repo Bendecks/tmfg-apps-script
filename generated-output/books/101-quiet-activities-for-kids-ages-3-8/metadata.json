@@ -1,7 +1,6 @@
 {
   "product": "101 Quiet Activities for Kids Ages 3-8",
   "folder": "generated-output/books/101-quiet-activities-for-kids-ages-3-8",
-  "pages": 110,
-  "cover_file": "101-quiet-activities-for-kids-ages-3-8-cover-draft.pdf",
+  "cover_assets": 5,
   "interior_pdf": "101-quiet-activities-for-kids-ages-3-8-interior.pdf"
 }
