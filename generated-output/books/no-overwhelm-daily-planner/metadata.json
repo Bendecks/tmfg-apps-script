@@ -1,5 +1,8 @@
 {
   "product": "No Overwhelm Daily Planner",
   "type": "money_kdp",
-  "cover_generated": true
+  "layout_engine": "v1",
+  "pages": 122,
+  "cover_generated": true,
+  "folder": "generated-output/books/no-overwhelm-daily-planner"
 }

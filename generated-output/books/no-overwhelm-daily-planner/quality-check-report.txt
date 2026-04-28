@@ -1,0 +1,9 @@
+LAYOUT ENGINE V1
+
+Interior upgraded with structured boxes, tracker tables, review pages, idea validation pages and money snapshots.
+
+Manual checks:
+- Open interior PDF.
+- Check margins in KDP previewer.
+- Check cover title spelling.
+- Confirm page count and trim size.
