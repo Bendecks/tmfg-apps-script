@@ -1,27 +1,39 @@
 {
   "brand": "The Modern Family Guide",
-  "mode": "kids_kdp",
-  "trim_size": "8.5x11",
-  "page_target": 110,
+  "mode": "money_kdp",
+  "trim_size": "6x9",
+  "page_target": 120,
   "output_root": "generated-output/books",
   "rotation": [
     {
-      "niche": "kids quiet activities",
-      "product_name": "101 Quiet Activities for Kids Ages 3-8",
-      "audience": "parents who need screen-free calm activities for home, travel, restaurants and rainy days",
-      "book_type": "activity book"
+      "niche": "side hustle planning",
+      "product_name": "First $100 Online Planner",
+      "audience": "beginners who want a simple structured way to start earning online",
+      "book_type": "planner"
     },
     {
-      "niche": "road trip activity book",
-      "product_name": "Road Trip Activity Book for Kids Ages 4-8",
-      "audience": "families who want screen-free travel entertainment for children",
-      "book_type": "activity book"
+      "niche": "side hustle tracking",
+      "product_name": "Side Hustle Tracker",
+      "audience": "people testing small online income ideas and tracking actions",
+      "book_type": "tracker"
     },
     {
-      "niche": "rainy day kids activities",
-      "product_name": "Rainy Day Busy Book for Kids Ages 3-7",
-      "audience": "parents who need easy indoor activities for young children",
-      "book_type": "activity book"
+      "niche": "freelance clients",
+      "product_name": "Freelance Client Logbook",
+      "audience": "new freelancers who need to track leads outreach and follow ups",
+      "book_type": "logbook"
+    },
+    {
+      "niche": "simple productivity",
+      "product_name": "No Overwhelm Daily Planner",
+      "audience": "busy people who want one clear priority and less mental clutter",
+      "book_type": "planner"
+    },
+    {
+      "niche": "budget reset",
+      "product_name": "Simple Budget Reset Journal",
+      "audience": "people who want a calm simple way to reset spending and money habits",
+      "book_type": "journal"
     }
   ]
 }
