@@ -1,0 +1,9 @@
+KDP upload checklist
+
+1. Review the interior PDF manually before upload.
+2. Create or upload a cover using the cover brief.
+3. Use title-subtitle.txt for title fields.
+4. Use description.txt for Amazon description.
+5. Use keywords.txt as the 7 KDP keyword boxes.
+6. Choose the closest available KDP categories.
+7. Order/preview proof before publishing.
