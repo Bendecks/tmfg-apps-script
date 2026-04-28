@@ -1,0 +1,3 @@
+Variant A: Blue + yellow
+Variant B: Orange + teal
+Variant C: Rainbow minimal

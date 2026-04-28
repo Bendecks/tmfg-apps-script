@@ -1,13 +1,11 @@
-COVER DOMINATION MODE
+AI COVER MODE
 
 Files created:
 - cover-front.png
-- cover-variant-a.png
-- cover-variant-b.png
 - thumbnail-preview.png
 - amazon-mobile-preview.png
+- gemini-cover-prompt.txt
+- canva-cover-brief.txt
 
-Manual checks:
-- Is title readable as thumbnail?
-- Is subtitle too small?
-- Does cover stand out vs competitors?
+Best practice:
+Generate final cover in Gemini/Canva using prompt file.
