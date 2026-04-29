@@ -1,35 +1,57 @@
-from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML
+import os, json, subprocess
 from pathlib import Path
-import json
 
 BASE = Path(__file__).resolve().parents[1]
-TEMPLATES = BASE / 'templates'
-OUTPUT = BASE / 'dist' / 'books' / 'premium-preview'
-OUTPUT.mkdir(parents=True, exist_ok=True)
+DIST = BASE / "dist" / "products"
+DIST.mkdir(parents=True, exist_ok=True)
 
-env = Environment(loader=FileSystemLoader(TEMPLATES))
+slug = "first-100-online-playbook"
+PRODUCT_DIR = DIST / slug
+PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
-pages = []
+# CONTENT
+title = "First $100 Online Playbook"
+subtitle = "A practical 30-day system for testing simple side hustles"
 
-def render(name, **kwargs):
-    return env.get_template(name).render(**kwargs)
+sections = [
+    "Why most people never make their first dollar online",
+    "The rule: action over thinking",
+    "How to pick one idea fast",
+    "How to test without overbuilding",
+    "How to get real feedback"
+]
 
-pages.append(render('hero.html', title='First $100 Online Workbook', subtitle='A 30-Day Action System for Testing Simple Side Hustles'))
-pages.append(render('phase.html', phase='Phase 1', title='Setup', description='Choose one idea, remove friction, and take the first useful action.'))
-pages.append(render('day_premium.html', day=1, phase='SETUP', action='Pick one simple idea and define who might realistically pay for it.'))
-pages.append(render('day_premium.html', day=7, phase='VALIDATION', action='Send 3 messages or make one public post to get real feedback.'))
-pages.append(render('checklist.html', title='Idea Validation Checklist'))
-pages.append(render('tracker_premium.html', title='Outreach Tracker'))
-pages.append(render('money.html'))
-pages.append(render('review.html', number=1))
+# BUILD TYPST FILE
+typst = f"""
+#set page(margin: 2cm)
+#set text(font: "Liberation Serif", size: 11pt)
 
-html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="styles/premium.css"></head><body>' + ''.join(pages) + '</body></html>'
+= {title}
+{subtitle}
 
-html_path = OUTPUT / 'preview.html'
-pdf_path = OUTPUT / 'preview.pdf'
-html_path.write_text(html, encoding='utf-8')
-HTML(string=html, base_url=str(BASE)).write_pdf(pdf_path)
+#pagebreak()
 
-(OUTPUT / 'metadata.json').write_text(json.dumps({'engine':'premium_preview_v1','pages':len(pages),'purpose':'visual QA before scaling'}, indent=2), encoding='utf-8')
-print('PREMIUM PREVIEW BUILT:', pdf_path)
+== Introduction
+
+This playbook is designed to get you from zero to your first $100 online.
+
+#pagebreak()
+"""
+
+for s in sections:
+    typst += f"\n== {s}\n\nTake one real action here.\n\n#pagebreak()\n"
+
+for day in range(1,31):
+    typst += f"\n== Day {day}\n\nAction: Do one thing that moves you closer to earning.\n\nResult:\n\nNext step:\n\n#pagebreak()\n"
+
+source_file = PRODUCT_DIR / "book.typ"
+source_file.write_text(typst, encoding="utf-8")
+
+pdf_file = PRODUCT_DIR / "book.pdf"
+subprocess.run(["typst", "compile", str(source_file), str(pdf_file)], check=True)
+
+(PRODUCT_DIR / "title.txt").write_text(title + "\n" + subtitle)
+(PRODUCT_DIR / "description.txt").write_text("A no-nonsense system to get your first online income.")
+(PRODUCT_DIR / "keywords.txt").write_text("side hustle, online income, first money")
+
+print("PRODUCT BUILT:", pdf_file)
