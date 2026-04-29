@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "first-100-online-playbook"
+slug = "first-100-side-hustle-test-kit"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -36,8 +36,9 @@ def load_json(text: str):
 
 def generate_pack():
     prompt = """
-Create a complete practical product called First $100 Online Playbook.
-Audience: beginners who want to test simple side hustles without fake guru advice.
+Create a complete practical product called First $100 Side Hustle Test Kit.
+Subtitle: A 30-Day Action System for Testing Real Online Income Ideas Without Fake Guru Advice.
+Audience: beginners who want to test simple side hustles without hype, expensive tools, or unrealistic promises.
 Return ONLY valid JSON in this exact shape:
 {
   "promise": "one sentence, no guarantees",
@@ -60,6 +61,7 @@ Rules:
 - No markdown formatting, no bullet symbols, no asterisks.
 - Do not promise guaranteed income.
 - Make every day different and concrete.
+- Avoid survey sites as the core strategy. Focus on testing simple services, offers, outreach, content, and digital products.
 - Keep each field concise but useful.
 """
     response = client.models.generate_content(
@@ -75,8 +77,8 @@ Rules:
 def list_items(items):
     return "\n".join([f"- {esc(x)}" for x in items])
 
-title = "First $100 Online Playbook"
-subtitle = "A practical 30-day system for testing simple side hustles"
+title = "First $100 Side Hustle Test Kit"
+subtitle = "A 30-Day Action System for Testing Real Online Income Ideas Without Fake Guru Advice"
 pack = generate_pack()
 days = pack["days"]
 
@@ -98,18 +100,18 @@ typst = f"""
 
 #align(center)[
   #v(45pt)
-  #text(size: 25pt, weight: "bold")[{esc(title)}]
+  #text(size: 23pt, weight: "bold")[{esc(title)}]
   #v(8pt)
-  #text(size: 12pt, fill: rgb("6B6258"))[{esc(subtitle)}]
+  #text(size: 11pt, fill: rgb("6B6258"))[{esc(subtitle)}]
   #v(32pt)
-  #box("Core promise", [{esc(pack.get('promise', 'A practical system for testing simple side hustle ideas without overbuilding.'))}])
+  #box("What this actually helps you do", [{esc(pack.get('promise', 'Test simple side hustle ideas through real actions, feedback, and small experiments without pretending income is guaranteed.'))}])
 ]
 
 #pagebreak()
 
-= How to Use This Playbook
+= How to Use This Test Kit
 
-This playbook is designed to help you test simple online income ideas through practical daily action. It does not promise guaranteed income. It gives you a structure for learning, testing, and improving quickly.
+This is not a motivational side hustle book. It is a practical testing system. The goal is to stop collecting ideas and start running small, realistic experiments that create feedback.
 
 == Who this is for
 {list_items(pack.get('who_it_is_for', []))}
@@ -119,9 +121,9 @@ This playbook is designed to help you test simple online income ideas through pr
 
 #pagebreak()
 
-= 30-Day Execution Plan
+= 30-Day Action Plan
 
-Each day has one objective, one specific action, one example, one expected result, and one reflection question. Do the action first. Fill the notes after.
+Each day gives you one objective, one specific action, one example, one expected result, and one reflection question. Do the action first. Judge the result after.
 
 #pagebreak()
 """
@@ -162,13 +164,39 @@ source_file.write_text(typst, encoding="utf-8")
 pdf_file = PRODUCT_DIR / "book.pdf"
 subprocess.run(["typst", "compile", str(source_file), str(pdf_file)], check=True)
 
+sales_description = """Most people do not need another side hustle idea.
+
+They need a way to test what actually works.
+
+First $100 Side Hustle Test Kit is a practical 30-day action system for beginners who want to explore simple online income ideas without fake guru promises, expensive tools, or endless planning.
+
+Inside, you get daily actions, simple idea tests, outreach prompts, reflection questions, and a built-in tracker to help you move from thinking to testing.
+
+No fake promises. No expensive tools. No build-a-brand-first nonsense.
+
+Just action, feedback, and progress.
+"""
+
 (PRODUCT_DIR / "title.txt").write_text(title + "\n" + subtitle, encoding="utf-8")
-(PRODUCT_DIR / "description.txt").write_text("A practical 30-day playbook for testing simple side hustle ideas, taking real action, and learning what could lead to a first online payment.", encoding="utf-8")
-(PRODUCT_DIR / "keywords.txt").write_text("side hustle, online income, make money online, first online income, beginner side hustle, action playbook", encoding="utf-8")
-(PRODUCT_DIR / "cover-prompt.txt").write_text("Create a clean premium 6x9 book cover for 'First $100 Online Playbook'. Minimal modern business style, strong readable title, warm neutral background, subtle money/progress motif, no fake luxury, no people, high readability as Amazon thumbnail.", encoding="utf-8")
+(PRODUCT_DIR / "description.txt").write_text(sales_description, encoding="utf-8")
+(PRODUCT_DIR / "keywords.txt").write_text("side hustle test kit, make money online beginner, first online income, realistic side hustle, online income for beginners, action plan side hustle, 30 day challenge money", encoding="utf-8")
+(PRODUCT_DIR / "cover-prompt.txt").write_text("""Create a premium 6x9 book cover.
+
+Title: First $100 Side Hustle Test Kit
+Subtitle: A 30-Day Action System for Testing Real Online Income Ideas
+
+Style:
+- Clean, modern, minimal
+- Strong typography, readable as an Amazon thumbnail
+- Warm neutral tones
+- Subtle progress or money motif
+- No people
+- No fake luxury visuals
+- Credible and practical, not make-money-online spam
+""", encoding="utf-8")
 (PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect 5 random pages.\n2. Check title/subtitle.\n3. Generate cover from cover-prompt.txt.\n4. Use description.txt and keywords.txt for listing.\n5. Do not publish before checking no income guarantees are stated.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine": "typst_gemini_sales_layout_v4_compat",
+    "engine": "typst_gemini_sales_positioned_v5",
     "product": title,
     "gemini_used": True,
     "model": MODEL_NAME,
