@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "signal-test-method-v3"
+slug = "signal-test-method-kdp-polish"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -25,11 +25,23 @@ def esc(text: str) -> str:
         text = text.replace(old, new)
     return text
 
-def box(title: str, body: str) -> str:
+def lines(n=6):
+    return "\n".join(["#line(length: 100%)" for _ in range(n)]) + "\n"
+
+def box(title: str, body: str, notes: int = 0) -> str:
+    content = esc(body)
+    if notes:
+        content += "\n\n#strong[Your notes]\n#v(3pt)\n" + lines(notes)
     return (
         '#block(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))['
-        f'#strong[{esc(title)}]\n#v(3pt)\n{esc(body)}\n]\n\n'
+        f'#strong[{esc(title)}]\n#v(3pt)\n{content}\n]\n\n'
     )
+
+def tracker_rows(n=18):
+    rows = '  [Date], [Test], [Signal], [Next action],\n'
+    for _ in range(n):
+        rows += '  [], [], [], [],\n'
+    return rows
 
 def load_json(text: str):
     text = (text or "").strip()
@@ -38,7 +50,7 @@ def load_json(text: str):
     return json.loads(text)
 
 prompt = """
-Create a sharp KDP workbook called The Signal Test Method V3.
+Create a sharp KDP workbook called The Signal Test Method.
 Subtitle: A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build.
 
 Use simple direct language. No fancy business jargon.
@@ -55,7 +67,7 @@ Return ONLY valid JSON:
   "method_steps":[{"name":"","what_it_means":"","test":"","what_goes_wrong":"","stop_when":""}],
   "fast_wins":[{"title":"","action":""}],
   "scripts":[{"title":"","text":""}],
-  "case_study":{"title":"","idea":"","what_i_did":["",""],"what_happened":"","conclusion":""},
+  "case_study":{"title":"","idea":"","what_i_did":["",""],"what_happened":"","conclusion":"","what_to_do_differently":""},
   "days":[{"day":1,"title":"","action":"","reality":"","win_condition":""}]
 }
 Rules:
@@ -83,6 +95,7 @@ for key, expected in [("method_steps",5),("fast_wins",3),("scripts",6),("days",3
 
 title = "The Signal Test Method"
 subtitle = "A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build"
+author = "The Modern Family Guide"
 
 typst = f"""
 #set page(width: 6in, height: 9in, margin: (x: 0.62in, y: 0.68in))
@@ -91,13 +104,33 @@ typst = f"""
 #set par(justify: false)
 
 #align(center)[
-#v(50pt)
-#text(size: 25pt, weight: "bold")[{esc(title)}]
-#v(8pt)
-#text(size: 11pt)[{esc(subtitle)}]
-#v(28pt)
-{box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'))}
+#v(120pt)
+#text(size: 26pt, weight: "bold")[{esc(title)}]
+#v(10pt)
+#text(size: 12pt)[{esc(subtitle)}]
+#v(44pt)
+#text(size: 10pt)[By {esc(author)}]
 ]
+
+#pagebreak()
+
+#text(size: 8pt)[
+Copyright © 2026\n\nThis workbook is for educational purposes only. It does not provide financial advice and does not guarantee income, business results, or sales. Your results depend on your skills, market, offer, effort, timing, and many other factors.
+]
+
+#pagebreak()
+
+= Contents
+
+The Method\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scripts\n\nCase Study\n\n30-Day Signal Plan\n\nSignal Tracker\n\nFinal Decision\n
+#pagebreak()
+
+= How to Use This Workbook
+
+Do not treat this like a book you only read. Use it as a 30-day testing tool. Each day asks you to take one small action, face the realistic friction, and record what actually happened.
+
+{box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'), 4)}
+
 #pagebreak()
 
 = The Method
@@ -108,67 +141,84 @@ Do not build first. Look for signals first.
 
 for s in pack["method_steps"]:
     body = f"{s['what_it_means']}\n\nTest: {s['test']}\n\nWhat goes wrong: {s['what_goes_wrong']}\n\nStop when: {s['stop_when']}"
-    typst += box(s["name"], body)
+    typst += box(s["name"], body, 4)
 
-typst += "#pagebreak()\n= Start here: 15-minute tests\n\n"
+typst += "#pagebreak()\n= Start Here: 15-Minute Tests\n\n"
 for fw in pack["fast_wins"]:
-    typst += box(fw["title"], fw["action"])
+    typst += box(fw["title"], fw["action"], 5)
 
-typst += "#pagebreak()\n= Copy/paste scripts\n\n"
+typst += "#pagebreak()\n= Copy/Paste Scripts\n\nUse these as starting points. Rewrite them so they sound like you.\n\n"
 for sc in pack["scripts"]:
-    typst += box(sc["title"], sc["text"])
+    typst += box(sc["title"], sc["text"], 3)
 
 cs = pack["case_study"]
-typst += f"#pagebreak()\n= {esc(cs['title'])}\n\n"
+typst += f"#pagebreak()\n= Case Study: {esc(cs['title'])}\n\n"
 typst += box("Idea", cs["idea"])
 typst += box("What I did", "\n".join(cs.get("what_i_did", [])))
 typst += box("What happened", cs["what_happened"])
-typst += box("Conclusion", cs["conclusion"])
-typst += "#pagebreak()\n"
+typst += box("What I learned", cs["conclusion"])
+typst += box("What I would do differently", cs.get("what_to_do_differently", "Use a smaller test, ask for money sooner, and stop faster if no one cares."), 5)
+typst += "#pagebreak()\n= 30-Day Signal Plan\n\nEach day has one action, one reality check, and one win condition. Complete the action before reading ahead.\n\n#pagebreak()\n"
 
 for d in pack["days"]:
     typst += f"= Day {d['day']}: {esc(d['title'])}\n\n"
     typst += box("Action", d["action"])
     typst += box("Reality", d["reality"])
     typst += box("Win condition", d["win_condition"])
+    typst += box("Daily notes", "What happened today? What signal did you see? What is the next smallest action?", 7)
     typst += "#pagebreak()\n"
 
-typst += """
+typst += f"""
 = Signal Tracker
 
 #table(
   columns: (1fr, 1.6fr, 1.6fr, 1.3fr),
   inset: 7pt,
   stroke: 0.5pt,
-  [Date], [Test], [Signal], [Next move],
-)
+{tracker_rows(18)})
 
 #pagebreak()
 
 = Final Decision
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.5pt)[#strong[Double down]\n#v(3pt)What created the strongest signal?]
-#block(inset: 8pt, radius: 4pt, stroke: 0.5pt)[#strong[Stop]\n#v(3pt)What produced silence or weak signals?]
-#block(inset: 8pt, radius: 4pt, stroke: 0.5pt)[#strong[Next test]\n#v(3pt)What is the smallest next action?]
+{box('Double down', 'What created the strongest signal? What should you repeat?', 6)}
+{box('Stop', 'What produced silence, weak signals, or polite interest without action?', 6)}
+{box('Next test', 'What is the smallest test you will run next?', 6)}
 """
 
 src = PRODUCT_DIR / "book.typ"
 src.write_text(typst, encoding="utf-8")
 subprocess.run(["typst", "compile", str(src), str(PRODUCT_DIR / "book.pdf")], check=True)
 
+sales_description = """Most side hustle ideas fail because people build before they test.
+
+The Signal Test Method is a practical 30-day KDP workbook for testing real demand before you waste time building the wrong thing.
+
+Inside, you get a simple 5-step method, 15-minute tests, copy/paste scripts, a realistic case study, daily action pages, notes space, a signal tracker, and final decision worksheets.
+
+No fake promises. No guru hype. No expensive tools.
+
+Just small tests, real signals, and clearer next steps.
+"""
+
 (PRODUCT_DIR / "title.txt").write_text(title + "\n" + subtitle, encoding="utf-8")
-(PRODUCT_DIR / "description.txt").write_text("A practical 30-day KDP workbook for testing real side hustle demand before building. Includes a simple 5-step method, fast tests, scripts, a case study, and daily action pages.", encoding="utf-8")
+(PRODUCT_DIR / "description.txt").write_text(sales_description, encoding="utf-8")
 (PRODUCT_DIR / "keywords.txt").write_text("side hustle workbook, business idea validation, side hustle planner, online income beginner, product validation, demand testing, startup workbook", encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text("Create a premium 6x9 KDP cover for The Signal Test Method. Clean modern workbook style. Subtitle: A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build. Strong readable typography, warm neutral tones, subtle signal/radar motif, no people, not scammy.", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, contents, 3 daily pages, tracker, and final decision page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover from cover-prompt.txt.\n4. Use description.txt and keywords.txt for KDP listing.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"signal_v3_fixed_strong_rendering",
+    "engine":"kdp_polish_build_v1",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
     "method_steps": len(pack["method_steps"]),
     "fast_wins": len(pack["fast_wins"]),
     "model": MODEL_NAME,
-    "kdp_only": True
+    "kdp_only": True,
+    "frontmatter": True,
+    "contents": True,
+    "worksheets": True,
+    "tracker_rows": 18
 }, indent=2), encoding="utf-8")
 
-print("Signal Method V3 built")
+print("KDP Polish Build created")
