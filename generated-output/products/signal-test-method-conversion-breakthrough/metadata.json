@@ -1,0 +1,22 @@
+{
+  "engine": "conversion_breakthrough_v1",
+  "product": "The Signal Test Method",
+  "days": 30,
+  "scripts": 6,
+  "method_steps": 5,
+  "fast_wins": 3,
+  "conversion_tools": 5,
+  "model": "gemini-2.5-flash",
+  "kdp_only": true,
+  "frontmatter": true,
+  "scroll_stop_page": true,
+  "real_signal_page": true,
+  "box_styles": 3,
+  "daily_highlights": true,
+  "humanize_tone": true,
+  "headers_footers": true,
+  "worksheets": true,
+  "tracker_rows": 24,
+  "listing_assets": true,
+  "cover_assets": true
+}

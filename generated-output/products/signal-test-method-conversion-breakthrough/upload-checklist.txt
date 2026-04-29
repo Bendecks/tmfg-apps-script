@@ -1,0 +1,5 @@
+1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.
+2. Check that no income guarantees are stated.
+3. Generate KDP cover using cover-spec.json or cover-prompt.txt.
+4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.
+5. Upload interior PDF to KDP and preview before publishing.
