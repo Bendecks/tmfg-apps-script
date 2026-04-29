@@ -1,0 +1,16 @@
+{
+  "trim_size": "6.0x9.0",
+  "dpi": 300,
+  "bleed_in": 0.125,
+  "paper_type": "black_white_white_paper",
+  "interior_page_count": 52,
+  "spine_width_in": 0.1171,
+  "spine_width_px": 35,
+  "full_cover_width_in": 12.3633,
+  "full_cover_height_in": 9.2467,
+  "front_cover_source": "cover-1.png",
+  "wraparound_png": "kdp-wraparound-cover.png",
+  "wraparound_pdf": "kdp-wraparound-cover.pdf",
+  "spine_text_included": false,
+  "note": "This is an automated KDP paperback wraparound draft. Verify dimensions in KDP Print Previewer before publishing."
+}

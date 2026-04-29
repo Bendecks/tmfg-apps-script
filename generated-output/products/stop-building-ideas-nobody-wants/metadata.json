@@ -36,5 +36,11 @@
   "image_models_tried": [
     "gemini-2.5-flash-image-preview",
     "gemini-3.1-flash-image-preview"
-  ]
+  ],
+  "kdp_wraparound_cover": true,
+  "kdp_wraparound_pdf": "kdp-wraparound-cover.pdf",
+  "kdp_wraparound_png": "kdp-wraparound-cover.png",
+  "kdp_wraparound_metadata": "kdp-wraparound-cover.json",
+  "interior_page_count": 52,
+  "spine_width_in": 0.1171
 }
