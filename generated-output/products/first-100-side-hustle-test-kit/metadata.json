@@ -1,0 +1,10 @@
+{
+  "engine": "typst_gemini_sales_positioned_v5",
+  "product": "First $100 Side Hustle Test Kit",
+  "gemini_used": true,
+  "model": "gemini-2.5-flash",
+  "days_generated": 30,
+  "fallback_allowed": false,
+  "typst_sanitized": true,
+  "layout": "6x9_sales_playbook"
+}
