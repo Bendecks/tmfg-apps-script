@@ -1,5 +1,5 @@
 {
-  "engine": "conversion_breakthrough_v1",
+  "engine": "conversion_breakthrough_v1_humanize_fixed",
   "product": "The Signal Test Method",
   "days": 30,
   "scripts": 6,
@@ -14,6 +14,7 @@
   "box_styles": 3,
   "daily_highlights": true,
   "humanize_tone": true,
+  "humanize_have_contraction_removed": true,
   "headers_footers": true,
   "worksheets": true,
   "tracker_rows": 24,
