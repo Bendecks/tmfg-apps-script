@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "signal-test-method-conversion-breakthrough"
+slug = "stop-building-ideas-nobody-wants"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -17,6 +17,12 @@ if not api_key:
     raise RuntimeError("GEMINI_API_KEY is missing.")
 
 client = genai.Client(api_key=api_key)
+
+# KDP-facing title optimized for search + click-through.
+title = "Stop Building Ideas Nobody Wants"
+subtitle = "The Signal Test Method: A 30-Day Side Hustle Workbook to Test Demand Before You Build"
+author = "The Modern Family Guide"
+internal_method_name = "The Signal Test Method"
 
 def esc(text: str) -> str:
     text = str(text)
@@ -44,17 +50,17 @@ def humanize(text: str) -> str:
 def lines(n=6):
     return "\n".join(["#line(length: 100%)" for _ in range(n)]) + "\n"
 
-def box_primary(title: str, body: str, notes: int = 0) -> str:
+def box_primary(title_text: str, body: str, notes: int = 0) -> str:
     content = esc(humanize(body))
     if notes:
         content += "\n\n#strong[Your notes]\n#v(4pt)\n" + lines(notes)
-    return '#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[' + f'#strong[{esc(title)}]\n#v(4pt)\n{content}\n]\n\n'
+    return '#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[' + f'#strong[{esc(title_text)}]\n#v(4pt)\n{content}\n]\n\n'
 
-def box_secondary(title: str, body: str, notes: int = 0) -> str:
+def box_secondary(title_text: str, body: str, notes: int = 0) -> str:
     content = esc(humanize(body))
     if notes:
         content += "\n\n#emph[Notes]\n#v(3pt)\n" + lines(notes)
-    return '#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[' + f'#emph[{esc(title)}]\n#v(3pt)\n{content}\n]\n\n'
+    return '#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[' + f'#emph[{esc(title_text)}]\n#v(3pt)\n{content}\n]\n\n'
 
 def box_highlight(text: str) -> str:
     return '#block(inset: 12pt, radius: 0pt, stroke: none)[' + f'#text(size: 12pt, weight: "bold")[{esc(humanize(text))}]' + ']\n\n'
@@ -87,8 +93,9 @@ def load_json(text: str):
     return json.loads(text)
 
 prompt = """
-Create a sharp KDP workbook called The Signal Test Method.
-Subtitle: A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build.
+Create a sharp KDP workbook system called The Signal Test Method.
+The public book title is Stop Building Ideas Nobody Wants.
+Subtitle: The Signal Test Method: A 30-Day Side Hustle Workbook to Test Demand Before You Build.
 
 Use simple direct language. No fancy business jargon.
 The method names MUST be exactly:
@@ -126,14 +133,10 @@ response = client.models.generate_content(
 )
 pack = load_json(response.text)
 
-for key, expected in [("method_steps",5),("fast_wins",3),("scripts",6),("days",30)]:
+for key, expected in [("method_steps", 5), ("fast_wins", 3), ("scripts", 6), ("days", 30)]:
     actual = len(pack.get(key, []))
     if actual != expected:
         raise RuntimeError(f"Expected {expected} {key}, got {actual}")
-
-title = "The Signal Test Method"
-subtitle = "A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build"
-author = "The Modern Family Guide"
 
 mini_tools = [
     ("The 10-Message Test", "Send 10 direct, personal messages before judging an idea. Don’t count likes, compliments, or vague interest. Count replies that show pain or willingness to act."),
@@ -147,7 +150,7 @@ typst = f"""
   width: 6in,
   height: 9in,
   margin: (x: 0.62in, y: 0.68in),
-  header: align(center)[#text(size: 8pt, fill: rgb("777777"))[The Signal Test Method]],
+  header: align(center)[#text(size: 8pt, fill: rgb("777777"))[{esc(title)}]],
   footer: align(center)[#context text(size: 8pt, fill: rgb("777777"))[#counter(page).display()]]
 )
 #set text(size: 10pt)
@@ -155,10 +158,10 @@ typst = f"""
 #set par(justify: false)
 
 #align(center)[
-#v(120pt)
-#text(size: 26pt, weight: "bold")[{esc(title)}]
+#v(105pt)
+#text(size: 25pt, weight: "bold")[{esc(title)}]
 #v(10pt)
-#text(size: 12pt)[{esc(subtitle)}]
+#text(size: 11pt)[{esc(subtitle)}]
 #v(44pt)
 #text(size: 10pt)[By {esc(author)}]
 ]
@@ -305,9 +308,11 @@ subprocess.run(["typst", "compile", str(src), str(PRODUCT_DIR / "book.pdf")], ch
 
 sales_description = """Most side hustle ideas fail because people build before they test.
 
-The Signal Test Method is a practical 30-day workbook for testing real demand before you waste time building the wrong thing.
+Stop Building Ideas Nobody Wants is a practical 30-day side hustle workbook that helps you test real demand before you waste time building the wrong thing.
 
-Inside, you get a simple 5-step method, conversion tools like The 10-Message Test and The $10 Tiny Offer Test, a real 3-Signal Scorecard, 15-minute tests, copy/paste scripts, a digital side hustle case study, daily action pages, notes space, a signal tracker, and Stop / Pivot / Continue worksheets.
+Inside, you’ll use The Signal Test Method: a simple 5-step process for finding a real problem, finding someone who cares, making a tiny offer, asking directly, and trying to get paid.
+
+You also get conversion tools like The 10-Message Test, The $10 Tiny Offer Test, The Polite Interest Trap, The Silence Rule, and a real 3-Signal Scorecard.
 
 This workbook is designed for beginners who want a realistic way to test side hustle ideas without hype, expensive tools, or fake income promises.
 
@@ -329,14 +334,21 @@ kdp_listing = {
     "backend_keywords": [
         "side hustle workbook",
         "business idea validation",
-        "product validation workbook",
         "test business idea",
-        "online income beginner",
+        "product validation workbook",
+        "side hustle planner",
         "startup workbook",
-        "side hustle planner"
+        "online income beginner"
     ],
-    "pricing_note": "Start low for early traction. For paperback, test the lowest viable royalty-positive price, then raise only after reviews or proof of demand.",
-    "positioning_note": "Position as a practical validation workbook, not a make-money promise."
+    "title_variants_for_future_tests": [
+        "Stop Building Ideas Nobody Wants",
+        "Test Before You Build",
+        "Side Hustle Idea Validation Workbook",
+        "The Signal Test Method",
+        "Will Anyone Pay For This?"
+    ],
+    "recommended_positioning": "Lead with the fear of wasting time building the wrong idea. Sell the workbook as a practical validation system, not an income promise.",
+    "pricing_note": "Start with a low royalty-positive paperback price for traction. Raise only after reviews, proof of conversion, or a stronger cover."
 }
 
 cover_spec = {
@@ -344,10 +356,26 @@ cover_spec = {
     "trim_size": "6x9",
     "title": title,
     "subtitle": subtitle,
-    "style": "high-contrast premium workbook, credible business guide, warm neutral tones, bold readable typography, subtle signal/radar/checklist motif, no people, no fake luxury, not scammy",
-    "front_cover_prompt": "Create a premium 6x9 KDP paperback front cover for 'The Signal Test Method'. Subtitle: 'A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build'. High-contrast clean modern business workbook style. Title must be readable as a small Amazon thumbnail. Use warm neutral tones, strong typography, and a subtle signal/radar/checklist motif. No people. No fake luxury. No money rain. Credible, practical, not make-money-online spam.",
-    "back_cover_blurb": "Stop building ideas nobody asked for. The Signal Test Method helps you test demand first with small actions, direct asks, tiny paid offers, and clear Stop / Pivot / Continue decisions.",
-    "spine_text": "The Signal Test Method"
+    "thumbnail_rule": "Title must be readable when reduced to Amazon search-result thumbnail size.",
+    "avoid": ["money rain", "laptop luxury lifestyle", "fake guru look", "crowded illustrations", "tiny subtitle", "generic planner cover"],
+    "recommended_concept": "bold typography first, minimal signal/checkmark motif second, warm neutral background, business-workbook credibility",
+    "front_cover_prompt": "Create a premium 6x9 KDP paperback front cover for 'Stop Building Ideas Nobody Wants'. Subtitle: 'The Signal Test Method: A 30-Day Side Hustle Workbook to Test Demand Before You Build'. The cover must be high-contrast and readable as a small Amazon thumbnail. Use bold modern typography, warm neutral tones, and a subtle signal/checkmark/radar motif. Make it look like a credible business workbook, not a scammy make-money-online product. No people, no money rain, no luxury laptop scene, no fake guru style, no clutter.",
+    "concepts": [
+        {
+            "name": "Bold Text / Proof Motif",
+            "prompt": "Minimal warm-neutral cover. Huge bold title. Small radar/checkmark icon. Professional business workbook style. Strong contrast."
+        },
+        {
+            "name": "Stop Sign / Idea Filter",
+            "prompt": "Clean cover with abstract stop/filter symbol and checklist marks. Strong title hierarchy. Not playful. Credible and practical."
+        },
+        {
+            "name": "Signal Dashboard",
+            "prompt": "Minimal dashboard-like cover with simple signal bars and checkmarks. Premium workbook feel. No charts that look like stock investing."
+        }
+    ],
+    "back_cover_blurb": "Stop building ideas nobody asked for. This workbook helps you test demand first with small actions, direct asks, tiny paid offers, and clear Stop / Pivot / Continue decisions.",
+    "spine_text": title
 }
 
 upload_fields = (
@@ -368,10 +396,11 @@ upload_fields = (
 (PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate 3 cover concepts using cover-spec.json.\n4. Test thumbnail readability before upload.\n5. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n6. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"conversion_breakthrough_v1_humanize_fixed",
+    "engine": "kdp_sales_optimization_v1",
     "product": title,
+    "method_name": internal_method_name,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
     "method_steps": len(pack["method_steps"]),
@@ -379,7 +408,11 @@ upload_fields = (
     "conversion_tools": len(mini_tools) + 1,
     "model": MODEL_NAME,
     "kdp_only": True,
-    "frontmatter": True,
+    "sales_title_optimized": True,
+    "searchable_subtitle": True,
+    "cover_positioning_assets": True,
+    "cover_concepts": 3,
+    "thumbnail_rule": True,
     "scroll_stop_page": True,
     "real_signal_page": True,
     "box_styles": 3,
@@ -393,4 +426,4 @@ upload_fields = (
     "cover_assets": True
 }, indent=2), encoding="utf-8")
 
-print("Conversion Breakthrough Build created")
+print("KDP Sales Optimization Build created")
