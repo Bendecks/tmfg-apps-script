@@ -1,0 +1,19 @@
+{
+  "engine": "kdp_preview_optimization_v1_fixed_page_counter",
+  "product": "The Signal Test Method",
+  "days": 30,
+  "scripts": 6,
+  "method_steps": 5,
+  "fast_wins": 3,
+  "conversion_tools": 5,
+  "model": "gemini-2.5-flash",
+  "kdp_only": true,
+  "frontmatter": true,
+  "preview_intro": true,
+  "fast_win_page": true,
+  "headers_footers": true,
+  "worksheets": true,
+  "tracker_rows": 24,
+  "listing_assets": true,
+  "cover_assets": true
+}
