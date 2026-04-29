@@ -82,11 +82,10 @@ days = pack["days"]
 
 typst = f"""
 #set page(width: 6in, height: 9in, margin: (x: 0.65in, y: 0.72in))
-#set text(font: "Liberation Serif", size: 10.5pt, leading: 0.62em)
+#set text(font: "Liberation Serif", size: 10.5pt)
 #set heading(numbering: none)
-#set par(justify: true)
+#set par(justify: true, leading: 0.62em)
 
-#let rule() = line(length: 100%, stroke: 0.5pt + rgb("D7D2CA"))
 #let label(t) = text(size: 8pt, weight: "bold", fill: rgb("6B6258"), upper(t))
 #let box(title, body) = block(
   width: 100%,
@@ -169,7 +168,7 @@ subprocess.run(["typst", "compile", str(source_file), str(pdf_file)], check=True
 (PRODUCT_DIR / "cover-prompt.txt").write_text("Create a clean premium 6x9 book cover for 'First $100 Online Playbook'. Minimal modern business style, strong readable title, warm neutral background, subtle money/progress motif, no fake luxury, no people, high readability as Amazon thumbnail.", encoding="utf-8")
 (PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect 5 random pages.\n2. Check title/subtitle.\n3. Generate cover from cover-prompt.txt.\n4. Use description.txt and keywords.txt for listing.\n5. Do not publish before checking no income guarantees are stated.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine": "typst_gemini_sales_layout_v4",
+    "engine": "typst_gemini_sales_layout_v4_compat",
     "product": title,
     "gemini_used": True,
     "model": MODEL_NAME,
