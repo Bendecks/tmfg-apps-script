@@ -1,4 +1,9 @@
 {
-  "engine": "typst_gemini_v1",
-  "product": "First $100 Online Playbook"
+  "engine": "typst_gemini_json_v3",
+  "product": "First $100 Online Playbook",
+  "gemini_used": true,
+  "model": "gemini-2.5-flash",
+  "days_generated": 30,
+  "fallback_allowed": false,
+  "typst_sanitized": true
 }
