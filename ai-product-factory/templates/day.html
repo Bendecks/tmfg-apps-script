@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page">
+<h1>Day {{ day }}</h1>
+<p class="phase">{{ phase }}</p>
+<div class="prompt">{{ prompt }}</div>
+<div class="box">Focus</div>
+<div class="box">Action</div>
+<div class="box">Result</div>
+<div class="box">Learning</div>
+{% if extra %}
+<div class="box highlight">{{ extra }}</div>
+{% endif %}
+</div>
+{% endblock %}
