@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "first-100-side-hustle-test-kit"
+slug = "signal-test-method-side-hustle-playbook"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -36,18 +36,34 @@ def load_json(text: str):
 
 def generate_pack():
     prompt = """
-Create a complete practical product called First $100 Side Hustle Test Kit.
-Subtitle: A 30-Day Action System for Testing Real Online Income Ideas Without Fake Guru Advice.
-Audience: beginners who want to test simple side hustles without hype, expensive tools, or unrealistic promises.
+Create a complete KDP workbook using a named method called The Signal Test Method.
+Product title: The Signal Test Method
+Subtitle: A 30-Day Side Hustle Playbook for Testing Real Demand Before You Waste Time
+Audience: beginners who want to test simple side hustle ideas without fake guru advice.
+
+The method has 5 steps:
+1. Problem Signal: find a real pain point people mention.
+2. Buyer Signal: identify who might pay to solve it.
+3. Offer Signal: write one tiny paid offer.
+4. Response Signal: send low-pressure outreach and measure replies.
+5. Money Signal: ask for a small payment, deposit, or booked test.
+
 Return ONLY valid JSON in this exact shape:
 {
   "promise": "one sentence, no guarantees",
   "who_it_is_for": ["item", "item", "item"],
   "rules": ["item", "item", "item", "item"],
+  "method_steps": [
+    {"name":"Problem Signal", "meaning":"plain text", "test":"plain text"}
+  ],
+  "scripts": [
+    {"title":"DM feedback script", "text":"plain text"}
+  ],
   "days": [
     {
       "day": 1,
       "title": "short title",
+      "signal_step": "one of the 5 method steps",
       "objective": "plain text, no markdown",
       "specific_action": "plain text, no markdown",
       "example": "plain text, no markdown",
@@ -57,12 +73,14 @@ Return ONLY valid JSON in this exact shape:
   ]
 }
 Rules:
+- Exactly 5 method_steps.
+- Exactly 6 scripts: feedback request, first outreach, follow-up, small paid offer, rejection reply, testimonial request.
 - Exactly 30 days.
 - No markdown formatting, no bullet symbols, no asterisks.
 - Do not promise guaranteed income.
+- Avoid survey sites as the core strategy.
+- Focus on simple services, tiny offers, outreach, content tests, and digital product tests.
 - Make every day different and concrete.
-- Avoid survey sites as the core strategy. Focus on testing simple services, offers, outreach, content, and digital products.
-- Keep each field concise but useful.
 """
     response = client.models.generate_content(
         model=MODEL_NAME,
@@ -72,13 +90,17 @@ Rules:
     data = load_json(response.text)
     if len(data.get("days", [])) != 30:
         raise RuntimeError(f"Expected 30 days from Gemini, got {len(data.get('days', []))}")
+    if len(data.get("method_steps", [])) != 5:
+        raise RuntimeError(f"Expected 5 method steps, got {len(data.get('method_steps', []))}")
+    if len(data.get("scripts", [])) != 6:
+        raise RuntimeError(f"Expected 6 scripts, got {len(data.get('scripts', []))}")
     return data
 
 def list_items(items):
     return "\n".join([f"- {esc(x)}" for x in items])
 
-title = "First $100 Side Hustle Test Kit"
-subtitle = "A 30-Day Action System for Testing Real Online Income Ideas Without Fake Guru Advice"
+title = "The Signal Test Method"
+subtitle = "A 30-Day Side Hustle Playbook for Testing Real Demand Before You Waste Time"
 pack = generate_pack()
 days = pack["days"]
 
@@ -100,18 +122,18 @@ typst = f"""
 
 #align(center)[
   #v(45pt)
-  #text(size: 23pt, weight: "bold")[{esc(title)}]
+  #text(size: 25pt, weight: "bold")[{esc(title)}]
   #v(8pt)
   #text(size: 11pt, fill: rgb("6B6258"))[{esc(subtitle)}]
   #v(32pt)
-  #box("What this actually helps you do", [{esc(pack.get('promise', 'Test simple side hustle ideas through real actions, feedback, and small experiments without pretending income is guaranteed.'))}])
+  #box("What this actually helps you do", [{esc(pack.get('promise', 'Test side hustle ideas through small demand signals before wasting time building the wrong thing.'))}])
 ]
 
 #pagebreak()
 
-= How to Use This Test Kit
+= How to Use This Book
 
-This is not a motivational side hustle book. It is a practical testing system. The goal is to stop collecting ideas and start running small, realistic experiments that create feedback.
+This is a KDP workbook for testing demand, not a promise of income. The goal is to stop collecting side hustle ideas and start looking for real signals: pain, interest, replies, willingness to pay, and proof that a small offer deserves more time.
 
 == Who this is for
 {list_items(pack.get('who_it_is_for', []))}
@@ -121,41 +143,50 @@ This is not a motivational side hustle book. It is a practical testing system. T
 
 #pagebreak()
 
-= 30-Day Action Plan
+= The Signal Test Method
 
-Each day gives you one objective, one specific action, one example, one expected result, and one reflection question. Do the action first. Judge the result after.
+The method is simple: do not build first. Test for signals first.
 
-#pagebreak()
 """
+
+for step in pack.get("method_steps", []):
+    typst += f"#box(\"{esc(step.get('name','Signal'))}\", [{esc(step.get('meaning',''))}\n\nTest: {esc(step.get('test',''))}])\n\n"
+
+typst += "#pagebreak()\n\n= Script Bank\n\nUse these scripts as starting points. Rewrite them so they sound like you.\n\n"
+for script in pack.get("scripts", []):
+    typst += f"#box(\"{esc(script.get('title','Script'))}\", [{esc(script.get('text',''))}])\n\n"
+
+typst += "#pagebreak()\n\n= 30-Day Signal Plan\n\nEach day tests one signal. Do the action first. Judge the result after.\n\n#pagebreak()\n"
 
 for item in days:
     day = int(item.get("day"))
     day_title = esc(item.get("title", f"Day {day}"))
     typst += f"\n= Day {day}: {day_title}\n\n"
+    typst += f"#box(\"Signal step\", [{esc(item.get('signal_step', ''))}])\n\n"
     typst += f"#box(\"Objective\", [{esc(item.get('objective', ''))}])\n\n"
     typst += f"#box(\"Specific action\", [{esc(item.get('specific_action', ''))}])\n\n"
     typst += f"#box(\"Example\", [{esc(item.get('example', ''))}])\n\n"
-    typst += f"#box(\"Expected result\", [{esc(item.get('expected_result', ''))}])\n\n"
+    typst += f"#box(\"Expected signal\", [{esc(item.get('expected_result', ''))}])\n\n"
     typst += f"#box(\"Reflection\", [{esc(item.get('reflection_question', ''))}])\n\n"
     typst += "#pagebreak()\n"
 
 typst += """
-= Outreach Tracker
+= Signal Tracker
 
 #table(
-  columns: (1fr, 2fr, 2fr, 1.5fr),
+  columns: (1fr, 1.6fr, 1.6fr, 1.3fr),
   inset: 7pt,
   stroke: 0.5pt + rgb("D7D2CA"),
-  [Date], [Person / platform], [Message sent], [Next step],
+  [Date], [Test], [Signal seen], [Next action],
 )
 
 #pagebreak()
 
 = Next 30 Days
 
-#box("Double down", [What action created the clearest signal?])
-#box("Cut", [What felt busy but did not create useful feedback?])
-#box("Next offer", [What will you test next?])
+#box("Double down", [What test created the strongest signal?])
+#box("Cut", [What felt busy but produced weak or no signal?])
+#box("Next offer", [What tiny paid offer will you test next?])
 """
 
 source_file = PRODUCT_DIR / "book.typ"
@@ -164,46 +195,49 @@ source_file.write_text(typst, encoding="utf-8")
 pdf_file = PRODUCT_DIR / "book.pdf"
 subprocess.run(["typst", "compile", str(source_file), str(pdf_file)], check=True)
 
-sales_description = """Most people do not need another side hustle idea.
+sales_description = """Most side hustle ideas fail because people build before they test.
 
-They need a way to test what actually works.
+The Signal Test Method gives beginners a practical 30-day system for testing real demand before wasting time on the wrong idea.
 
-First $100 Side Hustle Test Kit is a practical 30-day action system for beginners who want to explore simple online income ideas without fake guru promises, expensive tools, or endless planning.
+Instead of collecting more ideas, you will look for signals: real pain points, likely buyers, simple offers, replies, feedback, and early willingness to pay.
 
-Inside, you get daily actions, simple idea tests, outreach prompts, reflection questions, and a built-in tracker to help you move from thinking to testing.
+Inside, you get a named 5-step method, daily action pages, outreach scripts, follow-up scripts, offer prompts, reflection questions, and a signal tracker.
 
-No fake promises. No expensive tools. No build-a-brand-first nonsense.
+No fake promises. No expensive tools. No guru hype.
 
-Just action, feedback, and progress.
+Just small tests, real feedback, and clearer next steps.
 """
 
 (PRODUCT_DIR / "title.txt").write_text(title + "\n" + subtitle, encoding="utf-8")
 (PRODUCT_DIR / "description.txt").write_text(sales_description, encoding="utf-8")
-(PRODUCT_DIR / "keywords.txt").write_text("side hustle test kit, make money online beginner, first online income, realistic side hustle, online income for beginners, action plan side hustle, 30 day challenge money", encoding="utf-8")
-(PRODUCT_DIR / "cover-prompt.txt").write_text("""Create a premium 6x9 book cover.
+(PRODUCT_DIR / "keywords.txt").write_text("side hustle workbook, side hustle planner, business idea validation, online income beginner, make money online realistic, offer testing, side hustle test kit", encoding="utf-8")
+(PRODUCT_DIR / "cover-prompt.txt").write_text("""Create a premium 6x9 KDP book cover.
 
-Title: First $100 Side Hustle Test Kit
-Subtitle: A 30-Day Action System for Testing Real Online Income Ideas
+Title: The Signal Test Method
+Subtitle: A 30-Day Side Hustle Playbook for Testing Real Demand Before You Waste Time
 
 Style:
-- Clean, modern, minimal
+- Clean, modern, credible business workbook
 - Strong typography, readable as an Amazon thumbnail
 - Warm neutral tones
-- Subtle progress or money motif
+- Subtle signal/radar/progress motif
 - No people
 - No fake luxury visuals
-- Credible and practical, not make-money-online spam
+- Practical, serious, not make-money-online spam
 """, encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect 5 random pages.\n2. Check title/subtitle.\n3. Generate cover from cover-prompt.txt.\n4. Use description.txt and keywords.txt for listing.\n5. Do not publish before checking no income guarantees are stated.\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect 5 random pages.\n2. Check title/subtitle.\n3. Generate cover from cover-prompt.txt.\n4. Use description.txt and keywords.txt for KDP listing.\n5. Do not publish before checking no income guarantees are stated.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine": "typst_gemini_sales_positioned_v5",
+    "engine": "signal_test_method_v1",
     "product": title,
+    "kdp_only": True,
     "gemini_used": True,
     "model": MODEL_NAME,
     "days_generated": len(days),
+    "scripts_generated": len(pack.get("scripts", [])),
+    "method_steps": len(pack.get("method_steps", [])),
     "fallback_allowed": False,
     "typst_sanitized": True,
-    "layout": "6x9_sales_playbook"
+    "layout": "6x9_kdp_workbook"
 }, indent=2), encoding="utf-8")
 
 print("AI PRODUCT BUILT:", pdf_file)
