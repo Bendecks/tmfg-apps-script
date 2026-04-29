@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "signal-test-method-kdp-polish"
+slug = "signal-test-method-kdp-conversion"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -79,6 +79,7 @@ Rules:
 - no markdown
 - no hype
 - include low replies, awkwardness, and failure
+- case study must be about a digital side hustle such as a template, audit, checklist, spreadsheet, or PDF mini-product
 """
 
 response = client.models.generate_content(
@@ -96,6 +97,14 @@ for key, expected in [("method_steps",5),("fast_wins",3),("scripts",6),("days",3
 title = "The Signal Test Method"
 subtitle = "A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build"
 author = "The Modern Family Guide"
+
+mini_tools = [
+    ("The 10-Message Test", "Send 10 direct, personal messages before judging an idea. Do not count likes, compliments, or vague interest. Count replies that show pain or willingness to act."),
+    ("The $10 Tiny Offer Test", "Turn your idea into one small thing someone could buy for around $10. If nobody wants the tiny version, do not build the big version yet."),
+    ("The Polite Interest Trap", "People saying 'cool idea' is not demand. Demand looks like questions, urgency, payment, referrals, or asking when it is available."),
+    ("The Silence Rule", "If people ignore the offer after multiple direct asks, treat silence as data. Do not argue with the market."),
+    ("The 3-Signal Scorecard", "Score every idea on three signals: real problem, reachable buyer, and willingness to pay. Weak score means stop or pivot."),
+]
 
 typst = f"""
 #set page(width: 6in, height: 9in, margin: (x: 0.62in, y: 0.68in))
@@ -120,14 +129,14 @@ Copyright © 2026\n\nThis workbook is for educational purposes only. It does not
 
 #pagebreak()
 
-= Contents
+= Workbook Roadmap
 
-The Method\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scripts\n\nCase Study\n\n30-Day Signal Plan\n\nSignal Tracker\n\nFinal Decision\n
+The Method\n\nConversion Tools\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scripts\n\nDigital Side Hustle Case Study\n\n30-Day Signal Plan\n\nSignal Tracker\n\nStop / Pivot / Continue Decision\n
 #pagebreak()
 
 = How to Use This Workbook
 
-Do not treat this like a book you only read. Use it as a 30-day testing tool. Each day asks you to take one small action, face the realistic friction, and record what actually happened.
+This workbook is not for collecting ideas. It is for testing whether an idea deserves more time. Each day asks you to take one small action, face the realistic friction, and record what actually happened.
 
 {box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'), 4)}
 
@@ -143,6 +152,10 @@ for s in pack["method_steps"]:
     body = f"{s['what_it_means']}\n\nTest: {s['test']}\n\nWhat goes wrong: {s['what_goes_wrong']}\n\nStop when: {s['stop_when']}"
     typst += box(s["name"], body, 4)
 
+typst += "#pagebreak()\n= Conversion Tools\n\nThese tools help you avoid the most common beginner mistake: confusing polite interest with real demand.\n\n"
+for name, desc in mini_tools:
+    typst += box(name, desc, 3)
+
 typst += "#pagebreak()\n= Start Here: 15-Minute Tests\n\n"
 for fw in pack["fast_wins"]:
     typst += box(fw["title"], fw["action"], 5)
@@ -152,7 +165,7 @@ for sc in pack["scripts"]:
     typst += box(sc["title"], sc["text"], 3)
 
 cs = pack["case_study"]
-typst += f"#pagebreak()\n= Case Study: {esc(cs['title'])}\n\n"
+typst += f"#pagebreak()\n= Digital Side Hustle Case Study: {esc(cs['title'])}\n\n"
 typst += box("Idea", cs["idea"])
 typst += box("What I did", "\n".join(cs.get("what_i_did", [])))
 typst += box("What happened", cs["what_happened"])
@@ -179,11 +192,12 @@ typst += f"""
 
 #pagebreak()
 
-= Final Decision
+= Stop / Pivot / Continue
 
-{box('Double down', 'What created the strongest signal? What should you repeat?', 6)}
-{box('Stop', 'What produced silence, weak signals, or polite interest without action?', 6)}
-{box('Next test', 'What is the smallest test you will run next?', 6)}
+{box('Continue', 'What created a real signal: payment, specific request, repeated problem, urgency, or a direct yes?', 6)}
+{box('Pivot', 'What part seemed promising, but needs a different audience, offer, price, or message?', 6)}
+{box('Stop', 'What produced silence, vague compliments, weak signals, or polite interest without action?', 6)}
+{box('Next $10 Test', 'What is the smallest paid test you will run next?', 6)}
 """
 
 src = PRODUCT_DIR / "book.typ"
@@ -194,7 +208,7 @@ sales_description = """Most side hustle ideas fail because people build before t
 
 The Signal Test Method is a practical 30-day workbook for testing real demand before you waste time building the wrong thing.
 
-Inside, you get a simple 5-step method, 15-minute tests, copy/paste scripts, a realistic case study, daily action pages, notes space, a signal tracker, and final decision worksheets.
+Inside, you get a simple 5-step method, conversion tools like The 10-Message Test and The $10 Tiny Offer Test, 15-minute tests, copy/paste scripts, a digital side hustle case study, daily action pages, notes space, a signal tracker, and Stop / Pivot / Continue worksheets.
 
 This workbook is designed for beginners who want a realistic way to test side hustle ideas without hype, expensive tools, or fake income promises.
 
@@ -217,13 +231,13 @@ kdp_listing = {
         "side hustle workbook",
         "business idea validation",
         "product validation workbook",
+        "test business idea",
         "online income beginner",
         "startup workbook",
-        "demand testing",
         "side hustle planner"
     ],
     "pricing_note": "Start low for early traction. For paperback, test the lowest viable royalty-positive price, then raise only after reviews or proof of demand.",
-    "positioning_note": "This should not be positioned as a make-money promise. Position it as a practical validation workbook for beginners."
+    "positioning_note": "Position as a practical validation workbook, not a make-money promise."
 }
 
 cover_spec = {
@@ -231,9 +245,9 @@ cover_spec = {
     "trim_size": "6x9",
     "title": title,
     "subtitle": subtitle,
-    "style": "clean modern workbook, credible business guide, warm neutral tones, strong readable typography, subtle signal/radar/progress motif, no people, no fake luxury, not scammy",
-    "front_cover_prompt": "Create a premium 6x9 KDP paperback front cover for 'The Signal Test Method'. Subtitle: 'A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build'. Clean modern business workbook style. Strong readable typography at Amazon thumbnail size. Warm neutral background. Subtle signal/radar/progress motif. No people. No fake luxury. Credible, practical, not make-money-online spam.",
-    "back_cover_blurb": "Stop building ideas nobody asked for. The Signal Test Method helps you test demand first with small actions, honest feedback, simple offers, and clear decision points.",
+    "style": "high-contrast premium workbook, credible business guide, warm neutral tones, bold readable typography, subtle signal/radar/checklist motif, no people, no fake luxury, not scammy",
+    "front_cover_prompt": "Create a premium 6x9 KDP paperback front cover for 'The Signal Test Method'. Subtitle: 'A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build'. High-contrast clean modern business workbook style. Title must be readable as a small Amazon thumbnail. Use warm neutral tones, strong typography, and a subtle signal/radar/checklist motif. No people. No fake luxury. No money rain. Credible, practical, not make-money-online spam.",
+    "back_cover_blurb": "Stop building ideas nobody asked for. The Signal Test Method helps you test demand first with small actions, direct asks, tiny paid offers, and clear Stop / Pivot / Continue decisions.",
     "spine_text": "The Signal Test Method"
 }
 
@@ -255,14 +269,15 @@ upload_fields = (
 (PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, contents, 3 daily pages, tracker, and final decision page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, roadmap, conversion tools, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"kdp_polish_listing_cover_v2_fixed",
+    "engine":"kdp_conversion_build_v1",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
     "method_steps": len(pack["method_steps"]),
     "fast_wins": len(pack["fast_wins"]),
+    "conversion_tools": len(mini_tools),
     "model": MODEL_NAME,
     "kdp_only": True,
     "frontmatter": True,
@@ -273,4 +288,4 @@ upload_fields = (
     "cover_assets": True
 }, indent=2), encoding="utf-8")
 
-print("KDP Polish Build with listing and cover assets created")
+print("KDP Conversion Build created")
