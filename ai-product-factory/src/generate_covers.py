@@ -6,7 +6,7 @@ from pathlib import Path
 
 from google import genai
 from google.genai import types
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 BASE = Path(__file__).resolve().parents[1]
 PRODUCT_DIR = BASE / "dist" / "products" / "stop-building-ideas-nobody-wants"
@@ -58,6 +58,36 @@ def draw_center(draw, text, fnt, y, max_width, fill, line_spacing=12):
         draw.text((x, y), line, fill=fill, font=fnt)
         y += (bbox[3] - bbox[1]) + line_spacing
     return y
+
+
+def make_typographic_control_cover(out_path: Path):
+    bg = (244, 239, 229)
+    ink = (29, 32, 36)
+    accent = (98, 91, 74)
+    img = Image.new("RGB", (1800, 2700), bg)
+    draw = ImageDraw.Draw(img)
+    title_font = font(156, True)
+    subtitle_font = font(50, False)
+    author_font = font(42, True)
+    label_font = font(34, True)
+
+    draw.rectangle((120, 120, 1680, 2580), outline=ink, width=10)
+    draw.rectangle((120, 120, 1680, 315), fill=ink)
+    draw.text((190, 205), "THE SIGNAL TEST METHOD", fill=bg, font=label_font)
+    y = 430
+    y = draw_center(draw, TITLE, title_font, y, 1400, ink, 18)
+    y += 85
+    y = draw_center(draw, SUBTITLE, subtitle_font, y, 1320, ink, 12)
+    draw.line((260, 1850, 1540, 1850), fill=accent, width=12)
+    for i, h in enumerate([150, 270, 420, 580]):
+        x0 = 1130 + i * 95
+        draw.rounded_rectangle((x0, 1770 - h, x0 + 48, 1770), radius=18, fill=accent)
+    draw.ellipse((250, 1540, 520, 1810), outline=accent, width=12)
+    draw.ellipse((325, 1615, 445, 1735), outline=accent, width=9)
+    draw.line((520, 1675, 820, 1675), fill=accent, width=10)
+    draw_center(draw, "A 30-day workbook to test demand before you waste time building.", font(44, False), 2020, 1200, accent, 10)
+    draw.text((1800 // 2 - draw.textlength(AUTHOR, font=author_font) // 2, 2380), AUTHOR, fill=ink, font=author_font)
+    img.save(out_path, format="PNG", dpi=(300, 300))
 
 
 def make_fallback_cover(out_path: Path, concept_name: str, index: int):
@@ -132,8 +162,7 @@ def generate_ai_cover(client, prompt_text: str, out_path: Path):
     return {"ok": False, "model": None, "error": last_error or "No image data returned"}
 
 
-def make_contact_sheet(image_paths, out_path: Path):
-    thumb_w, thumb_h = 420, 630
+def make_contact_sheet(image_paths, out_path: Path, thumb_w=420, thumb_h=630):
     label_h, margin = 70, 30
     sheet = Image.new("RGB", (len(image_paths) * (thumb_w + margin) + margin, thumb_h + label_h + margin * 2), (245, 245, 245))
     draw = ImageDraw.Draw(sheet)
@@ -144,6 +173,37 @@ def make_contact_sheet(image_paths, out_path: Path):
         sheet.paste(img, (x, margin))
         draw.text((x, margin + thumb_h + 15), f"Cover {idx + 1}", fill=(35, 35, 35), font=label_font)
     sheet.save(out_path, format="PNG")
+
+
+def analyze_cover(path: Path, index: int):
+    img = Image.open(path).convert("RGB")
+    small = img.resize((120, 180))
+    gray = small.convert("L")
+    stat = ImageStat.Stat(gray)
+    contrast = round(stat.stddev[0], 2)
+    brightness = round(stat.mean[0], 2)
+    score = 0
+    if contrast >= 45:
+        score += 40
+    elif contrast >= 35:
+        score += 30
+    else:
+        score += 15
+    if 70 <= brightness <= 220:
+        score += 25
+    else:
+        score += 10
+    if img.size == (1800, 2700):
+        score += 20
+    score += 15 if index == 4 else 5  # controlled typographic cover gets reliability bonus
+    return {
+        "file": path.name,
+        "thumbnail_contrast_stddev": contrast,
+        "thumbnail_brightness": brightness,
+        "dimensions": list(img.size),
+        "quality_score": score,
+        "notes": "Automated heuristic only. Human visual check still required."
+    }
 
 
 def main():
@@ -178,20 +238,30 @@ def main():
         results.append(result)
         paths.append(out_path)
 
+    control_path = PRODUCT_DIR / "cover-4-typographic-control.png"
+    make_typographic_control_cover(control_path)
+    results.append({"ok": True, "model": "deterministic-pillow", "error": None, "fallback_used": False, "file": control_path.name, "concept": "Typographic Control Cover"})
+    paths.append(control_path)
+
     make_contact_sheet(paths, PRODUCT_DIR / "cover-contact-sheet.png")
+    make_contact_sheet(paths, PRODUCT_DIR / "thumbnail-test-contact-sheet.png", thumb_w=150, thumb_h=225)
+
+    quality = [analyze_cover(p, idx + 1) for idx, p in enumerate(paths)]
+    recommended = max(quality, key=lambda q: q["quality_score"])
+    (PRODUCT_DIR / "cover-quality-report.json").write_text(json.dumps({"recommended_front_cover": recommended["file"], "covers": quality}, indent=2), encoding="utf-8")
     (PRODUCT_DIR / "cover-generation.json").write_text(json.dumps({"covers": results}, indent=2), encoding="utf-8")
 
-    # Patch metadata with cover generation facts.
     meta_path = PRODUCT_DIR / "metadata.json"
-    if meta_path.exists():
-        meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    else:
-        meta = {}
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
     meta.update({
-        "engine": "kdp_auto_cover_v1",
+        "engine": "kdp_value_cover_quality_v1",
         "auto_front_covers": True,
         "front_cover_pngs": [p.name for p in paths],
+        "typographic_control_cover": control_path.name,
         "cover_contact_sheet": "cover-contact-sheet.png",
+        "thumbnail_test_contact_sheet": "thumbnail-test-contact-sheet.png",
+        "cover_quality_report": "cover-quality-report.json",
+        "recommended_front_cover": recommended["file"],
         "cover_generation_metadata": "cover-generation.json",
         "image_models_tried": IMAGE_MODEL_CANDIDATES,
     })
@@ -200,15 +270,16 @@ def main():
     checklist = PRODUCT_DIR / "upload-checklist.txt"
     checklist.write_text(
         "1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n"
-        "2. Open cover-contact-sheet.png and choose the strongest thumbnail.\n"
-        "3. Check cover-generation.json to see whether AI image generation or fallback cover generation was used.\n"
-        "4. Check that no income guarantees are stated.\n"
-        "5. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n"
-        "6. Upload interior PDF to KDP and preview before publishing.\n"
-        "7. Build final paperback wraparound cover PDF before final paperback publication.\n",
+        "2. Check the value pages: signal test logs, extra scorecards, weekly reviews, and price-test pages.\n"
+        "3. Open cover-contact-sheet.png and thumbnail-test-contact-sheet.png.\n"
+        "4. Read cover-quality-report.json and start with the recommended front cover.\n"
+        "5. Check cover-generation.json to see whether AI image generation or deterministic cover generation was used.\n"
+        "6. Check that no income guarantees are stated.\n"
+        "7. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n"
+        "8. Upload interior PDF and wraparound cover PDF to KDP Print Previewer.\n",
         encoding="utf-8",
     )
-    print("KDP cover candidates generated")
+    print("KDP cover candidates and quality report generated")
 
 
 if __name__ == "__main__":
