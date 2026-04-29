@@ -1,0 +1,5 @@
+1. Open book.pdf and inspect title page, copyright page, contents, 3 daily pages, tracker, and final decision page.
+2. Check that no income guarantees are stated.
+3. Generate KDP cover from cover-prompt.txt.
+4. Use description.txt and keywords.txt for KDP listing.
+5. Upload interior PDF to KDP and preview before publishing.
