@@ -7,7 +7,8 @@ from pypdf import PdfReader
 BASE = Path(__file__).resolve().parents[1]
 PRODUCT_DIR = BASE / "dist" / "products" / "stop-building-ideas-nobody-wants"
 BOOK_PDF = PRODUCT_DIR / "book.pdf"
-FRONT_COVER = PRODUCT_DIR / "cover-1.png"
+QUALITY_REPORT = PRODUCT_DIR / "cover-quality-report.json"
+DEFAULT_FRONT_COVER = PRODUCT_DIR / "cover-1.png"
 SPEC_PATH = PRODUCT_DIR / "cover-spec.json"
 META_PATH = PRODUCT_DIR / "metadata.json"
 
@@ -19,9 +20,22 @@ TRIM_H_IN = 9.0
 BLEED_IN = 0.125
 DPI = 300
 PAPER_TYPE = "black_white_white_paper"
-# KDP paperback white paper spine formula: page count x 0.002252 inches.
 SPINE_PER_PAGE_IN = 0.002252
 MIN_SPINE_TEXT_IN = 0.25
+
+
+def get_recommended_front_cover() -> Path:
+    if QUALITY_REPORT.exists():
+        try:
+            report = json.loads(QUALITY_REPORT.read_text(encoding="utf-8"))
+            recommended = report.get("recommended_front_cover")
+            if recommended:
+                candidate = PRODUCT_DIR / recommended
+                if candidate.exists():
+                    return candidate
+        except Exception:
+            pass
+    return DEFAULT_FRONT_COVER
 
 
 def font(size: int, bold: bool = False):
@@ -108,7 +122,6 @@ def make_back_cover(draw, x0, y0, w, h, bg, ink, accent):
     footer = "No guru hype. No income guarantees. Just small tests, real signals, and clearer next steps."
     draw_wrapped(draw, footer, (x, y0 + h - margin - 145), small_font, max_width, accent, spacing=7)
 
-    # Barcode safe zone placeholder, bottom-right back cover.
     safe_w = int(2.0 * DPI)
     safe_h = int(1.2 * DPI)
     bx = x0 + w - margin - safe_w
@@ -118,7 +131,7 @@ def make_back_cover(draw, x0, y0, w, h, bg, ink, accent):
 
 
 def make_wraparound():
-    spec = json.loads(SPEC_PATH.read_text(encoding="utf-8")) if SPEC_PATH.exists() else {}
+    front_cover = get_recommended_front_cover()
     page_count = get_page_count()
     spine_in = max(page_count * SPINE_PER_PAGE_IN, 0.0)
 
@@ -140,10 +153,8 @@ def make_wraparound():
     front_x = bleed + trim_w + spine_px
     panel_y = bleed
 
-    # Back cover.
     make_back_cover(draw, back_x, panel_y, trim_w, trim_h, bg, ink, accent)
 
-    # Spine.
     spine_x = bleed + trim_w
     draw.rectangle((spine_x, 0, spine_x + spine_px, full_h), fill=(235, 230, 219))
     if spine_in >= MIN_SPINE_TEXT_IN:
@@ -158,14 +169,11 @@ def make_wraparound():
         tmp = tmp.rotate(90, expand=True)
         img.paste(tmp, (spine_x + (spine_px - tmp.width) // 2, bleed + (trim_h - tmp.height) // 2), tmp)
 
-    # Front cover.
-    if not FRONT_COVER.exists():
-        raise RuntimeError(f"Missing front cover: {FRONT_COVER}")
-    front = Image.open(FRONT_COVER).convert("RGB").resize((trim_w + bleed, trim_h + bleed * 2))
-    # Use bleed-expanded front image and crop/paste slightly into bleed at right/top/bottom.
+    if not front_cover.exists():
+        raise RuntimeError(f"Missing front cover: {front_cover}")
+    front = Image.open(front_cover).convert("RGB").resize((trim_w + bleed, trim_h + bleed * 2))
     img.paste(front, (front_x, 0))
 
-    # Trim guides as non-printing-ish light lines; useful for inspection. Keep subtle.
     guide = (210, 210, 210)
     draw.rectangle((bleed, bleed, full_w - bleed, full_h - bleed), outline=guide, width=1)
     draw.line((spine_x, bleed, spine_x, full_h - bleed), fill=guide, width=1)
@@ -186,7 +194,8 @@ def make_wraparound():
         "spine_width_px": spine_px,
         "full_cover_width_in": round(full_w / DPI, 4),
         "full_cover_height_in": round(full_h / DPI, 4),
-        "front_cover_source": FRONT_COVER.name,
+        "front_cover_source": front_cover.name,
+        "front_cover_selection": "cover-quality-report recommended_front_cover if available; fallback cover-1.png",
         "wraparound_png": png_path.name,
         "wraparound_pdf": pdf_path.name,
         "spine_text_included": spine_in >= MIN_SPINE_TEXT_IN,
@@ -200,6 +209,8 @@ def make_wraparound():
         "kdp_wraparound_pdf": pdf_path.name,
         "kdp_wraparound_png": png_path.name,
         "kdp_wraparound_metadata": "kdp-wraparound-cover.json",
+        "kdp_wraparound_uses_recommended_front_cover": True,
+        "kdp_wraparound_front_cover_source": front_cover.name,
         "interior_page_count": page_count,
         "spine_width_in": round(spine_in, 4),
     })
@@ -211,8 +222,9 @@ def make_wraparound():
         existing
         + "\nKDP WRAPAROUND COVER\n"
         + "8. Open kdp-wraparound-cover.pdf and kdp-wraparound-cover.png.\n"
-        + "9. Upload kdp-wraparound-cover.pdf in KDP paperback cover step.\n"
-        + "10. Verify trim, bleed, barcode area, and spine alignment in KDP Print Previewer.\n",
+        + f"9. Confirm the wraparound uses the recommended front cover: {front_cover.name}.\n"
+        + "10. Upload kdp-wraparound-cover.pdf in KDP paperback cover step.\n"
+        + "11. Verify trim, bleed, barcode area, and spine alignment in KDP Print Previewer.\n",
         encoding="utf-8",
     )
     print("KDP wraparound cover generated")
