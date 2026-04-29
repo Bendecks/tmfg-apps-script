@@ -192,22 +192,61 @@ subprocess.run(["typst", "compile", str(src), str(PRODUCT_DIR / "book.pdf")], ch
 
 sales_description = """Most side hustle ideas fail because people build before they test.
 
-The Signal Test Method is a practical 30-day KDP workbook for testing real demand before you waste time building the wrong thing.
+The Signal Test Method is a practical 30-day workbook for testing real demand before you waste time building the wrong thing.
 
 Inside, you get a simple 5-step method, 15-minute tests, copy/paste scripts, a realistic case study, daily action pages, notes space, a signal tracker, and final decision worksheets.
 
-No fake promises. No guru hype. No expensive tools.
+This workbook is designed for beginners who want a realistic way to test side hustle ideas without hype, expensive tools, or fake income promises.
+
+No guru hype. No build-first nonsense. No guarantees.
 
 Just small tests, real signals, and clearer next steps.
 """
 
+kdp_listing = {
+    "title": title,
+    "subtitle": subtitle,
+    "author": author,
+    "description": sales_description,
+    "categories_to_try": [
+        "Business & Money > Small Business & Entrepreneurship",
+        "Business & Money > Entrepreneurship",
+        "Business & Money > Skills > Personal Success"
+    ],
+    "backend_keywords": [
+        "side hustle workbook",
+        "business idea validation",
+        "product validation workbook",
+        "online income beginner",
+        "startup workbook",
+        "demand testing",
+        "side hustle planner"
+    ],
+    "pricing_note": "Start low for early traction. For paperback, test the lowest viable royalty-positive price, then raise only after reviews or proof of demand.",
+    "positioning_note": "This should not be positioned as a make-money promise. Position it as a practical validation workbook for beginners."
+}
+
+cover_spec = {
+    "format": "KDP paperback cover concept",
+    "trim_size": "6x9",
+    "title": title,
+    "subtitle": subtitle,
+    "style": "clean modern workbook, credible business guide, warm neutral tones, strong readable typography, subtle signal/radar/progress motif, no people, no fake luxury, not scammy",
+    "front_cover_prompt": "Create a premium 6x9 KDP paperback front cover for 'The Signal Test Method'. Subtitle: 'A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build'. Clean modern business workbook style. Strong readable typography at Amazon thumbnail size. Warm neutral background. Subtle signal/radar/progress motif. No people. No fake luxury. Credible, practical, not make-money-online spam.",
+    "back_cover_blurb": "Stop building ideas nobody asked for. The Signal Test Method helps you test demand first with small actions, honest feedback, simple offers, and clear decision points.",
+    "spine_text": "The Signal Test Method"
+}
+
 (PRODUCT_DIR / "title.txt").write_text(title + "\n" + subtitle, encoding="utf-8")
 (PRODUCT_DIR / "description.txt").write_text(sales_description, encoding="utf-8")
-(PRODUCT_DIR / "keywords.txt").write_text("side hustle workbook, business idea validation, side hustle planner, online income beginner, product validation, demand testing, startup workbook", encoding="utf-8")
-(PRODUCT_DIR / "cover-prompt.txt").write_text("Create a premium 6x9 KDP cover for The Signal Test Method. Clean modern workbook style. Subtitle: A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build. Strong readable typography, warm neutral tones, subtle signal/radar motif, no people, not scammy.", encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, contents, 3 daily pages, tracker, and final decision page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover from cover-prompt.txt.\n4. Use description.txt and keywords.txt for KDP listing.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
+(PRODUCT_DIR / "keywords.txt").write_text(", ".join(kdp_listing["backend_keywords"]), encoding="utf-8")
+(PRODUCT_DIR / "kdp-listing.json").write_text(json.dumps(kdp_listing, indent=2), encoding="utf-8")
+(PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
+(PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
+(PRODUCT_DIR / "kdp-upload-fields.txt").write_text(f"""TITLE\n{title}\n\nSUBTITLE\n{subtitle}\n\nAUTHOR\n{author}\n\nDESCRIPTION\n{sales_description}\n\nKEYWORDS\n{', '.join(kdp_listing['backend_keywords'])}\n\nCATEGORIES TO TRY\n" + "\n".join(kdp_listing["categories_to_try"]) + "\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, contents, 3 daily pages, tracker, and final decision page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"kdp_polish_build_v1",
+    "engine":"kdp_polish_listing_cover_v2",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
@@ -218,7 +257,9 @@ Just small tests, real signals, and clearer next steps.
     "frontmatter": True,
     "contents": True,
     "worksheets": True,
-    "tracker_rows": 18
+    "tracker_rows": 18,
+    "listing_assets": True,
+    "cover_assets": True
 }, indent=2), encoding="utf-8")
 
-print("KDP Polish Build created")
+print("KDP Polish Build with listing and cover assets created")
