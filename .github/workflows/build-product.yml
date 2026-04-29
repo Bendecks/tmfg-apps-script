@@ -2,6 +2,13 @@ name: Build Product
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "ai-product-factory/src/generate_product.py"
+      - "ai-product-factory/requirements.txt"
+      - ".github/workflows/build-product.yml"
 
 permissions:
   contents: write
