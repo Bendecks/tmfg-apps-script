@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "signal-test-method-kdp-conversion"
+slug = "signal-test-method-kdp-preview"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -37,7 +37,22 @@ def box(title: str, body: str, notes: int = 0) -> str:
         f'#strong[{esc(title)}]\n#v(3pt)\n{content}\n]\n\n'
     )
 
-def tracker_rows(n=18):
+def scorecard_box() -> str:
+    return (
+        '#block(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))['
+        '#strong[The 3-Signal Scorecard]\n#v(3pt)\n'
+        'Problem strength (1-5): #line(length: 35%)\n\n'
+        'Reachability (1-5): #line(length: 35%)\n\n'
+        'Willingness to pay (1-5): #line(length: 35%)\n\n'
+        'Total score: #line(length: 35%)\n\n'
+        '#strong[Interpretation]\n'
+        '3-7: Stop\n\n'
+        '8-11: Pivot\n\n'
+        '12-15: Continue\n'
+        ']\n\n'
+    )
+
+def tracker_rows(n=24):
     rows = '  [Date], [Test], [Signal], [Next action],\n'
     for _ in range(n):
         rows += '  [], [], [], [],\n'
@@ -103,11 +118,16 @@ mini_tools = [
     ("The $10 Tiny Offer Test", "Turn your idea into one small thing someone could buy for around $10. If nobody wants the tiny version, do not build the big version yet."),
     ("The Polite Interest Trap", "People saying 'cool idea' is not demand. Demand looks like questions, urgency, payment, referrals, or asking when it is available."),
     ("The Silence Rule", "If people ignore the offer after multiple direct asks, treat silence as data. Do not argue with the market."),
-    ("The 3-Signal Scorecard", "Score every idea on three signals: real problem, reachable buyer, and willingness to pay. Weak score means stop or pivot."),
 ]
 
 typst = f"""
-#set page(width: 6in, height: 9in, margin: (x: 0.62in, y: 0.68in))
+#set page(
+  width: 6in,
+  height: 9in,
+  margin: (x: 0.62in, y: 0.68in),
+  header: align(center)[#text(size: 8pt, fill: rgb("777777"))[The Signal Test Method]],
+  footer: align(center)[#text(size: 8pt, fill: rgb("777777"))[#counter(page).display()]]
+)
 #set text(size: 10pt)
 #set heading(numbering: none)
 #set par(justify: false)
@@ -129,6 +149,25 @@ Copyright © 2026\n\nThis workbook is for educational purposes only. It does not
 
 #pagebreak()
 
+= Before You Build Anything
+
+Most ideas do not fail because people are lazy.\n\nThey fail because nobody tested demand early enough.\n\nThis workbook forces you to do the opposite.\n\nIn the next 30 days, you will talk to real people, test a real problem, make a tiny offer, and ask for real money.\n\nIf nobody pays, you stop or pivot.\n\nIf someone pays, you continue.\n\nThat is the entire game.
+
+#pagebreak()
+
+= Your First Win (15 Minutes)
+
+#block(inset: 10pt, radius: 4pt, stroke: 0.7pt, fill: rgb("FFFFFF"))[
+#strong[Send this message to 1 person today]\n#v(4pt)
+Hey, quick question — are you still struggling with \[problem\]?\n\nIf they reply, you have your first signal.\n\nDo not overthink it.
+]
+
+#v(12pt)
+#strong[Who will you message?]\n#v(4pt)
+{lines(5)}
+
+#pagebreak()
+
 = Workbook Roadmap
 
 The Method\n\nConversion Tools\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scripts\n\nDigital Side Hustle Case Study\n\n30-Day Signal Plan\n\nSignal Tracker\n\nStop / Pivot / Continue Decision\n
@@ -138,7 +177,7 @@ The Method\n\nConversion Tools\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scri
 
 This workbook is not for collecting ideas. It is for testing whether an idea deserves more time. Each day asks you to take one small action, face the realistic friction, and record what actually happened.
 
-{box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'), 4)}
+{box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'), 6)}
 
 #pagebreak()
 
@@ -155,14 +194,15 @@ for s in pack["method_steps"]:
 typst += "#pagebreak()\n= Conversion Tools\n\nThese tools help you avoid the most common beginner mistake: confusing polite interest with real demand.\n\n"
 for name, desc in mini_tools:
     typst += box(name, desc, 3)
+typst += scorecard_box()
 
 typst += "#pagebreak()\n= Start Here: 15-Minute Tests\n\n"
 for fw in pack["fast_wins"]:
-    typst += box(fw["title"], fw["action"], 5)
+    typst += box(fw["title"], fw["action"], 6)
 
 typst += "#pagebreak()\n= Copy/Paste Scripts\n\nUse these as starting points. Rewrite them so they sound like you.\n\n"
 for sc in pack["scripts"]:
-    typst += box(sc["title"], sc["text"], 3)
+    typst += box(sc["title"], sc["text"], 4)
 
 cs = pack["case_study"]
 typst += f"#pagebreak()\n= Digital Side Hustle Case Study: {esc(cs['title'])}\n\n"
@@ -170,7 +210,7 @@ typst += box("Idea", cs["idea"])
 typst += box("What I did", "\n".join(cs.get("what_i_did", [])))
 typst += box("What happened", cs["what_happened"])
 typst += box("What I learned", cs["conclusion"])
-typst += box("What I would do differently", cs.get("what_to_do_differently", "Use a smaller test, ask for money sooner, and stop faster if no one cares."), 5)
+typst += box("What I would do differently", cs.get("what_to_do_differently", "Use a smaller test, ask for money sooner, and stop faster if no one cares."), 6)
 typst += "#pagebreak()\n= 30-Day Signal Plan\n\nEach day has one action, one reality check, and one win condition. Complete the action before reading ahead.\n\n#pagebreak()\n"
 
 for d in pack["days"]:
@@ -178,7 +218,7 @@ for d in pack["days"]:
     typst += box("Action", d["action"])
     typst += box("Reality", d["reality"])
     typst += box("Win condition", d["win_condition"])
-    typst += box("Daily notes", "What happened today? What signal did you see? What is the next smallest action?", 7)
+    typst += box("Daily notes", "What happened today? What signal did you see? What is the next smallest action?", 11)
     typst += "#pagebreak()\n"
 
 typst += f"""
@@ -188,16 +228,16 @@ typst += f"""
   columns: (1fr, 1.6fr, 1.6fr, 1.3fr),
   inset: 7pt,
   stroke: 0.5pt,
-{tracker_rows(18)})
+{tracker_rows(24)})
 
 #pagebreak()
 
 = Stop / Pivot / Continue
 
-{box('Continue', 'What created a real signal: payment, specific request, repeated problem, urgency, or a direct yes?', 6)}
-{box('Pivot', 'What part seemed promising, but needs a different audience, offer, price, or message?', 6)}
-{box('Stop', 'What produced silence, vague compliments, weak signals, or polite interest without action?', 6)}
-{box('Next $10 Test', 'What is the smallest paid test you will run next?', 6)}
+{box('Continue', 'What created a real signal: payment, specific request, repeated problem, urgency, or a direct yes?', 8)}
+{box('Pivot', 'What part seemed promising, but needs a different audience, offer, price, or message?', 8)}
+{box('Stop', 'What produced silence, vague compliments, weak signals, or polite interest without action?', 8)}
+{box('Next $10 Test', 'What is the smallest paid test you will run next?', 8)}
 """
 
 src = PRODUCT_DIR / "book.typ"
@@ -208,7 +248,7 @@ sales_description = """Most side hustle ideas fail because people build before t
 
 The Signal Test Method is a practical 30-day workbook for testing real demand before you waste time building the wrong thing.
 
-Inside, you get a simple 5-step method, conversion tools like The 10-Message Test and The $10 Tiny Offer Test, 15-minute tests, copy/paste scripts, a digital side hustle case study, daily action pages, notes space, a signal tracker, and Stop / Pivot / Continue worksheets.
+Inside, you get a simple 5-step method, conversion tools like The 10-Message Test and The $10 Tiny Offer Test, a real 3-Signal Scorecard, 15-minute tests, copy/paste scripts, a digital side hustle case study, daily action pages, notes space, a signal tracker, and Stop / Pivot / Continue worksheets.
 
 This workbook is designed for beginners who want a realistic way to test side hustle ideas without hype, expensive tools, or fake income promises.
 
@@ -269,23 +309,25 @@ upload_fields = (
 (PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, roadmap, conversion tools, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 8 pages, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"kdp_conversion_build_v1",
+    "engine":"kdp_preview_optimization_v1",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
     "method_steps": len(pack["method_steps"]),
     "fast_wins": len(pack["fast_wins"]),
-    "conversion_tools": len(mini_tools),
+    "conversion_tools": len(mini_tools) + 1,
     "model": MODEL_NAME,
     "kdp_only": True,
     "frontmatter": True,
-    "contents": True,
+    "preview_intro": True,
+    "fast_win_page": True,
+    "headers_footers": True,
     "worksheets": True,
-    "tracker_rows": 18,
+    "tracker_rows": 24,
     "listing_assets": True,
     "cover_assets": True
 }, indent=2), encoding="utf-8")
 
-print("KDP Conversion Build created")
+print("KDP Preview Optimization Build created")
