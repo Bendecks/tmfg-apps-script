@@ -25,6 +25,9 @@ def esc(text: str) -> str:
         text = text.replace(old, new)
     return text
 
+def box(title: str, body: str) -> str:
+    return f'#box("{esc(title)}")[{esc(body)}]\n\n'
+
 def load_json(text: str):
     text = (text or "").strip()
     text = re.sub(r"^```(?:json)?", "", text).strip()
@@ -84,7 +87,7 @@ typst = f"""
 #set heading(numbering: none)
 #set par(justify: false)
 
-#let box(t,b)=block(inset:8pt, radius:4pt, stroke:0.5pt, fill: rgb("FFFFFF"), [#strong(t)\n#v(3pt)b])
+#let box(t) = block.with(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))
 
 #align(center)[
 #v(50pt)
@@ -92,7 +95,7 @@ typst = f"""
 #v(8pt)
 #text(size: 11pt)[{esc(subtitle)}]
 #v(28pt)
-#box("Use this for", [{esc(pack.get('promise','Test small ideas before wasting time building the wrong thing.'))}])
+#box("Use this for")[{esc(pack.get('promise','Test small ideas before wasting time building the wrong thing.'))}]
 ]
 #pagebreak()
 
@@ -103,31 +106,31 @@ Do not build first. Look for signals first.
 """
 
 for s in pack["method_steps"]:
-    typst += f"#box(\"{esc(s['name'])}\", [{esc(s['what_it_means'])}\n\nTest: {esc(s['test'])}\n\nWhat goes wrong: {esc(s['what_goes_wrong'])}\n\nStop when: {esc(s['stop_when'])}])\n\n"
+    body = f"{s['what_it_means']}\n\nTest: {s['test']}\n\nWhat goes wrong: {s['what_goes_wrong']}\n\nStop when: {s['stop_when']}"
+    typst += box(s["name"], body)
 
 typst += "#pagebreak()\n= Start here: 15-minute tests\n\n"
 for fw in pack["fast_wins"]:
-    typst += f"#box(\"{esc(fw['title'])}\", [{esc(fw['action'])}])\n\n"
+    typst += box(fw["title"], fw["action"])
 
 typst += "#pagebreak()\n= Copy/paste scripts\n\n"
 for sc in pack["scripts"]:
-    typst += f"#box(\"{esc(sc['title'])}\", [{esc(sc['text'])}])\n\n"
+    typst += box(sc["title"], sc["text"])
 
 cs = pack["case_study"]
 typst += f"#pagebreak()\n= {esc(cs['title'])}\n\n"
-typst += f"#box(\"Idea\", [{esc(cs['idea'])}])\n\n"
-typst += "#box(\"What I did\", ["
-for step in cs.get("what_i_did", []):
-    typst += esc(step) + "\n"
-typst += "])\n\n"
-typst += f"#box(\"What happened\", [{esc(cs['what_happened'])}])\n\n"
-typst += f"#box(\"Conclusion\", [{esc(cs['conclusion'])}])\n\n#pagebreak()\n"
+typst += box("Idea", cs["idea"])
+typst += box("What I did", "\n".join(cs.get("what_i_did", [])))
+typst += box("What happened", cs["what_happened"])
+typst += box("Conclusion", cs["conclusion"])
+typst += "#pagebreak()\n"
 
 for d in pack["days"]:
     typst += f"= Day {d['day']}: {esc(d['title'])}\n\n"
-    typst += f"#box(\"Action\", [{esc(d['action'])}])\n\n"
-    typst += f"#box(\"Reality\", [{esc(d['reality'])}])\n\n"
-    typst += f"#box(\"Win condition\", [{esc(d['win_condition'])}])\n\n#pagebreak()\n"
+    typst += box("Action", d["action"])
+    typst += box("Reality", d["reality"])
+    typst += box("Win condition", d["win_condition"])
+    typst += "#pagebreak()\n"
 
 typst += """
 = Signal Tracker
@@ -143,9 +146,9 @@ typst += """
 
 = Final Decision
 
-#box("Double down", [What created the strongest signal?])
-#box("Stop", [What produced silence or weak signals?])
-#box("Next test", [What is the smallest next action?])
+#box("Double down")[What created the strongest signal?]
+#box("Stop")[What produced silence or weak signals?]
+#box("Next test")[What is the smallest next action?]
 """
 
 src = PRODUCT_DIR / "book.typ"
@@ -157,7 +160,7 @@ subprocess.run(["typst", "compile", str(src), str(PRODUCT_DIR / "book.pdf")], ch
 (PRODUCT_DIR / "keywords.txt").write_text("side hustle workbook, business idea validation, side hustle planner, online income beginner, product validation, demand testing, startup workbook", encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text("Create a premium 6x9 KDP cover for The Signal Test Method. Clean modern workbook style. Subtitle: A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build. Strong readable typography, warm neutral tones, subtle signal/radar motif, no people, not scammy.", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"signal_v3",
+    "engine":"signal_v3_fixed_box_rendering",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
