@@ -52,6 +52,8 @@
   "kdp_wraparound_pdf": "kdp-wraparound-cover.pdf",
   "kdp_wraparound_png": "kdp-wraparound-cover.png",
   "kdp_wraparound_metadata": "kdp-wraparound-cover.json",
+  "kdp_wraparound_uses_recommended_front_cover": true,
+  "kdp_wraparound_front_cover_source": "cover-4-typographic-control.png",
   "interior_page_count": 100,
   "spine_width_in": 0.2252
 }

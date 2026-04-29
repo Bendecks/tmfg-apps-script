@@ -9,5 +9,6 @@
 
 KDP WRAPAROUND COVER
 8. Open kdp-wraparound-cover.pdf and kdp-wraparound-cover.png.
-9. Upload kdp-wraparound-cover.pdf in KDP paperback cover step.
-10. Verify trim, bleed, barcode area, and spine alignment in KDP Print Previewer.
+9. Confirm the wraparound uses the recommended front cover: cover-4-typographic-control.png.
+10. Upload kdp-wraparound-cover.pdf in KDP paperback cover step.
+11. Verify trim, bleed, barcode area, and spine alignment in KDP Print Previewer.
