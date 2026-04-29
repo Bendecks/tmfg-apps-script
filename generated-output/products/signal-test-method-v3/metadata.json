@@ -1,5 +1,5 @@
 {
-  "engine": "signal_v3",
+  "engine": "signal_v3_fixed_strong_rendering",
   "product": "The Signal Test Method",
   "days": 30,
   "scripts": 6,
