@@ -13,332 +13,182 @@ This playbook is designed to get you from zero to your first \$100 online.
 
 #pagebreak()
 
-== Why most people never make their first dollar online
-
-Take one real action here.
-
-#pagebreak()
-
-== The rule: action over thinking
-
-Take one real action here.
-
-#pagebreak()
-
-== How to pick one idea fast
-
-Take one real action here.
-
-#pagebreak()
-
-== How to test without overbuilding
-
-Take one real action here.
-
-#pagebreak()
-
-== How to get real feedback
-
-Take one real action here.
-
-#pagebreak()
-
 == Day 1
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 2
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 3
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 4
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 5
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 6
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 7
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 8
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 9
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 10
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 11
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 12
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 13
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 14
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 15
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 16
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 17
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 18
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 19
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 20
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 21
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 22
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 23
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 24
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 25
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 26
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 27
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 28
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 29
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
 
 == Day 30
 
-Action: Do one thing that moves you closer to earning.
-
-Result:
-
-Next step:
+Take one real action that could lead to income.
 
 #pagebreak()
