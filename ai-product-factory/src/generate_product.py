@@ -18,7 +18,6 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# KDP-facing title optimized for search + click-through.
 title = "Stop Building Ideas Nobody Wants"
 subtitle = "The Signal Test Method: A 30-Day Side Hustle Workbook to Test Demand Before You Build"
 author = "The Modern Family Guide"
@@ -65,10 +64,10 @@ def box_secondary(title_text: str, body: str, notes: int = 0) -> str:
 def box_highlight(text: str) -> str:
     return '#block(inset: 12pt, radius: 0pt, stroke: none)[' + f'#text(size: 12pt, weight: "bold")[{esc(humanize(text))}]' + ']\n\n'
 
-def scorecard_box() -> str:
+def scorecard_box(title_text="The 3-Signal Scorecard") -> str:
     return (
         '#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))['
-        '#strong[The 3-Signal Scorecard]\n#v(4pt)\n'
+        f'#strong[{esc(title_text)}]\n#v(4pt)\n'
         'Problem strength (1-5): #line(length: 35%)\n\n'
         'Reachability (1-5): #line(length: 35%)\n\n'
         'Willingness to pay (1-5): #line(length: 35%)\n\n'
@@ -91,6 +90,28 @@ def load_json(text: str):
     text = re.sub(r"^```(?:json)?", "", text).strip()
     text = re.sub(r"```$", "", text).strip()
     return json.loads(text)
+
+def test_log_page(n: int) -> str:
+    return f"""
+= Signal Test Log {n}
+
+{box_primary('Idea being tested', 'Write the specific idea, offer, or angle you are testing.', 4)}
+{box_secondary('Audience', 'Who exactly did you test this with?', 4)}
+{box_secondary('Ask made', 'What did you ask them to do, answer, or pay for?', 5)}
+{box_primary('Signal received', 'What actually happened? Do not count hope. Count behavior.', 6)}
+#pagebreak()
+"""
+
+def weekly_review_page(n: int) -> str:
+    return f"""
+= Weekly Review {n}
+
+{box_primary('Strongest signal this week', 'What was the clearest sign that someone cared?', 5)}
+{box_secondary('Weakest signal this week', 'Where did you get silence, vague praise, or polite interest?', 5)}
+{box_secondary('What changed', 'What did you change because of real feedback?', 5)}
+{box_primary('Decision', 'Stop, pivot, or continue? Why?', 6)}
+#pagebreak()
+"""
 
 prompt = """
 Create a sharp KDP workbook system called The Signal Test Method.
@@ -229,7 +250,7 @@ Hey, quick question — are you still struggling with \[problem\]?\n\nIf they re
 
 = Workbook Roadmap
 
-The Method\n\nConversion Tools\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scripts\n\nDigital Side Hustle Case Study\n\n30-Day Signal Plan\n\nSignal Tracker\n\nStop / Pivot / Continue Decision\n
+The Method\n\nConversion Tools\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scripts\n\nDigital Side Hustle Case Study\n\n30-Day Signal Plan\n\nSignal Test Logs\n\nWeekly Reviews\n\nSignal Tracker\n\nStop / Pivot / Continue Decision\n
 #pagebreak()
 
 = How to Use This Workbook
@@ -283,6 +304,24 @@ for d in pack["days"]:
     typst += box_secondary("Daily notes", "What happened today? What signal did you see? What is the next smallest action?", 11)
     typst += "#pagebreak()\n"
 
+# Value pages: raise perceived value without fluff.
+typst += "= Signal Test Logs\n\nUse these pages for extra tests, repeated asks, new audiences, and price checks.\n\n#pagebreak()\n"
+for i in range(1, 13):
+    typst += test_log_page(i)
+
+typst += "= Extra Scorecards\n\nUse one scorecard per idea, audience, or offer version.\n\n#pagebreak()\n"
+for i in range(1, 9):
+    typst += f"= Scorecard {i}\n\n" + scorecard_box(f"3-Signal Scorecard {i}") + box_secondary("Decision", "Stop, pivot, or continue? Write the reason.", 8) + "#pagebreak()\n"
+
+typst += "= Weekly Reviews\n\nThese pages help you avoid confusing motion with progress.\n\n#pagebreak()\n"
+for i in range(1, 5):
+    typst += weekly_review_page(i)
+
+typst += "= Price Test Notes\n\n"
+for i in range(1, 5):
+    typst += box_primary(f"Price Test {i}", "What price did you ask for? Who did you ask? What happened?", 8)
+    typst += "#pagebreak()\n"
+
 typst += f"""
 = Signal Tracker
 
@@ -290,7 +329,7 @@ typst += f"""
   columns: (1fr, 1.6fr, 1.6fr, 1.3fr),
   inset: 7pt,
   stroke: 0.5pt,
-{tracker_rows(24)})
+{tracker_rows(36)})
 
 #pagebreak()
 
@@ -300,6 +339,13 @@ typst += f"""
 {box_secondary('Pivot', 'What part seemed promising, but needs a different audience, offer, price, or message?', 8)}
 {box_secondary('Stop', 'What produced silence, vague compliments, weak signals, or polite interest without action?', 8)}
 {box_primary('Next $10 Test', 'What is the smallest paid test you will run next?', 8)}
+
+#pagebreak()
+
+= Final Notes
+
+{box_secondary('What I learned about the market', 'What did real people show you?', 10)}
+{box_secondary('What I learned about myself', 'What did you avoid, overthink, or discover?', 10)}
 """
 
 src = PRODUCT_DIR / "book.typ"
@@ -312,7 +358,7 @@ Stop Building Ideas Nobody Wants is a practical 30-day side hustle workbook that
 
 Inside, you’ll use The Signal Test Method: a simple 5-step process for finding a real problem, finding someone who cares, making a tiny offer, asking directly, and trying to get paid.
 
-You also get conversion tools like The 10-Message Test, The $10 Tiny Offer Test, The Polite Interest Trap, The Silence Rule, and a real 3-Signal Scorecard.
+You also get conversion tools like The 10-Message Test, The $10 Tiny Offer Test, The Polite Interest Trap, The Silence Rule, a real 3-Signal Scorecard, extra test logs, weekly reviews, price-test pages, and Stop / Pivot / Continue decision pages.
 
 This workbook is designed for beginners who want a realistic way to test side hustle ideas without hype, expensive tools, or fake income promises.
 
@@ -361,18 +407,9 @@ cover_spec = {
     "recommended_concept": "bold typography first, minimal signal/checkmark motif second, warm neutral background, business-workbook credibility",
     "front_cover_prompt": "Create a premium 6x9 KDP paperback front cover for 'Stop Building Ideas Nobody Wants'. Subtitle: 'The Signal Test Method: A 30-Day Side Hustle Workbook to Test Demand Before You Build'. The cover must be high-contrast and readable as a small Amazon thumbnail. Use bold modern typography, warm neutral tones, and a subtle signal/checkmark/radar motif. Make it look like a credible business workbook, not a scammy make-money-online product. No people, no money rain, no luxury laptop scene, no fake guru style, no clutter.",
     "concepts": [
-        {
-            "name": "Bold Text / Proof Motif",
-            "prompt": "Minimal warm-neutral cover. Huge bold title. Small radar/checkmark icon. Professional business workbook style. Strong contrast."
-        },
-        {
-            "name": "Stop Sign / Idea Filter",
-            "prompt": "Clean cover with abstract stop/filter symbol and checklist marks. Strong title hierarchy. Not playful. Credible and practical."
-        },
-        {
-            "name": "Signal Dashboard",
-            "prompt": "Minimal dashboard-like cover with simple signal bars and checkmarks. Premium workbook feel. No charts that look like stock investing."
-        }
+        {"name": "Bold Text / Proof Motif", "prompt": "Minimal warm-neutral cover. Huge bold title. Small radar/checkmark icon. Professional business workbook style. Strong contrast."},
+        {"name": "Stop Sign / Idea Filter", "prompt": "Clean cover with abstract stop/filter symbol and checklist marks. Strong title hierarchy. Not playful. Credible and practical."},
+        {"name": "Signal Dashboard", "prompt": "Minimal dashboard-like cover with simple signal bars and checkmarks. Premium workbook feel. No charts that look like stock investing."}
     ],
     "back_cover_blurb": "Stop building ideas nobody asked for. This workbook helps you test demand first with small actions, direct asks, tiny paid offers, and clear Stop / Pivot / Continue decisions.",
     "spine_text": title
@@ -396,9 +433,9 @@ upload_fields = (
 (PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate 3 cover concepts using cover-spec.json.\n4. Test thumbnail readability before upload.\n5. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n6. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check the value pages: signal test logs, extra scorecards, weekly reviews, and price-test pages.\n3. Check that no income guarantees are stated.\n4. Open cover-contact-sheet.png and thumbnail-test-contact-sheet.png.\n5. Read cover-quality-report.json before choosing a cover.\n6. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n7. Upload interior PDF and wraparound cover PDF to KDP Print Previewer.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine": "kdp_sales_optimization_v1",
+    "engine": "kdp_value_cover_quality_v1",
     "product": title,
     "method_name": internal_method_name,
     "days": len(pack["days"]),
@@ -410,6 +447,13 @@ upload_fields = (
     "kdp_only": True,
     "sales_title_optimized": True,
     "searchable_subtitle": True,
+    "value_pages_added": True,
+    "extra_signal_test_logs": 12,
+    "extra_scorecards": 8,
+    "weekly_reviews": 4,
+    "price_test_pages": 4,
+    "tracker_rows": 36,
+    "target_page_count": "80-100",
     "cover_positioning_assets": True,
     "cover_concepts": 3,
     "thumbnail_rule": True,
@@ -421,9 +465,8 @@ upload_fields = (
     "humanize_have_contraction_removed": True,
     "headers_footers": True,
     "worksheets": True,
-    "tracker_rows": 24,
     "listing_assets": True,
     "cover_assets": True
 }, indent=2), encoding="utf-8")
 
-print("KDP Sales Optimization Build created")
+print("KDP Value + Cover Quality Build created")
