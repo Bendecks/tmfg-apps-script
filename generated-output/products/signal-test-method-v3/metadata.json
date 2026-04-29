@@ -1,0 +1,10 @@
+{
+  "engine": "signal_v3",
+  "product": "The Signal Test Method",
+  "days": 30,
+  "scripts": 6,
+  "method_steps": 5,
+  "fast_wins": 3,
+  "model": "gemini-2.5-flash",
+  "kdp_only": true
+}
