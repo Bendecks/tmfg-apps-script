@@ -8,6 +8,7 @@ on:
     paths:
       - "ai-product-factory/src/generate_product.py"
       - "ai-product-factory/src/generate_covers.py"
+      - "ai-product-factory/src/generate_wraparound_cover.py"
       - "ai-product-factory/requirements.txt"
       - ".github/workflows/build-product.yml"
 
@@ -43,6 +44,9 @@ jobs:
 
       - name: Generate cover candidates
         run: python ai-product-factory/src/generate_covers.py
+
+      - name: Generate KDP wraparound cover
+        run: python ai-product-factory/src/generate_wraparound_cover.py
 
       - name: Copy output to repo folder
         run: |
