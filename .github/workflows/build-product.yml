@@ -22,6 +22,11 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Set up Typst
+        uses: typst-community/setup-typst@v4
+        with:
+          typst-version: latest
+
       - name: Install dependencies
         run: pip install -r ai-product-factory/requirements.txt
 
