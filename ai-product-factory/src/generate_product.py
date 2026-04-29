@@ -36,8 +36,6 @@ def humanize(text: str) -> str:
         "it is": "it’s",
         "You are": "You’re",
         "you are": "you’re",
-        "You have": "You’ve",
-        "you have": "you’ve",
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
@@ -372,7 +370,7 @@ upload_fields = (
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
 (PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"conversion_breakthrough_v1",
+    "engine":"conversion_breakthrough_v1_humanize_fixed",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
@@ -387,6 +385,7 @@ upload_fields = (
     "box_styles": 3,
     "daily_highlights": True,
     "humanize_tone": True,
+    "humanize_have_contraction_removed": True,
     "headers_footers": True,
     "worksheets": True,
     "tracker_rows": 24,
