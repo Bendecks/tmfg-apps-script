@@ -1,0 +1,17 @@
+{
+  "engine": "kdp_conversion_build_v1",
+  "product": "The Signal Test Method",
+  "days": 30,
+  "scripts": 6,
+  "method_steps": 5,
+  "fast_wins": 3,
+  "conversion_tools": 5,
+  "model": "gemini-2.5-flash",
+  "kdp_only": true,
+  "frontmatter": true,
+  "contents": true,
+  "worksheets": true,
+  "tracker_rows": 18,
+  "listing_assets": true,
+  "cover_assets": true
+}
