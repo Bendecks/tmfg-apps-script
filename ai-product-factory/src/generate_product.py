@@ -237,16 +237,27 @@ cover_spec = {
     "spine_text": "The Signal Test Method"
 }
 
+upload_fields = (
+    f"TITLE\n{title}\n\n"
+    f"SUBTITLE\n{subtitle}\n\n"
+    f"AUTHOR\n{author}\n\n"
+    f"DESCRIPTION\n{sales_description}\n\n"
+    f"KEYWORDS\n{', '.join(kdp_listing['backend_keywords'])}\n\n"
+    "CATEGORIES TO TRY\n"
+    + "\n".join(kdp_listing["categories_to_try"])
+    + "\n"
+)
+
 (PRODUCT_DIR / "title.txt").write_text(title + "\n" + subtitle, encoding="utf-8")
 (PRODUCT_DIR / "description.txt").write_text(sales_description, encoding="utf-8")
 (PRODUCT_DIR / "keywords.txt").write_text(", ".join(kdp_listing["backend_keywords"]), encoding="utf-8")
 (PRODUCT_DIR / "kdp-listing.json").write_text(json.dumps(kdp_listing, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
-(PRODUCT_DIR / "kdp-upload-fields.txt").write_text(f"""TITLE\n{title}\n\nSUBTITLE\n{subtitle}\n\nAUTHOR\n{author}\n\nDESCRIPTION\n{sales_description}\n\nKEYWORDS\n{', '.join(kdp_listing['backend_keywords'])}\n\nCATEGORIES TO TRY\n" + "\n".join(kdp_listing["categories_to_try"]) + "\n", encoding="utf-8")
+(PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
 (PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect title page, copyright page, contents, 3 daily pages, tracker, and final decision page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"kdp_polish_listing_cover_v2",
+    "engine":"kdp_polish_listing_cover_v2_fixed",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
