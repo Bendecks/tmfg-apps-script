@@ -1,0 +1,5 @@
+{
+  "engine": "typst_product_builder",
+  "product": "First $100 Online Playbook",
+  "pdf": "book.pdf"
+}
