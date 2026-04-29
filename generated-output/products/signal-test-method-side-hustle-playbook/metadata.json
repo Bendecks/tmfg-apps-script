@@ -1,0 +1,13 @@
+{
+  "engine": "signal_test_method_v1",
+  "product": "The Signal Test Method",
+  "kdp_only": true,
+  "gemini_used": true,
+  "model": "gemini-2.5-flash",
+  "days_generated": 30,
+  "scripts_generated": 6,
+  "method_steps": 5,
+  "fallback_allowed": false,
+  "typst_sanitized": true,
+  "layout": "6x9_kdp_workbook"
+}

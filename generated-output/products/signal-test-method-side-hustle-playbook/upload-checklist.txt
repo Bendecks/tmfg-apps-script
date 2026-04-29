@@ -1,0 +1,5 @@
+1. Open book.pdf and inspect 5 random pages.
+2. Check title/subtitle.
+3. Generate cover from cover-prompt.txt.
+4. Use description.txt and keywords.txt for KDP listing.
+5. Do not publish before checking no income guarantees are stated.
