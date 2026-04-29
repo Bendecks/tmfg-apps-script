@@ -126,7 +126,7 @@ typst = f"""
   height: 9in,
   margin: (x: 0.62in, y: 0.68in),
   header: align(center)[#text(size: 8pt, fill: rgb("777777"))[The Signal Test Method]],
-  footer: align(center)[#text(size: 8pt, fill: rgb("777777"))[#counter(page).display()]]
+  footer: align(center)[#context text(size: 8pt, fill: rgb("777777"))[#counter(page).display()]]
 )
 #set text(size: 10pt)
 #set heading(numbering: none)
@@ -311,7 +311,7 @@ upload_fields = (
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
 (PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 8 pages, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"kdp_preview_optimization_v1",
+    "engine":"kdp_preview_optimization_v1_fixed_page_counter",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
