@@ -1,0 +1,49 @@
+{
+  "recommended_front_cover": "cover-4-typographic-control.png",
+  "covers": [
+    {
+      "file": "cover-1.png",
+      "thumbnail_contrast_stddev": 72.81,
+      "thumbnail_brightness": 168.97,
+      "dimensions": [
+        1800,
+        2700
+      ],
+      "quality_score": 90,
+      "notes": "Automated heuristic only. Human visual check still required."
+    },
+    {
+      "file": "cover-2.png",
+      "thumbnail_contrast_stddev": 59.25,
+      "thumbnail_brightness": 77.78,
+      "dimensions": [
+        1800,
+        2700
+      ],
+      "quality_score": 90,
+      "notes": "Automated heuristic only. Human visual check still required."
+    },
+    {
+      "file": "cover-3.png",
+      "thumbnail_contrast_stddev": 70.42,
+      "thumbnail_brightness": 197.65,
+      "dimensions": [
+        1800,
+        2700
+      ],
+      "quality_score": 90,
+      "notes": "Automated heuristic only. Human visual check still required."
+    },
+    {
+      "file": "cover-4-typographic-control.png",
+      "thumbnail_contrast_stddev": 60.91,
+      "thumbnail_brightness": 212.25,
+      "dimensions": [
+        1800,
+        2700
+      ],
+      "quality_score": 100,
+      "notes": "Automated heuristic only. Human visual check still required."
+    }
+  ]
+}

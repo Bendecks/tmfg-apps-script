@@ -1,5 +1,5 @@
 {
-  "engine": "kdp_auto_cover_v1",
+  "engine": "kdp_value_cover_quality_v1",
   "product": "Stop Building Ideas Nobody Wants",
   "method_name": "The Signal Test Method",
   "days": 30,
@@ -11,6 +11,13 @@
   "kdp_only": true,
   "sales_title_optimized": true,
   "searchable_subtitle": true,
+  "value_pages_added": true,
+  "extra_signal_test_logs": 12,
+  "extra_scorecards": 8,
+  "weekly_reviews": 4,
+  "price_test_pages": 4,
+  "tracker_rows": 36,
+  "target_page_count": "80-100",
   "cover_positioning_assets": true,
   "cover_concepts": 3,
   "thumbnail_rule": true,
@@ -22,16 +29,20 @@
   "humanize_have_contraction_removed": true,
   "headers_footers": true,
   "worksheets": true,
-  "tracker_rows": 24,
   "listing_assets": true,
   "cover_assets": true,
   "auto_front_covers": true,
   "front_cover_pngs": [
     "cover-1.png",
     "cover-2.png",
-    "cover-3.png"
+    "cover-3.png",
+    "cover-4-typographic-control.png"
   ],
+  "typographic_control_cover": "cover-4-typographic-control.png",
   "cover_contact_sheet": "cover-contact-sheet.png",
+  "thumbnail_test_contact_sheet": "thumbnail-test-contact-sheet.png",
+  "cover_quality_report": "cover-quality-report.json",
+  "recommended_front_cover": "cover-4-typographic-control.png",
   "cover_generation_metadata": "cover-generation.json",
   "image_models_tried": [
     "gemini-2.5-flash-image-preview",
@@ -41,6 +52,6 @@
   "kdp_wraparound_pdf": "kdp-wraparound-cover.pdf",
   "kdp_wraparound_png": "kdp-wraparound-cover.png",
   "kdp_wraparound_metadata": "kdp-wraparound-cover.json",
-  "interior_page_count": 52,
-  "spine_width_in": 0.1171
+  "interior_page_count": 100,
+  "spine_width_in": 0.2252
 }

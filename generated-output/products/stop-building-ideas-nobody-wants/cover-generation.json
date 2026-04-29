@@ -23,6 +23,14 @@
       "fallback_used": false,
       "file": "cover-3.png",
       "concept": "Signal Dashboard"
+    },
+    {
+      "ok": true,
+      "model": "deterministic-pillow",
+      "error": null,
+      "fallback_used": false,
+      "file": "cover-4-typographic-control.png",
+      "concept": "Typographic Control Cover"
     }
   ]
 }
