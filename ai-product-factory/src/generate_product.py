@@ -7,7 +7,7 @@ BASE = Path(__file__).resolve().parents[1]
 DIST = BASE / "dist" / "products"
 DIST.mkdir(parents=True, exist_ok=True)
 
-slug = "signal-test-method-kdp-preview"
+slug = "signal-test-method-conversion-breakthrough"
 PRODUCT_DIR = DIST / slug
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -25,22 +25,46 @@ def esc(text: str) -> str:
         text = text.replace(old, new)
     return text
 
+def humanize(text: str) -> str:
+    text = str(text)
+    replacements = {
+        "You will": "You’ll",
+        "you will": "you’ll",
+        "Do not": "Don’t",
+        "do not": "don’t",
+        "It is": "It’s",
+        "it is": "it’s",
+        "You are": "You’re",
+        "you are": "you’re",
+        "You have": "You’ve",
+        "you have": "you’ve",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
+
 def lines(n=6):
     return "\n".join(["#line(length: 100%)" for _ in range(n)]) + "\n"
 
-def box(title: str, body: str, notes: int = 0) -> str:
-    content = esc(body)
+def box_primary(title: str, body: str, notes: int = 0) -> str:
+    content = esc(humanize(body))
     if notes:
-        content += "\n\n#strong[Your notes]\n#v(3pt)\n" + lines(notes)
-    return (
-        '#block(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))['
-        f'#strong[{esc(title)}]\n#v(3pt)\n{content}\n]\n\n'
-    )
+        content += "\n\n#strong[Your notes]\n#v(4pt)\n" + lines(notes)
+    return '#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[' + f'#strong[{esc(title)}]\n#v(4pt)\n{content}\n]\n\n'
+
+def box_secondary(title: str, body: str, notes: int = 0) -> str:
+    content = esc(humanize(body))
+    if notes:
+        content += "\n\n#emph[Notes]\n#v(3pt)\n" + lines(notes)
+    return '#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[' + f'#emph[{esc(title)}]\n#v(3pt)\n{content}\n]\n\n'
+
+def box_highlight(text: str) -> str:
+    return '#block(inset: 12pt, radius: 0pt, stroke: none)[' + f'#text(size: 12pt, weight: "bold")[{esc(humanize(text))}]' + ']\n\n'
 
 def scorecard_box() -> str:
     return (
-        '#block(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))['
-        '#strong[The 3-Signal Scorecard]\n#v(3pt)\n'
+        '#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))['
+        '#strong[The 3-Signal Scorecard]\n#v(4pt)\n'
         'Problem strength (1-5): #line(length: 35%)\n\n'
         'Reachability (1-5): #line(length: 35%)\n\n'
         'Willingness to pay (1-5): #line(length: 35%)\n\n'
@@ -114,10 +138,10 @@ subtitle = "A 30-Day Side Hustle Workbook for Testing Real Demand Before You Bui
 author = "The Modern Family Guide"
 
 mini_tools = [
-    ("The 10-Message Test", "Send 10 direct, personal messages before judging an idea. Do not count likes, compliments, or vague interest. Count replies that show pain or willingness to act."),
-    ("The $10 Tiny Offer Test", "Turn your idea into one small thing someone could buy for around $10. If nobody wants the tiny version, do not build the big version yet."),
+    ("The 10-Message Test", "Send 10 direct, personal messages before judging an idea. Don’t count likes, compliments, or vague interest. Count replies that show pain or willingness to act."),
+    ("The $10 Tiny Offer Test", "Turn your idea into one small thing someone could buy for around $10. If nobody wants the tiny version, don’t build the big version yet."),
     ("The Polite Interest Trap", "People saying 'cool idea' is not demand. Demand looks like questions, urgency, payment, referrals, or asking when it is available."),
-    ("The Silence Rule", "If people ignore the offer after multiple direct asks, treat silence as data. Do not argue with the market."),
+    ("The Silence Rule", "If people ignore the offer after multiple direct asks, treat silence as data. Don’t argue with the market."),
 ]
 
 typst = f"""
@@ -155,16 +179,50 @@ Most ideas do not fail because people are lazy.\n\nThey fail because nobody test
 
 #pagebreak()
 
+#align(center)[
+#v(140pt)
+#text(size: 22pt, weight: "bold")[Most people don’t fail because they’re lazy.]
+#v(12pt)
+#text(size: 14pt)[They fail because they never ask anyone if the idea is worth paying for.]
+#v(24pt)
+#text(size: 12pt)[This workbook forces you to ask.]
+]
+
+#pagebreak()
+
 = Your First Win (15 Minutes)
 
-#block(inset: 10pt, radius: 4pt, stroke: 0.7pt, fill: rgb("FFFFFF"))[
+#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[
 #strong[Send this message to 1 person today]\n#v(4pt)
-Hey, quick question — are you still struggling with \[problem\]?\n\nIf they reply, you have your first signal.\n\nDo not overthink it.
+Hey, quick question — are you still struggling with \[problem\]?\n\nIf they reply, you have your first signal.\n\nDon’t overthink it.
 ]
 
 #v(12pt)
 #strong[Who will you message?]\n#v(4pt)
 {lines(5)}
+
+#pagebreak()
+
+= What Counts as a Real Signal?
+
+#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[
+#strong[Real signals]\n#v(4pt)
+- Someone asks a follow-up question\n
+- Someone shares a real problem\n
+- Someone asks for the price\n
+- Someone says “can you do this for me?”
+]
+
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[
+#emph[Not real signals]\n#v(3pt)
+- “Cool idea”\n
+- “Nice”\n
+- Likes\n
+- Silence
+]
+
+#v(10pt)
+#text(size: 11pt)[If you cannot tell the difference, you will waste months building the wrong thing.]
 
 #pagebreak()
 
@@ -177,7 +235,7 @@ The Method\n\nConversion Tools\n\nStart Here: 15-Minute Tests\n\nCopy/Paste Scri
 
 This workbook is not for collecting ideas. It is for testing whether an idea deserves more time. Each day asks you to take one small action, face the realistic friction, and record what actually happened.
 
-{box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'), 6)}
+{box_primary('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'), 6)}
 
 #pagebreak()
 
@@ -189,36 +247,39 @@ Do not build first. Look for signals first.
 
 for s in pack["method_steps"]:
     body = f"{s['what_it_means']}\n\nTest: {s['test']}\n\nWhat goes wrong: {s['what_goes_wrong']}\n\nStop when: {s['stop_when']}"
-    typst += box(s["name"], body, 4)
+    typst += box_primary(s["name"], body, 4)
 
 typst += "#pagebreak()\n= Conversion Tools\n\nThese tools help you avoid the most common beginner mistake: confusing polite interest with real demand.\n\n"
 for name, desc in mini_tools:
-    typst += box(name, desc, 3)
+    typst += box_secondary(name, desc, 3)
 typst += scorecard_box()
 
 typst += "#pagebreak()\n= Start Here: 15-Minute Tests\n\n"
 for fw in pack["fast_wins"]:
-    typst += box(fw["title"], fw["action"], 6)
+    typst += box_primary(fw["title"], fw["action"], 6)
 
 typst += "#pagebreak()\n= Copy/Paste Scripts\n\nUse these as starting points. Rewrite them so they sound like you.\n\n"
 for sc in pack["scripts"]:
-    typst += box(sc["title"], sc["text"], 4)
+    typst += box_secondary(sc["title"], sc["text"], 4)
 
 cs = pack["case_study"]
 typst += f"#pagebreak()\n= Digital Side Hustle Case Study: {esc(cs['title'])}\n\n"
-typst += box("Idea", cs["idea"])
-typst += box("What I did", "\n".join(cs.get("what_i_did", [])))
-typst += box("What happened", cs["what_happened"])
-typst += box("What I learned", cs["conclusion"])
-typst += box("What I would do differently", cs.get("what_to_do_differently", "Use a smaller test, ask for money sooner, and stop faster if no one cares."), 6)
+typst += box_primary("Idea", cs["idea"])
+typst += box_secondary("What I did", "\n".join(cs.get("what_i_did", [])))
+typst += box_secondary("What happened", cs["what_happened"])
+typst += box_primary("What I learned", cs["conclusion"])
+typst += box_highlight("Nobody bought the first version. That was the signal. Not failure.")
+typst += box_primary("What I would do differently", cs.get("what_to_do_differently", "Use a smaller test, ask for money sooner, and stop faster if no one cares."), 6)
 typst += "#pagebreak()\n= 30-Day Signal Plan\n\nEach day has one action, one reality check, and one win condition. Complete the action before reading ahead.\n\n#pagebreak()\n"
 
 for d in pack["days"]:
     typst += f"= Day {d['day']}: {esc(d['title'])}\n\n"
-    typst += box("Action", d["action"])
-    typst += box("Reality", d["reality"])
-    typst += box("Win condition", d["win_condition"])
-    typst += box("Daily notes", "What happened today? What signal did you see? What is the next smallest action?", 11)
+    typst += box_primary("Action", d["action"])
+    typst += box_secondary("Reality", d["reality"])
+    typst += box_primary("Win condition", d["win_condition"])
+    if int(d["day"]) % 5 == 0:
+        typst += box_highlight("You are not looking for motivation. You are looking for proof.")
+    typst += box_secondary("Daily notes", "What happened today? What signal did you see? What is the next smallest action?", 11)
     typst += "#pagebreak()\n"
 
 typst += f"""
@@ -234,10 +295,10 @@ typst += f"""
 
 = Stop / Pivot / Continue
 
-{box('Continue', 'What created a real signal: payment, specific request, repeated problem, urgency, or a direct yes?', 8)}
-{box('Pivot', 'What part seemed promising, but needs a different audience, offer, price, or message?', 8)}
-{box('Stop', 'What produced silence, vague compliments, weak signals, or polite interest without action?', 8)}
-{box('Next $10 Test', 'What is the smallest paid test you will run next?', 8)}
+{box_primary('Continue', 'What created a real signal: payment, specific request, repeated problem, urgency, or a direct yes?', 8)}
+{box_secondary('Pivot', 'What part seemed promising, but needs a different audience, offer, price, or message?', 8)}
+{box_secondary('Stop', 'What produced silence, vague compliments, weak signals, or polite interest without action?', 8)}
+{box_primary('Next $10 Test', 'What is the smallest paid test you will run next?', 8)}
 """
 
 src = PRODUCT_DIR / "book.typ"
@@ -309,9 +370,9 @@ upload_fields = (
 (PRODUCT_DIR / "cover-spec.json").write_text(json.dumps(cover_spec, indent=2), encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text(cover_spec["front_cover_prompt"], encoding="utf-8")
 (PRODUCT_DIR / "kdp-upload-fields.txt").write_text(upload_fields, encoding="utf-8")
-(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 8 pages, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
+(PRODUCT_DIR / "upload-checklist.txt").write_text("1. Open book.pdf and inspect first 10 pages, real/fake signal page, conversion tools, scorecard, 3 daily pages, tracker, and Stop / Pivot / Continue page.\n2. Check that no income guarantees are stated.\n3. Generate KDP cover using cover-spec.json or cover-prompt.txt.\n4. Use kdp-listing.json and kdp-upload-fields.txt for KDP metadata.\n5. Upload interior PDF to KDP and preview before publishing.\n", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"kdp_preview_optimization_v1_fixed_page_counter",
+    "engine":"conversion_breakthrough_v1",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
@@ -321,8 +382,11 @@ upload_fields = (
     "model": MODEL_NAME,
     "kdp_only": True,
     "frontmatter": True,
-    "preview_intro": True,
-    "fast_win_page": True,
+    "scroll_stop_page": True,
+    "real_signal_page": True,
+    "box_styles": 3,
+    "daily_highlights": True,
+    "humanize_tone": True,
     "headers_footers": True,
     "worksheets": True,
     "tracker_rows": 24,
@@ -330,4 +394,4 @@ upload_fields = (
     "cover_assets": True
 }, indent=2), encoding="utf-8")
 
-print("KDP Preview Optimization Build created")
+print("Conversion Breakthrough Build created")
