@@ -1,5 +1,5 @@
 {
-  "engine": "kdp_sales_optimization_v1",
+  "engine": "kdp_auto_cover_v1",
   "product": "Stop Building Ideas Nobody Wants",
   "method_name": "The Signal Test Method",
   "days": 30,
@@ -24,5 +24,17 @@
   "worksheets": true,
   "tracker_rows": 24,
   "listing_assets": true,
-  "cover_assets": true
+  "cover_assets": true,
+  "auto_front_covers": true,
+  "front_cover_pngs": [
+    "cover-1.png",
+    "cover-2.png",
+    "cover-3.png"
+  ],
+  "cover_contact_sheet": "cover-contact-sheet.png",
+  "cover_generation_metadata": "cover-generation.json",
+  "image_models_tried": [
+    "gemini-2.5-flash-image-preview",
+    "gemini-3.1-flash-image-preview"
+  ]
 }

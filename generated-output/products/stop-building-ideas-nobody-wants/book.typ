@@ -139,7 +139,7 @@ This workbook is not for collecting ideas. It is for testing whether an idea des
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Use this for]
 #v(4pt)
-Stop wasting time building things nobody wants to buy.
+Learn to test if people want your idea before you waste time building it. Stop guessing and start getting clear signals.
 
 #strong[Your notes]
 #v(4pt)
@@ -162,13 +162,13 @@ Do not build first. Look for signals first.
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Find a real problem]
 #v(4pt)
-Identify issues people actively complain about or struggle with in their daily lives or work.
+Identify a specific frustration or need that many people share. It's not about your solution yet, but about their pain.
 
-Test: Can you find online communities (forums, Reddit, Facebook groups) where people are discussing this problem frequently?
+Test: Can you describe the problem in simple words? Do you see people complaining about it online or in real life?
 
-What goes wrong: You invent a problem based on your assumptions that isn't real for others.
+What goes wrong: Picking a problem that's too vague, too small, or that you imagine exists but doesn't for others.
 
-Stop when: You have a list of at least 10 specific, recurring problems with examples of people talking about them.
+Stop when: You have a clear, specific problem statement that you've heard others express.
 
 #strong[Your notes]
 #v(4pt)
@@ -181,13 +181,13 @@ Stop when: You have a list of at least 10 specific, recurring problems with exam
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Find someone who cares]
 #v(4pt)
-Locate specific individuals or groups who visibly experience the problem you found. They are vocal about it.
+Locate specific individuals or groups who experience the problem you identified. These are your potential customers.
 
-Test: Can you identify 5 specific individuals or groups online who complain about this problem, not just generally, but with specific examples?
+Test: Can you find online forums, social media groups, or real-life meetups where these people gather? Can you identify 5-10 specific individuals?
 
-What goes wrong: You target a vague 'everyone' or an audience that isn't active online.
+What goes wrong: Talking to friends or family who are polite but not your actual target. Not knowing where your target audience hangs out.
 
-Stop when: You have 3-5 specific groups or platforms where these exact people hang out and talk about their struggles.
+Stop when: You have a list of places and specific people you can reach out to, who are clearly affected by the problem.
 
 #strong[Your notes]
 #v(4pt)
@@ -200,13 +200,13 @@ Stop when: You have 3-5 specific groups or platforms where these exact people ha
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Make a tiny offer]
 #v(4pt)
-Create a very small, simple solution to a piece of their problem. This is not your full product idea, but a quick helper.
+Propose a very small, simple solution to their problem. This isn't your full product, just the first step or a mini version.
 
-Test: Is your offer simple enough to explain in one sentence? Can it be delivered to someone in less than an hour of your time?
+Test: Can you describe your offer in one sentence? Is it easy for someone to say "yes" or "no" to without much commitment?
 
-What goes wrong: You build too much, too soon, or create something that's not easily digestible.
+What goes wrong: Trying to sell a complex product. Offering something that doesn't directly address the specific problem you found.
 
-Stop when: You have a simple 'done-for-you' or 'done-with-you' offer (like a checklist, simple template, or quick audit) that takes little effort to prepare.
+Stop when: You have a clear, low-effort offer ready that addresses a specific pain point.
 
 #strong[Your notes]
 #v(4pt)
@@ -219,13 +219,13 @@ Stop when: You have a simple 'done-for-you' or 'done-with-you' offer (like a che
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Ask directly]
 #v(4pt)
-Reach out to the specific people you found and offer your tiny solution. Be direct, clear, and focused on their problem.
+Reach out to the people you found who care about the problem and present your tiny offer. Be honest about what you're doing.
 
-Test: Have you sent out at least 10 direct messages or made specific posts offering your solution to individuals or small groups?
+Test: Have you sent your offer to at least 10 people? Are you asking for a simple response, not a huge commitment?
 
-What goes wrong: You don't ask anyone, or you make the conversation about your product rather than their problem.
+What goes wrong: Not asking enough people. Being afraid of rejection. Not clearly stating the offer or what you want them to do.
 
-Stop when: You have had at least 5 direct conversations with people where your tiny offer was presented.
+Stop when: You've had at least 10 direct conversations or received 10 clear responses (yes/no/maybe).
 
 #strong[Your notes]
 #v(4pt)
@@ -238,13 +238,13 @@ Stop when: You have had at least 5 direct conversations with people where your t
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Try to get paid]
 #v(4pt)
-Clearly state a price for your tiny offer. Asking for money is the ultimate signal of demand.
+If they show interest, ask them to commit a small amount of money (even \$1-\$10) or pre-order your tiny offer. This is the ultimate signal.
 
-Test: Did you clearly state a specific price for your tiny offer, and how someone can pay you, to at least 3 people?
+Test: Have you made it easy for them to pay you? Have you asked for money from at least 3 people who showed interest?
 
-What goes wrong: You offer it for free, or you back down when asked about the price, or you don't make it easy to pay.
+What goes wrong: Offering too much for free. Not asking for the sale. Being uncomfortable with money talks. Setting a price too high for a "tiny offer".
 
-Stop when: You have made a clear offer with a price and payment instructions to at least 3 distinct individuals.
+Stop when: You've received at least one payment, or clearly understand why people won't pay for your tiny offer.
 
 #strong[Your notes]
 #v(4pt)
@@ -329,9 +329,9 @@ Total score: #line(length: 35%)
 #pagebreak()
 = Start Here: 15-Minute Tests
 
-#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Overcome the Blank Page]
+#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Quick Problem Spotter]
 #v(4pt)
-Write down 5 common problems you or people you know complain about daily. Don't filter, just list them.
+Spend 15 minutes listening in an online forum relevant to your interests. Note down 3 common complaints or questions.
 
 #strong[Your notes]
 #v(4pt)
@@ -344,9 +344,9 @@ Write down 5 common problems you or people you know complain about daily. Don't 
 
 ]
 
-#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Find Your People]
+#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[First Contact]
 #v(4pt)
-Pick one problem from your list and find 3 online communities (forums, Facebook groups, Reddit) where people discuss it.
+Send a simple message to one person you know who fits your target audience, asking about a problem they face. Don’t pitch anything.
 
 #strong[Your notes]
 #v(4pt)
@@ -359,9 +359,9 @@ Pick one problem from your list and find 3 online communities (forums, Facebook 
 
 ]
 
-#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Prepare Your Tiny Offer]
+#block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Micro Offer Prep]
 #v(4pt)
-Brainstorm 3 very small, quick ways to help someone with one part of their problem. Think '30-minute solutions'.
+Describe your smallest possible solution to one of the identified problems in just 3 sentences.
 
 #strong[Your notes]
 #v(4pt)
@@ -379,9 +379,9 @@ Brainstorm 3 very small, quick ways to help someone with one part of their probl
 
 Use these as starting points. Rewrite them so they sound like you.
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Opening the Conversation (Forum Post)]
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Problem Validation]
 #v(3pt)
-Hey everyone, I've noticed a lot of us here struggle with \[Problem X, e.g., organizing digital files for clients\]. How do you usually deal with it? Any quick tips that actually work for you?
+Hey \[Name\], I'm trying to understand more about \[specific problem\]. I've noticed people struggle with \[symptom 1\] and \[symptom 2\]. Does that sound familiar to you? What's the biggest pain point for you around this?
 
 #emph[Notes]
 #v(3pt)
@@ -392,9 +392,9 @@ Hey everyone, I've noticed a lot of us here struggle with \[Problem X, e.g., org
 
 ]
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[DMing Someone About Their Problem]
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Tiny Offer Intro (Initial)]
 #v(3pt)
-Hi \[Name\], I saw your post about \[Problem X\]. It sounds really frustrating. I've been thinking about this problem myself and might have a simple way to help with \[Specific aspect of problem\]. Would you be open to a quick chat about it, no pressure?
+Hi \[Name\], I saw your comment about \[specific problem\]. I'm exploring a simple way to help with \[desired outcome\] by creating \[your tiny offer idea, e.g., a quick template / a 15-min audit\]. Would that be something you might find useful?
 
 #emph[Notes]
 #v(3pt)
@@ -405,9 +405,9 @@ Hi \[Name\], I saw your post about \[Problem X\]. It sounds really frustrating. 
 
 ]
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Explaining the Tiny Offer]
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Tiny Offer Intro (Direct)]
 #v(3pt)
-Based on what you mentioned about \[specific pain point\], I put together a \[Name of Tiny Offer, e.g., quick checklist / simple template\] that helps you \[specific benefit\]. It takes about \[time\] to use. I'm selling it for \[Price, e.g., \$15\] to cover my time. Would you be interested?
+Hey \[Name\], I'm working on a simple \[digital product type, e.g., checklist/spreadsheet\] for \[target audience\] to solve \[specific problem\]. It's called \[Offer Name\] and it helps with \[benefit\]. I'm offering it for \[small price, e.g., \$5\] to the first few people. Interested?
 
 #emph[Notes]
 #v(3pt)
@@ -418,9 +418,9 @@ Based on what you mentioned about \[specific pain point\], I put together a \[Na
 
 ]
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Responding to Hesitation / Free Request]
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Follow-up on Interest]
 #v(3pt)
-No catch, just trying to see if this idea is actually helpful to people before I build something bigger. I'm charging a small fee of \[Price, e.g., \$15\] for it, mostly to ensure you're serious about getting the result.
+Thanks for saying you might be interested! To make sure I'm building exactly what you need, could you tell me more about \[specific question related to their pain/need\]? If you're ready, here's the link to grab it: \[Link\].
 
 #emph[Notes]
 #v(3pt)
@@ -431,9 +431,9 @@ No catch, just trying to see if this idea is actually helpful to people before I
 
 ]
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[After No Reply]
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Handling Low Interest]
 #v(3pt)
-Hey \[Name\], just checking in one last time on my offer for \[Tiny Offer\]. Totally understand if it's not a fit right now, but wanted to make sure you got the message. No worries either way!
+No worries at all if it's not a fit right now. Could you spare a moment to tell me why it doesn't quite hit the mark for you? Any feedback is super helpful as I'm just getting started.
 
 #emph[Notes]
 #v(3pt)
@@ -444,9 +444,9 @@ Hey \[Name\], just checking in one last time on my offer for \[Tiny Offer\]. Tot
 
 ]
 
-#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Thank You and Feedback Request (After a Sale)]
+#block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Payment Request]
 #v(3pt)
-Thanks so much for trying out \[Tiny Offer\]! I hope it helps you with \[specific benefit\]. I'd love to hear your honest feedback after you've used it for a bit – what worked well, what didn't, anything missing?
+Great! Glad to hear you think it'll help. The \[tiny offer name\] is \[small price, e.g., \$7\]. You can get it instantly here: \[Payment Link\]. Let me know if you have any questions!
 
 #emph[Notes]
 #v(3pt)
@@ -458,38 +458,37 @@ Thanks so much for trying out \[Tiny Offer\]! I hope it helps you with \[specifi
 ]
 
 #pagebreak()
-= Digital Side Hustle Case Study: The Confused Freelancer's Invoice Template
+= Digital Side Hustle Case Study: My Spreadsheet Disaster
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Idea]
 #v(4pt)
-Freelancers struggle with creating professional invoices that track payments and services. I could sell a simple Google Sheet invoice template.
+A simple spreadsheet template to track job applications and interview follow-ups for recent college graduates.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[What I did]
 #v(3pt)
-Searched Reddit and Facebook groups for freelancers complaining about invoicing, tracking payments, and looking professional.
-Found common pain points: managing multiple clients, calculating taxes, presenting a professional image.
-Created a very basic, single-sheet Google Sheet template with placeholder fields for services, rates, client info, and payment status.
-Priced it at \$7.
-Posted in 3 freelancer groups: 'Anyone else tired of fiddling with invoices? I made a super simple Google Sheet template for \$7 to keep track of clients and payments. DM if interested.'
-DM'd 5 people who had explicitly complained about invoice issues in public posts.
+Identified that many new grads struggle to keep track of their job hunt.
+Joined a few Facebook groups for recent college grads.
+Made a post asking, "How do you keep track of all your job applications? Does it get overwhelming?"
+After some replies, I offered a simple "Job Tracker Spreadsheet" template for \$3.
+Shared a Gumroad link in the comments and via direct messages.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[What happened]
 #v(3pt)
-Out of 3 group posts, one got a single 'interested' comment. The other two were ignored. Out of 5 DMs, two replied: one asking for more details, the other said 'I already use \[competitor name\]'. The interested commenter DM'd me, I explained the template, and they said, 'Oh, I thought it did X feature (like automated payment reminders).' It didn't. Total replies: 4. Total sales: 0. Many of my DMs went unopened.
+Out of 50 comments on my initial post, only 3 people responded to my offer directly. One person asked for a free sample. Two people clicked the link, but nobody purchased. I received one private message saying, "I just use Google Sheets anyway, why would I pay for this?"
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[What I learned]
 #v(4pt)
-My tiny offer didn't quite match the biggest pain point, or I didn't communicate the benefit clearly enough. People were looking for more advanced features than my 'simple' template offered for \$7, or my messaging wasn't specific enough about what it \*did\* do.
+The problem (tracking job applications) was real, but my proposed solution (a spreadsheet template) wasn't seen as valuable enough to pay for. People were already using free alternatives or had their own systems. My "tiny offer" wasn't unique enough.
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[Nobody bought the first version. That was the signal. Not failure.]]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[What I would do differently]
 #v(4pt)
-Focus on a \*very specific\* invoicing pain point (e.g., 'tracking overdue payments automatically') and clearly state that my template addresses \*only\* that. Or, test a slightly higher price point for a slightly more robust solution, or an even lower price for something incredibly basic. Ask \*more\* questions about their current invoicing challenges before offering a solution.
+Instead of a generic spreadsheet, I should have focused on a more specific pain point within job tracking, like automating follow-up reminders or tailoring applications to specific industries. Or, offered a service (e.g., "15-min resume review") instead of a product. I also needed to clearly articulate the unique value over a plain Google Sheet.
 
 #strong[Your notes]
 #v(4pt)
@@ -508,21 +507,21 @@ Focus on a \*very specific\* invoicing pain point (e.g., 'tracking overdue payme
 Each day has one action, one reality check, and one win condition. Complete the action before reading ahead.
 
 #pagebreak()
-= Day 1: Brainstorm Your Own Problems
+= Day 1: Your First Problem Hunt
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-List 5-10 things that annoy you, waste your time, or cost you money regularly. Think about daily frustrations.
+List 5 problems you or someone you know faces frequently. Focus on frustrations, inefficiencies, or things that cause stress.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It's harder than you think to write down your own frustrations without filtering them. You might think 'everyone has this' or 'it's too small'.
+You might struggle to think of anything beyond "I'm tired." Dig deeper. What specific things make you tired?
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have 5 specific, personal problems written down.
+You have 5 specific problems written down.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -546,21 +545,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 2: Ask Your Inner Circle
+= Day 2: Online Problem Lurking
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Ask 3 friends or family members: 'What's one thing you regularly struggle with or wish was easier in \[their area of life/work\]?'
+Pick one problem from your list. Go to Reddit, Facebook Groups, or forums relevant to that problem. Read posts for 30 minutes.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-They might give vague answers or say 'nothing really'. You'll need to dig a little deeper with follow-up questions.
+You might not find immediate complaints. Look for questions, rants, or people asking for solutions.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've heard 3 distinct problems from others.
+You've found at least 2 instances of people discussing your chosen problem.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -584,21 +583,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 3: Find Problem Communities Online (Part 1)
+= Day 3: Problem Refinement
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Pick one problem from your list. Search Reddit for subreddits related to it. Look for discussion and complaints.
+Based on your lurking, refine your chosen problem. Make it as specific as possible. Who exactly has this problem?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You might find a huge, active sub, or nothing at all. Try different keywords and broad categories.
+It's easy to be vague. "People struggle with money" is too broad. "New freelancers struggle to price their first projects" is better.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You found at least one relevant subreddit where your chosen problem is discussed.
+Your problem statement is 1-2 sentences, clear, and names a specific group.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -622,21 +621,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 4: Find Problem Communities Online (Part 2)
+= Day 4: Identify Your "Cares"
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Look for Facebook Groups or forums related to your chosen problem. Use search terms like 'help with \[problem\]', '\[problem\] support group'.
+Where do the people who care about this problem hang out online? List 3 specific places (forums, groups, subreddits).
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Some groups are private or inactive. It takes patience to find good, engaged ones.
+You might only find one or two places. That's fine for now, but aim for diverse spots.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You found one active Facebook Group or forum relevant to your problem.
+You have 3 specific online communities or platforms listed.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -660,21 +659,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 5: Observe and Listen
+= Day 5: First Casual Outreach
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Spend 30 minutes in one of these communities. Read posts and comments. What are people complaining about? Note specific phrases and common themes.
+In one of the identified communities, make a non-promotional post asking a question related to the problem. Don’t offer anything.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It's easy to get distracted by other topics. Force yourself to only read posts directly related to the problem you're researching.
+Your post might get no replies or very few. That's normal. Don't be discouraged.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have 3 specific quotes or detailed examples of people discussing the problem.
+You've made one genuine, open-ended post.
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[You’re not looking for motivation. You’re looking for proof.]]
@@ -700,21 +699,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 6: Define Your Target Person
+= Day 6: Digest the Feedback (or Lack Of)
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Based on your observations, describe the 'who' for your problem. Who exactly experiences this? Be specific (e.g., 'new freelance graphic designers', 'first-time dog owners').
+Review any replies to your post. What did you learn? If no replies, re-read your post. Was it clear? Was it engaging?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It's tempting to keep it general. Push yourself to define a narrow, clear audience. The more specific, the better.
+Sometimes no replies \*is\* feedback: maybe the community isn't right, or the question was poorly phrased.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You can describe your target person in one clear sentence.
+You have notes on any replies, or ideas on how to rephrase your question.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -738,21 +737,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 7: Brainstorm Tiny Solutions
+= Day 7: Brainstorm Tiny Offers
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-For your chosen problem, list 3 simple, one-off ways you could help someone solve a \*small part\* of it. Think checklist, simple template, quick audit, or a guide.
+For your refined problem, brainstorm 3 ultra-simple, low-effort "tiny offers" that could help. Think digital: checklist, template, mini-guide.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Your first ideas might be too complex or require too much work. Simplify them drastically. Can it be done in under an hour?
+It's tempting to build a big solution. Force yourself to think tiny. What's the absolute minimum help you can give?
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have 3 tiny solution ideas that can be delivered quickly and easily.
+You have 3 distinct tiny offer ideas, each described in one sentence.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -776,21 +775,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 8: Choose Your First Tiny Offer
+= Day 8: Pick Your Best Tiny Offer
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Pick the simplest, most direct tiny offer idea from your list. Make sure it's something you can deliver quickly with minimal effort.
+Choose the tiny offer that seems easiest to create in 1-2 hours and most directly solves a clear pain.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You might second-guess yourself or feel like it's 'not good enough'. Just pick one and commit to testing it for now.
+You might want to pick the most exciting one, but prioritize ease and directness.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have a clear tiny offer idea, e.g., 'a simple budget tracking spreadsheet for freelancers'.
+You've selected one tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -814,21 +813,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 9: Draft Your Offer Message (Social Post)
+= Day 9: Draft Your Tiny Offer Description
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Write a short social media post for one of your communities. Focus on the problem, hint at a solution, and ask if others feel the same. Don’t overtly sell yet.
+Write a simple 2-3 sentence description of your tiny offer. What is it, and what problem does it solve for whom?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It might feel like you're 'selling'. Focus on genuine curiosity and problem-solving, not a hard pitch.
+Avoid jargon. Keep it direct and benefit-oriented.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have a draft post that is problem-focused and conversational, not salesy.
+You have a clear, concise description of your tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -852,21 +851,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 10: Post Your Problem Probe
+= Day 10: Prepare Your "Ask Directly" Message
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Post your drafted message to one online community. Choose the most active and relevant one.
+Using Script 2 or 3, draft a personalized message to someone you've identified (or a general post) for your tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You might get no replies, or very few, or even some negative replies. This is normal. All feedback is data.
+You might feel awkward writing this. That's a good sign you're pushing outside your comfort zone.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-Your problem probe post is live in an online community.
+You have a draft message ready.
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[You’re not looking for motivation. You’re looking for proof.]]
@@ -892,21 +891,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 11: Engage with Replies (or Lack Thereof)
+= Day 11: Send Your First Ask
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-If you get replies, respond naturally, asking follow-up questions about their experience. If no replies, note it. Think about why (wrong group, bad timing, vague post).
+Send your drafted message to 1-2 people you've identified or make a polite post in a relevant, non-salesy part of a community.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Silence is also feedback. Don't take it personally. It means your message or problem wasn't compelling enough for that audience.
+You might get no replies. This is common. Don't overthink it for now.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've observed and reacted to your first post's reception (or lack thereof).
+You've sent at least one message or made one post.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -930,21 +929,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 12: Identify Specific Individuals
+= Day 12: Track Your Responses
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-From previous posts (yours or others'), find 3-5 people who clearly express the problem you're trying to solve. Look for those who seem genuinely frustrated.
+Create a simple spreadsheet or note to track who you've contacted, when, and their response.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Some people are active posters, others are lurkers. You'll need to identify who seems most engaged with the problem.
+It's easy to lose track, especially with low replies. Tracking helps you see the true volume.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have 3-5 names or usernames of potential target individuals.
+You have a tracking system set up and updated with your first outreach.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -968,21 +967,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 13: Draft Your First Direct Message
+= Day 13: Analyze Initial Signals
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Write a personalized DM to one of the individuals. Acknowledge their specific problem, express empathy, and gently offer to chat. Do NOT pitch your solution yet.
+What kind of responses (if any) are you getting? Are people confused? Interested? Indifferent?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It's easy to make it sound like a sales pitch. Keep it conversational and focused on understanding their specific issue.
+Most responses might be silence or "no thanks." Don't take it personally. It's data.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have a DM that sounds genuine and empathetic, not salesy.
+You've noted down the type of responses received so far.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1006,21 +1005,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 14: Send Your First Direct Messages
+= Day 14: Refine Your Offer or Message
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Send the personalized DM to 3 individuals you identified. Adjust slightly for each person's specific comment.
+Based on signals (or lack thereof), tweak your tiny offer description or your "ask directly" message.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You might feel nervous or intrusive. Expect a low reply rate. Many people won't respond, and that's okay.
+It's okay to change your mind or your approach. This is the testing phase.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've sent 3 personalized DMs to potential customers.
+You've made at least one small adjustment to your offer description or message.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1044,21 +1043,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 15: Prepare Your Tiny Offer (Product)
+= Day 15: Expanded Outreach
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Spend 1-2 hours creating or compiling your chosen tiny offer. Make it functional, clear, and deliverable, even if basic.
+Reach out to 3-5 more individuals or post in another relevant community with your refined message.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You'll want to perfect it. Resist this urge. Make it 'good enough' to test. Perfection is the enemy of progress.
+You might still get low replies. This is normal for early stage testing.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-Your tiny offer is ready to be delivered to someone.
+You've sent 3-5 more messages or made another post.
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[You’re not looking for motivation. You’re looking for proof.]]
@@ -1084,21 +1083,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 16: Draft Your Tiny Offer Pitch
+= Day 16: Look for "Micro Yeses"
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Write a clear, concise message explaining your tiny offer. Focus on the single biggest benefit it provides for their specific problem. Include a specific price.
+Are any responses showing even slight interest ("maybe," "tell me more," "how much?") These are micro yeses.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Pricing is often hard. Pick a small, easy-to-say number (e.g., \$5, \$10, \$15) that feels low risk for the customer.
+You might have to interpret vague responses as potential micro-yeses.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have a short, benefit-driven pitch with a clear price.
+You've identified any micro-yeses and noted them.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1122,21 +1121,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 17: Follow Up (or Pitch) to DMs
+= Day 17: Engage with Micro Yeses
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-If someone replied to your initial DM, use your pitch script. If they didn't, send a gentle follow-up (using one of the provided scripts).
+Use Script 4 to follow up with anyone who showed a "micro yes." Try to get more specific about their needs.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Awkwardness might ensue. Some will ignore your follow-up too. This is part of the process.
+They might not reply to your follow-up. This happens often.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've engaged with previous DMs either by pitching or following up.
+You've sent follow-up messages to all identified micro-yeses.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1160,21 +1159,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 18: Post Your Tiny Offer (Community)
+= Day 18: Prepare for Payment
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Create a post in one of your communities directly offering your tiny solution for a price. Clearly state the problem it solves and the solution.
+Set up a simple way to receive payment for your tiny offer. Gumroad, PayPal link, Stripe link – whatever is easiest.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-This can feel very uncomfortable. Be direct and concise. Expect low engagement, but watch for specific questions.
+It might feel premature, but having it ready means you can act fast when someone says "yes."
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-Your direct offer post is live in an online community.
+You have a payment link ready to share.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1198,21 +1197,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 19: Handle Questions and Objections
+= Day 19: The Direct Ask for Payment
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Engage with any replies or DMs from your posts. Be ready to explain what your offer does and, crucially, what it \*doesn't\* do.
+If someone has shown strong interest, use Script 6 and share your payment link for your tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You'll get questions you didn't anticipate. Practice clear and confident communication. Don't be afraid to say 'it doesn't do that yet'.
+This is the scariest part. You might be rejected. You might not hear back. This is where the rubber meets the road.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've responded to all inquiries about your offer, positive or negative.
+You've directly asked at least one interested person for payment.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1236,21 +1235,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 20: Iterate on Your Pitch
+= Day 20: Process The "No"
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Based on feedback or lack thereof, refine your tiny offer pitch. Is the price too high/low? Is the benefit clear? Is the target audience precise enough?
+If you got a "no" or silence after asking for payment, use Script 5. Try to understand why.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It's easy to get discouraged. Focus on making small, specific improvements based on the signals you're getting.
+Most people won't reply to "why not," but some will, and that feedback is gold.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have an updated, clearer pitch for your tiny offer.
+You've attempted to get feedback on a "no."
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[You’re not looking for motivation. You’re looking for proof.]]
@@ -1276,21 +1275,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 21: Broaden Your Reach (More DMs)
+= Day 21: Re-evaluate Your Tiny Offer Value
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Find 5 \*new\* individuals who express the problem and send them your refined initial DM. Make sure these are distinct people.
+If no one is paying, is your tiny offer truly solving a valuable problem? Is the price too high for the perceived value?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It still feels like cold outreach. Your skin will get thicker with each message you send.
+It's hard to admit your idea isn't hitting. But it's better to know now.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've sent 5 new personalized DMs.
+You've honestly assessed the perceived value of your tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1314,21 +1313,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 22: Test a Different Community
+= Day 22: Test a Different Angle
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Post your refined tiny offer pitch in a different online community from your initial test. Observe its reception.
+Can you adjust your tiny offer slightly? Change its name, its specific benefit, or the audience you're targeting?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Each community has a different vibe and expectations. What works in one might not work in another, and vice-versa.
+Sometimes a small tweak can make a big difference. Don't give up on the core problem yet.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-Your offer is live in a second online community.
+You've identified one specific adjustment to your tiny offer or its target.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1352,21 +1351,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 23: Reflect on Initial Offers (No Sales)
+= Day 23: Another Round of Direct Ask
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-If you haven't made a sale yet, consider: Was the problem real enough? Was the offer compelling? Was the price right? Did I reach enough people? Be honest.
+With your adjusted tiny offer/message, reach out to 3 new people or re-engage past "maybes" with the new angle.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Facing no sales is tough. It's not failure; it's a critical learning opportunity that saves you time and money.
+You'll face more potential rejection. This builds resilience.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've identified 1-2 potential reasons for no sales and documented them.
+You've sent 3 new "asks" for your adjusted tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1390,21 +1389,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 24: What If You Get a Sale?
+= Day 24: The Payment Win
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-If you got a sale, deliver the tiny offer promptly and professionally. Thank the buyer sincerely. Schedule a time to ask for feedback later.
+If someone pays, celebrate! Document what worked. Who paid, and what did they say?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Celebrate it! A sale, even a small one, is a huge validation of your effort and idea. It means someone values what you've made.
+This is a huge signal. It means you're onto something.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've successfully delivered your offer and thanked a buyer (or have a clear plan for when it happens).
+You've received at least one payment, or clearly understand the strongest reason for non-payment.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1428,21 +1427,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 25: Offer for Feedback Only (Free Test)
+= Day 25: What Did You Learn So Far?
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-If sales are zero, consider offering your tiny product for free to 3 specific people in exchange for detailed, honest feedback. Choose people who seem genuinely interested in the problem.
+Summarize the key lessons from your first 24 days. What problems got interest? What offers resonated? What did people actually pay for (or refuse to pay for)?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Some people will take the free offer and not give feedback. That's part of the game. Get what you can.
+It might feel like a lot of failure, but every "no" is data.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've offered your product for free to gain specific insights from 3 people.
+You have a clear summary of your key learnings.
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[You’re not looking for motivation. You’re looking for proof.]]
@@ -1468,21 +1467,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 26: Analyze Feedback (Paid or Free)
+= Day 26: Scaling the Signal (If Successful)
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Review any feedback received. What did they like? What didn't they like? What did they expect that wasn't there? Look for patterns.
+If you got a payment, how can you reach more people who might also pay? Where else can you share your offer?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Not all feedback is helpful or constructive, but common themes are gold. Filter out one-off complaints.
+Don't immediately build a huge product. Keep testing the tiny offer for wider demand.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have 3 key actionable takeaways from the feedback received.
+You have 2-3 new ideas for reaching more potential buyers for your validated tiny offer.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1506,21 +1505,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 27: Refine Your Tiny Offer (Based on Feedback)
+= Day 27: Pivoting (If Unsuccessful)
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Make a small, quick improvement to your tiny offer based on the most common or impactful feedback. Don't rebuild it from scratch.
+If no one paid, consider pivoting. Is there another tiny offer for the \*same problem\*? Or a completely new problem?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-It's tempting to overhaul everything. Just make one clear, high-impact improvement that addresses a core piece of feedback.
+It's hard to let go of an idea. But this method saves you from building a ghost town.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-Your tiny offer has a small, new, demonstrable improvement.
+You've decided whether to try a new tiny offer for the same problem or move to a new problem entirely.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1544,21 +1543,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 28: Try Again with Refined Offer
+= Day 28: Brainstorm Next Steps (Post-Signal)
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Pitch your improved tiny offer to 3 new individuals or in a new post, specifically highlighting the improvement you made based on feedback.
+Based on your signal (or lack thereof), what's the very next, smallest step you'd take?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-This cycle of trying, learning, and improving is the method. Every test provides more information.
+Don't jump to building a full product yet. How can you provide more value, still in a tiny way?
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You've pitched the improved offer to a new audience.
+You have one concrete, small next step for your validated (or invalidated) idea.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1582,21 +1581,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 29: Reflect on Your Learning
+= Day 29: The Long-Term Vision (Minimal)
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Review your notes from the last 28 days. What did you learn about your initial problem, your target audience, and your tiny offer? What surprised you?
+If your tiny offer gains traction, what could it eventually grow into? (e.g., a bigger product, a service, a course).
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-You'll likely see how much your initial assumptions have changed. Document these shifts in understanding.
+Keep this light. The goal isn't to commit, but to see potential.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You can articulate 3 clear lessons learned about market demand.
+You've sketched out a simple 3-step potential growth path for your validated idea.
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Daily notes]
@@ -1620,21 +1619,21 @@ What happened today? What signal did you see? What is the next smallest action?
 ]
 
 #pagebreak()
-= Day 30: Plan Your Next Test
+= Day 30: Your Personal Signal Test
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Action]
 #v(4pt)
-Based on all your findings, decide: Should you pursue this problem/offer further with a slightly bigger offer? Should you pivot to a different problem? Or try a new tiny offer for the same problem?
+Reflect on your journey. What was hardest? What surprised you? How has your approach to ideas changed?
 ]
 
 #block(inset: 8pt, radius: 4pt, stroke: 0.4pt)[#emph[Reality]
 #v(3pt)
-Sometimes the answer is to move on because the signal isn't strong enough. That's a huge win – you avoided building something nobody wants.
+You might feel a mix of triumph and exhaustion. This method protects your time.
 ]
 
 #block(inset: 10pt, radius: 6pt, stroke: 0.8pt, fill: rgb("F8F8F8"))[#strong[Win condition]
 #v(4pt)
-You have a clear next step for your side hustle idea, whether it's continuing, modifying, or pivoting.
+You have a clear understanding of the Signal Test Method's value and how you'll apply it moving forward.
 ]
 
 #block(inset: 12pt, radius: 0pt, stroke: none)[#text(size: 12pt, weight: "bold")[You’re not looking for motivation. You’re looking for proof.]]

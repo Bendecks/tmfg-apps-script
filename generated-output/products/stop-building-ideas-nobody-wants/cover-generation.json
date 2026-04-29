@@ -1,0 +1,28 @@
+{
+  "covers": [
+    {
+      "ok": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "error": null,
+      "fallback_used": false,
+      "file": "cover-1.png",
+      "concept": "Bold Text / Proof Motif"
+    },
+    {
+      "ok": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "error": null,
+      "fallback_used": false,
+      "file": "cover-2.png",
+      "concept": "Stop Sign / Idea Filter"
+    },
+    {
+      "ok": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "error": null,
+      "fallback_used": false,
+      "file": "cover-3.png",
+      "concept": "Signal Dashboard"
+    }
+  ]
+}
