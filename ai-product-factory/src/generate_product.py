@@ -26,7 +26,10 @@ def esc(text: str) -> str:
     return text
 
 def box(title: str, body: str) -> str:
-    return f'#box("{esc(title)}")[{esc(body)}]\n\n'
+    return (
+        '#block(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))['
+        f'#strong({esc(title)})\n#v(3pt)\n{esc(body)}\n]\n\n'
+    )
 
 def load_json(text: str):
     text = (text or "").strip()
@@ -87,15 +90,13 @@ typst = f"""
 #set heading(numbering: none)
 #set par(justify: false)
 
-#let box(t) = block.with(inset: 8pt, radius: 4pt, stroke: 0.5pt, fill: rgb("FFFFFF"))
-
 #align(center)[
 #v(50pt)
 #text(size: 25pt, weight: "bold")[{esc(title)}]
 #v(8pt)
 #text(size: 11pt)[{esc(subtitle)}]
 #v(28pt)
-#box("Use this for")[{esc(pack.get('promise','Test small ideas before wasting time building the wrong thing.'))}]
+{box('Use this for', pack.get('promise','Test small ideas before wasting time building the wrong thing.'))}
 ]
 #pagebreak()
 
@@ -146,9 +147,9 @@ typst += """
 
 = Final Decision
 
-#box("Double down")[What created the strongest signal?]
-#box("Stop")[What produced silence or weak signals?]
-#box("Next test")[What is the smallest next action?]
+#block(inset: 8pt, radius: 4pt, stroke: 0.5pt)[#strong(Double down)\n#v(3pt)What created the strongest signal?]
+#block(inset: 8pt, radius: 4pt, stroke: 0.5pt)[#strong(Stop)\n#v(3pt)What produced silence or weak signals?]
+#block(inset: 8pt, radius: 4pt, stroke: 0.5pt)[#strong(Next test)\n#v(3pt)What is the smallest next action?]
 """
 
 src = PRODUCT_DIR / "book.typ"
@@ -160,7 +161,7 @@ subprocess.run(["typst", "compile", str(src), str(PRODUCT_DIR / "book.pdf")], ch
 (PRODUCT_DIR / "keywords.txt").write_text("side hustle workbook, business idea validation, side hustle planner, online income beginner, product validation, demand testing, startup workbook", encoding="utf-8")
 (PRODUCT_DIR / "cover-prompt.txt").write_text("Create a premium 6x9 KDP cover for The Signal Test Method. Clean modern workbook style. Subtitle: A 30-Day Side Hustle Workbook for Testing Real Demand Before You Build. Strong readable typography, warm neutral tones, subtle signal/radar motif, no people, not scammy.", encoding="utf-8")
 (PRODUCT_DIR / "metadata.json").write_text(json.dumps({
-    "engine":"signal_v3_fixed_box_rendering",
+    "engine":"signal_v3_direct_block_rendering",
     "product": title,
     "days": len(pack["days"]),
     "scripts": len(pack["scripts"]),
