@@ -9,6 +9,7 @@ on:
       - "ai-product-factory/src/generate_product.py"
       - "ai-product-factory/src/generate_covers.py"
       - "ai-product-factory/src/generate_wraparound_cover.py"
+      - "ai-product-factory/src/apply_author_pseudonym.py"
       - "ai-product-factory/requirements.txt"
       - ".github/workflows/build-product.yml"
 
@@ -42,8 +43,14 @@ jobs:
       - name: Generate product files
         run: python ai-product-factory/src/generate_product.py
 
+      - name: Apply author pseudonym
+        run: python ai-product-factory/src/apply_author_pseudonym.py
+
       - name: Generate cover candidates
         run: python ai-product-factory/src/generate_covers.py
+
+      - name: Re-apply author pseudonym to covers and metadata
+        run: python ai-product-factory/src/apply_author_pseudonym.py
 
       - name: Generate KDP wraparound cover
         run: python ai-product-factory/src/generate_wraparound_cover.py
