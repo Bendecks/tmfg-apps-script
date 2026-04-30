@@ -31,6 +31,9 @@
   "worksheets": true,
   "listing_assets": true,
   "cover_assets": true,
+  "author": "Daniel Brooks",
+  "author_pseudonym": "Daniel Brooks",
+  "author_pseudonym_applied": true,
   "auto_front_covers": true,
   "front_cover_pngs": [
     "cover-1.png",
