@@ -9,7 +9,6 @@ PRODUCT_DIR = BASE / "dist" / "products" / "stop-building-ideas-nobody-wants"
 BOOK_PDF = PRODUCT_DIR / "book.pdf"
 QUALITY_REPORT = PRODUCT_DIR / "cover-quality-report.json"
 DEFAULT_FRONT_COVER = PRODUCT_DIR / "cover-1.png"
-SPEC_PATH = PRODUCT_DIR / "cover-spec.json"
 META_PATH = PRODUCT_DIR / "metadata.json"
 
 TITLE = "Stop Building Ideas Nobody Wants"
@@ -119,15 +118,20 @@ def make_back_cover(draw, x0, y0, w, h, bg, ink, accent):
         draw.text((x + 45, y2), f"• {b}", fill=ink, font=small_font)
         y2 += 48
 
-    footer = "No guru hype. No income guarantees. Just small tests, real signals, and clearer next steps."
-    draw_wrapped(draw, footer, (x, y0 + h - margin - 145), small_font, max_width, accent, spacing=7)
+    # KDP automatically places the real ISBN/barcode in the bottom-right area.
+    # Keep that zone completely blank. Do not draw a placeholder box or label.
+    safe_w = int(2.15 * DPI)
+    safe_h = int(1.35 * DPI)
+    barcode_x = x0 + w - margin - safe_w
+    barcode_y = y0 + h - margin - safe_h
 
-    safe_w = int(2.0 * DPI)
-    safe_h = int(1.2 * DPI)
-    bx = x0 + w - margin - safe_w
-    by = y0 + h - margin - safe_h
-    draw.rectangle((bx, by, bx + safe_w, by + safe_h), outline=(190, 190, 190), width=3)
-    draw.text((bx + 35, by + safe_h // 2 - 18), "Barcode area", fill=(150, 150, 150), font=small_font)
+    footer = "No guru hype. No income guarantees. Just small tests, real signals, and clearer next steps."
+    footer_max_width = max_width - safe_w - int(0.25 * DPI)
+    footer_y = y0 + h - margin - 115
+    draw_wrapped(draw, footer, (x, footer_y), small_font, footer_max_width, accent, spacing=7)
+
+    # Optional invisible reservation metadata: leave the area untouched.
+    _ = (barcode_x, barcode_y, safe_w, safe_h)
 
 
 def make_wraparound():
@@ -196,6 +200,8 @@ def make_wraparound():
         "full_cover_height_in": round(full_h / DPI, 4),
         "front_cover_source": front_cover.name,
         "front_cover_selection": "cover-quality-report recommended_front_cover if available; fallback cover-1.png",
+        "barcode_area_left_blank": True,
+        "barcode_placeholder_removed": True,
         "wraparound_png": png_path.name,
         "wraparound_pdf": pdf_path.name,
         "spine_text_included": spine_in >= MIN_SPINE_TEXT_IN,
@@ -211,6 +217,8 @@ def make_wraparound():
         "kdp_wraparound_metadata": "kdp-wraparound-cover.json",
         "kdp_wraparound_uses_recommended_front_cover": True,
         "kdp_wraparound_front_cover_source": front_cover.name,
+        "barcode_area_left_blank": True,
+        "barcode_placeholder_removed": True,
         "interior_page_count": page_count,
         "spine_width_in": round(spine_in, 4),
     })
@@ -223,8 +231,9 @@ def make_wraparound():
         + "\nKDP WRAPAROUND COVER\n"
         + "8. Open kdp-wraparound-cover.pdf and kdp-wraparound-cover.png.\n"
         + f"9. Confirm the wraparound uses the recommended front cover: {front_cover.name}.\n"
-        + "10. Upload kdp-wraparound-cover.pdf in KDP paperback cover step.\n"
-        + "11. Verify trim, bleed, barcode area, and spine alignment in KDP Print Previewer.\n",
+        + "10. Confirm the bottom-right back-cover barcode area is blank before KDP adds the real barcode.\n"
+        + "11. Upload kdp-wraparound-cover.pdf in KDP paperback cover step.\n"
+        + "12. Verify trim, bleed, barcode area, and spine alignment in KDP Print Previewer.\n",
         encoding="utf-8",
     )
     print("KDP wraparound cover generated")
