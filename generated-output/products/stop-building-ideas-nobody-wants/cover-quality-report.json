@@ -3,8 +3,8 @@
   "covers": [
     {
       "file": "cover-1.png",
-      "thumbnail_contrast_stddev": 75.98,
-      "thumbnail_brightness": 197.58,
+      "thumbnail_contrast_stddev": 84.09,
+      "thumbnail_brightness": 183.76,
       "dimensions": [
         1800,
         2700
@@ -14,8 +14,8 @@
     },
     {
       "file": "cover-2.png",
-      "thumbnail_contrast_stddev": 56.48,
-      "thumbnail_brightness": 95.34,
+      "thumbnail_contrast_stddev": 72.06,
+      "thumbnail_brightness": 85.34,
       "dimensions": [
         1800,
         2700
@@ -25,8 +25,8 @@
     },
     {
       "file": "cover-3.png",
-      "thumbnail_contrast_stddev": 76.28,
-      "thumbnail_brightness": 92.61,
+      "thumbnail_contrast_stddev": 68.25,
+      "thumbnail_brightness": 113.07,
       "dimensions": [
         1800,
         2700

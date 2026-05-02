@@ -57,6 +57,8 @@
   "kdp_wraparound_metadata": "kdp-wraparound-cover.json",
   "kdp_wraparound_uses_recommended_front_cover": true,
   "kdp_wraparound_front_cover_source": "cover-4-typographic-control.png",
+  "barcode_area_left_blank": true,
+  "barcode_placeholder_removed": true,
   "interior_page_count": 100,
   "spine_width_in": 0.2252
 }
