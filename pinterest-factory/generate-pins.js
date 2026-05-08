@@ -12,16 +12,17 @@ const outDir = path.join(ROOT, 'output');
 const pinDir = path.join(outDir, 'pins');
 fs.mkdirSync(pinDir, { recursive: true });
 
+const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0 };
 const angles = ['Primary Keyword', 'List Post', 'Pain Point', 'How To', 'Quick Wins', 'Beginner Friendly'];
 
 function httpJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.0' } }, res => {
+    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.1' } }, res => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
-        if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error(`HTTP ${res.statusCode}: ${url}`));
-        try { resolve(JSON.parse(data)); } catch (e) { reject(e); }
+        if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error(`HTTP ${res.statusCode}: ${url} :: ${data.slice(0, 250)}`));
+        try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`JSON parse failed: ${e.message}`)); }
       });
     }).on('error', reject);
   });
@@ -35,6 +36,8 @@ function stripHtml(s) {
     .replace(/&#8220;/g, '“')
     .replace(/&#8221;/g, '”')
     .replace(/&#038;/g, '&')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -50,7 +53,6 @@ function inferCategory(title) {
 }
 
 function inferKeywords(title, category) {
-  const t = title.toLowerCase();
   if (category === 'Easy Meals') return ['easy family meals', 'weeknight dinner ideas', 'family dinner ideas', 'quick family dinners'];
   if (category === 'Kids Activities') return ['indoor kids activities', 'screen free activities for kids', 'kids activities at home', 'boredom busters for kids'];
   if (category === 'Home Organization') return ['home organization ideas', 'home organization hacks', 'organized home', 'simple home systems'];
@@ -59,35 +61,34 @@ function inferKeywords(title, category) {
 }
 
 function inferPrimaryKeyword(title, category) {
-  const clean = title.replace(/[:–—].*$/, '').trim();
-  if (clean.length <= 54) return clean.toLowerCase();
+  const clean = title.replace(/[:–—].*$/, '').replace(/[?!.]+$/,'').trim();
+  if (clean.length <= 48) return clean.toLowerCase();
   return inferKeywords(title, category)[0];
+}
+
+async function fetchWpV2() {
+  const api = `${SITE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${WP_POST_LIMIT}&status=publish&_fields=link,title,excerpt,date`;
+  const posts = await httpJson(api);
+  return posts.map(p => {
+    const title = stripHtml(p.title && p.title.rendered);
+    const category = inferCategory(title);
+    return { title, url: p.link, category, primaryKeyword: inferPrimaryKeyword(title, category), secondaryKeywords: inferKeywords(title, category), date: p.date, source: 'wordpress-live' };
+  }).filter(p => p.title && p.url);
 }
 
 async function loadPosts() {
   const seedPath = path.join(ROOT, 'data', 'seed_posts.json');
-  const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+  const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8')).map(p => ({ ...p, source: p.source || 'seed' }));
   if (!USE_LIVE) return seed;
-
+  runInfo.liveAttempted = true;
   try {
-    const api = `${SITE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${WP_POST_LIMIT}&status=publish&_fields=link,title,excerpt,date`;
-    const posts = await httpJson(api);
-    const live = posts.map(p => {
-      const title = stripHtml(p.title && p.title.rendered);
-      const category = inferCategory(title);
-      return {
-        title,
-        url: p.link,
-        category,
-        primaryKeyword: inferPrimaryKeyword(title, category),
-        secondaryKeywords: inferKeywords(title, category),
-        date: p.date,
-        source: 'wordpress-live'
-      };
-    }).filter(p => p.title && p.url);
-
-    return live.length ? live : seed;
+    const live = await fetchWpV2();
+    if (!live.length) throw new Error('WP live fetch returned zero usable posts');
+    runInfo.liveSuccess = true;
+    runInfo.sourceUsed = 'wordpress-live';
+    return live;
   } catch (e) {
+    runInfo.liveError = e.message;
     console.warn('Live WordPress fetch failed, using seed posts:', e.message);
     return seed;
   }
@@ -97,13 +98,14 @@ function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^
 function esc(s) { return String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 function titleCase(s) { return String(s).replace(/\b\w/g, m => m.toUpperCase()); }
 function kw(post) { return post.primaryKeyword || post.title.toLowerCase(); }
+function gerundPhrase(k) { return titleCase(k.replace(/^how to\s+/i,'').replace(/^the\s+/i,'')); }
 
 function makeTitle(post, angle) {
-  const k = titleCase(kw(post));
+  const k = gerundPhrase(kw(post));
   if (angle === 'Primary Keyword') return k;
   if (angle === 'List Post') return post.title;
   if (angle === 'Pain Point') return `Struggling With ${k}? Try This`;
-  if (angle === 'How To') return `How to ${k}`;
+  if (angle === 'How To') return `How to Make ${k} Easier`;
   if (angle === 'Quick Wins') return `${k}: Easy Wins for Busy Parents`;
   return `Beginner Guide to ${k}`;
 }
@@ -136,37 +138,23 @@ function makeSvg(title, sub, file) {
   const posts = await loadPosts();
   let rows = [];
   let n = 1;
-
   for (const post of posts) {
     for (const angle of angles) {
       if (rows.length >= PIN_COUNT) break;
       const title = makeTitle(post, angle);
       const file = `${String(n).padStart(3, '0')}-${slug(title)}.svg`;
       makeSvg(title, post.category, path.join(pinDir, file));
-      rows.push({
-        published_ok: '',
-        priority: n <= 10 ? 'A' : 'B',
-        source: post.source || 'seed',
-        source_post: post.title,
-        pin_angle: angle,
-        pin_title: title,
-        description: makeDesc(post),
-        url: post.url,
-        board: post.category,
-        primary_keyword: post.primaryKeyword || '',
-        keywords: (post.secondaryKeywords || []).join(' | '),
-        image_file: 'pins/' + file,
-        status: 'Ready'
-      });
+      rows.push({ published_ok: '', priority: n <= 10 ? 'A' : 'B', source: post.source || 'seed', source_post: post.title, pin_angle: angle, pin_title: title, description: makeDesc(post), url: post.url, board: post.category, primary_keyword: post.primaryKeyword || '', keywords: (post.secondaryKeywords || []).join(' | '), image_file: 'pins/' + file, status: 'Ready' });
       n++;
     }
     if (rows.length >= PIN_COUNT) break;
   }
-
   fs.writeFileSync(path.join(outDir, 'pinterest_queue.json'), JSON.stringify(rows, null, 2));
   const headers = Object.keys(rows[0]);
   const csv = [headers.join(',')].concat(rows.map(r => headers.map(h => '"' + String(r[h]).replace(/"/g, '""') + '"').join(','))).join('\n');
   fs.writeFileSync(path.join(outDir, 'pinterest_queue.csv'), csv);
-  fs.writeFileSync(path.join(outDir, 'run_summary.json'), JSON.stringify({ generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, postCount: posts.length, pinCount: rows.length }, null, 2));
-  console.log(`Generated ${rows.length} Monster V3 pins from ${posts.length} posts`);
+  runInfo.postCount = posts.length;
+  runInfo.pinCount = rows.length;
+  fs.writeFileSync(path.join(outDir, 'run_summary.json'), JSON.stringify(runInfo, null, 2));
+  console.log(`Generated ${rows.length} Monster V3.1 pins from ${posts.length} posts using ${runInfo.sourceUsed}`);
 })();
