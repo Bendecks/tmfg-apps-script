@@ -12,12 +12,12 @@ const outDir = path.join(ROOT, 'output');
 const pinDir = path.join(outDir, 'pins');
 fs.mkdirSync(pinDir, { recursive: true });
 
-const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0 };
+const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', wpV2Error: '', wpComError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0 };
 const angles = ['Primary Keyword', 'List Post', 'Pain Point', 'How To', 'Quick Wins', 'Beginner Friendly'];
 
 function httpJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.1' } }, res => {
+    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.2' } }, res => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
@@ -40,6 +40,12 @@ function stripHtml(s) {
     .replace(/&#8212;/g, '—')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function normalizePost(title, url, date, source) {
+  title = stripHtml(title);
+  const category = inferCategory(title);
+  return { title, url, category, primaryKeyword: inferPrimaryKeyword(title, category), secondaryKeywords: inferKeywords(title, category), date, source };
 }
 
 function inferCategory(title) {
@@ -69,11 +75,15 @@ function inferPrimaryKeyword(title, category) {
 async function fetchWpV2() {
   const api = `${SITE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${WP_POST_LIMIT}&status=publish&_fields=link,title,excerpt,date`;
   const posts = await httpJson(api);
-  return posts.map(p => {
-    const title = stripHtml(p.title && p.title.rendered);
-    const category = inferCategory(title);
-    return { title, url: p.link, category, primaryKeyword: inferPrimaryKeyword(title, category), secondaryKeywords: inferKeywords(title, category), date: p.date, source: 'wordpress-live' };
-  }).filter(p => p.title && p.url);
+  return posts.map(p => normalizePost(p.title && p.title.rendered, p.link, p.date, 'wordpress-wp-json')).filter(p => p.title && p.url);
+}
+
+async function fetchWpCom() {
+  const host = SITE.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const api = `https://public-api.wordpress.com/rest/v1.1/sites/${encodeURIComponent(host)}/posts/?number=${WP_POST_LIMIT}&fields=URL,title,date,status`;
+  const data = await httpJson(api);
+  const posts = Array.isArray(data.posts) ? data.posts : [];
+  return posts.filter(p => !p.status || p.status === 'publish').map(p => normalizePost(p.title, p.URL || p.short_URL, p.date, 'wordpress-com-api')).filter(p => p.title && p.url);
 }
 
 async function loadPosts() {
@@ -83,13 +93,23 @@ async function loadPosts() {
   runInfo.liveAttempted = true;
   try {
     const live = await fetchWpV2();
-    if (!live.length) throw new Error('WP live fetch returned zero usable posts');
+    if (!live.length) throw new Error('WP v2 returned zero usable posts');
     runInfo.liveSuccess = true;
-    runInfo.sourceUsed = 'wordpress-live';
+    runInfo.sourceUsed = 'wordpress-wp-json';
     return live;
   } catch (e) {
-    runInfo.liveError = e.message;
-    console.warn('Live WordPress fetch failed, using seed posts:', e.message);
+    runInfo.wpV2Error = e.message;
+  }
+  try {
+    const live = await fetchWpCom();
+    if (!live.length) throw new Error('WordPress.com API returned zero usable posts');
+    runInfo.liveSuccess = true;
+    runInfo.sourceUsed = 'wordpress-com-api';
+    return live;
+  } catch (e) {
+    runInfo.wpComError = e.message;
+    runInfo.liveError = `${runInfo.wpV2Error} || ${runInfo.wpComError}`;
+    console.warn('All live WordPress fetches failed, using seed posts:', runInfo.liveError);
     return seed;
   }
 }
@@ -156,5 +176,5 @@ function makeSvg(title, sub, file) {
   runInfo.postCount = posts.length;
   runInfo.pinCount = rows.length;
   fs.writeFileSync(path.join(outDir, 'run_summary.json'), JSON.stringify(runInfo, null, 2));
-  console.log(`Generated ${rows.length} Monster V3.1 pins from ${posts.length} posts using ${runInfo.sourceUsed}`);
+  console.log(`Generated ${rows.length} Monster V3.2 pins from ${posts.length} posts using ${runInfo.sourceUsed}`);
 })();
