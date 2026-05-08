@@ -7,217 +7,34 @@ const SITE = process.env.WP_SITE_URL || 'https://themodernfamilyguide.wordpress.
 const USE_LIVE = String(process.env.USE_LIVE_WORDPRESS || 'true').toLowerCase() !== 'false';
 const PIN_COUNT = parseInt(process.env.PIN_COUNT || '24', 10);
 const WP_POST_LIMIT = parseInt(process.env.WP_POST_LIMIT || '20', 10);
+const IMAGE_MODE = process.env.IMAGE_MODE || 'svg-template-v2';
 
 const outDir = path.join(ROOT, 'output');
 const pinDir = path.join(outDir, 'pins');
 fs.mkdirSync(pinDir, { recursive: true });
 
-const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', wpV2Error: '', wpComError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0, imageMode: 'svg-template-v2', qualityNotes: [] };
+const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', wpV2Error: '', wpComError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0, imageMode: IMAGE_MODE, qualityNotes: [] };
 const angles = ['Search Title', 'Problem Hook', 'Benefit Hook', 'List Hook', 'Quick Fix', 'Saveable Guide'];
 
-function httpJson(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.3' } }, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error(`HTTP ${res.statusCode}: ${url} :: ${data.slice(0, 250)}`));
-        try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`JSON parse failed: ${e.message}`)); }
-      });
-    }).on('error', reject);
-  });
-}
-
-function stripHtml(s) {
-  return String(s || '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&#8217;/g, '’')
-    .replace(/&#8220;/g, '“')
-    .replace(/&#8221;/g, '”')
-    .replace(/&#038;/g, '&')
-    .replace(/&#8211;/g, '–')
-    .replace(/&#8212;/g, '—')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function normalizePost(title, url, date, source) {
-  title = stripHtml(title);
-  const category = inferCategory(title);
-  return { title, url, category, primaryKeyword: inferPrimaryKeyword(title, category), secondaryKeywords: inferKeywords(title, category), date, source };
-}
-
-function inferCategory(title) {
-  const t = title.toLowerCase();
-  if (/meal|dinner|cook|food|picky|kitchen|recipe|grocery/.test(t)) return 'Easy Meals';
-  if (/kid|kids|activity|activities|bored|rainy|screen|play/.test(t)) return 'Kids Activities';
-  if (/home|organ|reset|tidy|mess|entryway|declutter|counter|backpack/.test(t)) return 'Home Organization';
-  if (/money|budget|cheap|saving|spend|finance/.test(t)) return 'Family Finance';
-  if (/listen|parent|routine|voice|yell|behavior/.test(t)) return 'Parenting';
-  return 'Parenting';
-}
-
-function inferKeywords(title, category) {
-  if (category === 'Easy Meals') return ['easy family meals', 'weeknight dinner ideas', 'family dinner ideas', 'quick family dinners'];
-  if (category === 'Kids Activities') return ['indoor kids activities', 'screen free activities for kids', 'kids activities at home', 'boredom busters for kids'];
-  if (category === 'Home Organization') return ['home organization ideas', 'home organization hacks', 'organized home', 'simple home systems'];
-  if (category === 'Family Finance') return ['family budget tips', 'money saving tips', 'budgeting tips for families', 'frugal living tips'];
-  return ['parenting tips', 'positive parenting tips', 'gentle parenting tips', 'family routines'];
-}
-
-function inferPrimaryKeyword(title, category) {
-  const clean = title.replace(/[:–—].*$/, '').replace(/[?!.]+$/,'').trim();
-  if (clean.length <= 48) return clean.toLowerCase();
-  return inferKeywords(title, category)[0];
-}
-
-async function fetchWpV2() {
-  const api = `${SITE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${WP_POST_LIMIT}&status=publish&_fields=link,title,excerpt,date`;
-  const posts = await httpJson(api);
-  return posts.map(p => normalizePost(p.title && p.title.rendered, p.link, p.date, 'wordpress-wp-json')).filter(p => p.title && p.url);
-}
-
-async function fetchWpCom() {
-  const host = SITE.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  const api = `https://public-api.wordpress.com/rest/v1.1/sites/${encodeURIComponent(host)}/posts/?number=${WP_POST_LIMIT}&fields=URL,title,date,status`;
-  const data = await httpJson(api);
-  const posts = Array.isArray(data.posts) ? data.posts : [];
-  return posts.filter(p => !p.status || p.status === 'publish').map(p => normalizePost(p.title, p.URL || p.short_URL, p.date, 'wordpress-com-api')).filter(p => p.title && p.url);
-}
-
-async function loadPosts() {
-  const seedPath = path.join(ROOT, 'data', 'seed_posts.json');
-  const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8')).map(p => ({ ...p, source: p.source || 'seed' }));
-  if (!USE_LIVE) return seed;
-  runInfo.liveAttempted = true;
-  try {
-    const live = await fetchWpV2();
-    if (!live.length) throw new Error('WP v2 returned zero usable posts');
-    runInfo.liveSuccess = true;
-    runInfo.sourceUsed = 'wordpress-wp-json';
-    return live;
-  } catch (e) { runInfo.wpV2Error = e.message; }
-  try {
-    const live = await fetchWpCom();
-    if (!live.length) throw new Error('WordPress.com API returned zero usable posts');
-    runInfo.liveSuccess = true;
-    runInfo.sourceUsed = 'wordpress-com-api';
-    return live;
-  } catch (e) {
-    runInfo.wpComError = e.message;
-    runInfo.liveError = `${runInfo.wpV2Error} || ${runInfo.wpComError}`;
-    console.warn('All live WordPress fetches failed, using seed posts:', runInfo.liveError);
-    return seed;
-  }
-}
-
+function httpJson(url) { return new Promise((resolve, reject) => { https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.4' } }, res => { let data = ''; res.on('data', chunk => data += chunk); res.on('end', () => { if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error(`HTTP ${res.statusCode}: ${url} :: ${data.slice(0, 250)}`)); try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`JSON parse failed: ${e.message}`)); } }); }).on('error', reject); }); }
+function stripHtml(s) { return String(s || '').replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/&#8217;/g, '’').replace(/&#8220;/g, '“').replace(/&#8221;/g, '”').replace(/&#038;/g, '&').replace(/&#8211;/g, '–').replace(/&#8212;/g, '—').replace(/\s+/g, ' ').trim(); }
+function normalizePost(title, url, date, source) { title = stripHtml(title); const category = inferCategory(title); return { title, url, category, primaryKeyword: inferPrimaryKeyword(title, category), secondaryKeywords: inferKeywords(title, category), date, source }; }
+function inferCategory(title) { const t = title.toLowerCase(); if (/meal|dinner|cook|food|picky|kitchen|recipe|grocery/.test(t)) return 'Easy Meals'; if (/kid|kids|activity|activities|bored|rainy|screen|play/.test(t)) return 'Kids Activities'; if (/home|organ|reset|tidy|mess|entryway|declutter|counter|backpack/.test(t)) return 'Home Organization'; if (/money|budget|cheap|saving|spend|finance/.test(t)) return 'Family Finance'; if (/listen|parent|routine|voice|yell|behavior/.test(t)) return 'Parenting'; return 'Parenting'; }
+function inferKeywords(title, category) { if (category === 'Easy Meals') return ['easy family meals', 'weeknight dinner ideas', 'family dinner ideas', 'quick family dinners']; if (category === 'Kids Activities') return ['indoor kids activities', 'screen free activities for kids', 'kids activities at home', 'boredom busters for kids']; if (category === 'Home Organization') return ['home organization ideas', 'home organization hacks', 'organized home', 'simple home systems']; if (category === 'Family Finance') return ['family budget tips', 'money saving tips', 'budgeting tips for families', 'frugal living tips']; return ['parenting tips', 'positive parenting tips', 'gentle parenting tips', 'family routines']; }
+function inferPrimaryKeyword(title, category) { const clean = title.replace(/[:–—].*$/, '').replace(/[?!.]+$/,'').trim(); if (clean.length <= 48) return clean.toLowerCase(); return inferKeywords(title, category)[0]; }
+async function fetchWpV2() { const api = `${SITE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${WP_POST_LIMIT}&status=publish&_fields=link,title,excerpt,date`; const posts = await httpJson(api); return posts.map(p => normalizePost(p.title && p.title.rendered, p.link, p.date, 'wordpress-wp-json')).filter(p => p.title && p.url); }
+async function fetchWpCom() { const host = SITE.replace(/^https?:\/\//, '').replace(/\/$/, ''); const api = `https://public-api.wordpress.com/rest/v1.1/sites/${encodeURIComponent(host)}/posts/?number=${WP_POST_LIMIT}&fields=URL,title,date,status`; const data = await httpJson(api); const posts = Array.isArray(data.posts) ? data.posts : []; return posts.filter(p => !p.status || p.status === 'publish').map(p => normalizePost(p.title, p.URL || p.short_URL, p.date, 'wordpress-com-api')).filter(p => p.title && p.url); }
+async function loadPosts() { const seedPath = path.join(ROOT, 'data', 'seed_posts.json'); const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8')).map(p => ({ ...p, source: p.source || 'seed' })); if (!USE_LIVE) return seed; runInfo.liveAttempted = true; try { const live = await fetchWpV2(); if (!live.length) throw new Error('WP v2 returned zero usable posts'); runInfo.liveSuccess = true; runInfo.sourceUsed = 'wordpress-wp-json'; return live; } catch (e) { runInfo.wpV2Error = e.message; } try { const live = await fetchWpCom(); if (!live.length) throw new Error('WordPress.com API returned zero usable posts'); runInfo.liveSuccess = true; runInfo.sourceUsed = 'wordpress-com-api'; return live; } catch (e) { runInfo.wpComError = e.message; runInfo.liveError = `${runInfo.wpV2Error} || ${runInfo.wpComError}`; console.warn('All live WordPress fetches failed, using seed posts:', runInfo.liveError); return seed; } }
 function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80); }
 function esc(s) { return String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 function titleCase(s) { return String(s).toLowerCase().replace(/\b\w/g, m => m.toUpperCase()); }
 function compactKeyword(k) { return titleCase(String(k || '').replace(/^how to\s+/i,'').replace(/^the\s+/i,'').replace(/\s+/g,' ').trim()); }
 function shortTopic(post) { return compactKeyword(post.primaryKeyword || inferKeywords(post.title, post.category)[0] || post.title); }
-
-function makeTitle(post, angle) {
-  const topic = shortTopic(post);
-  if (angle === 'Search Title') return topic;
-  if (angle === 'Problem Hook') {
-    if (post.category === 'Easy Meals') return `Too Tired to Cook? Try These Ideas`;
-    if (post.category === 'Kids Activities') return `Kids Bored at Home? Start Here`;
-    if (post.category === 'Home Organization') return `Messy Home? Try This Simple Fix`;
-    if (post.category === 'Family Finance') return `Money Stress at Home? Start Here`;
-    return `Kids Won’t Listen? Try This`;
-  }
-  if (angle === 'Benefit Hook') return `${topic} That Actually Works`;
-  if (angle === 'List Hook') return post.title;
-  if (angle === 'Quick Fix') return `${topic} for Busy Parents`;
-  return `Save This ${post.category} Guide`;
-}
-
-function makeDesc(post) {
-  const kws = (post.secondaryKeywords || []).slice(0, 4).join(', ');
-  return `Practical, realistic help for busy families. Includes ideas around ${kws}. Read the full guide at The Modern Family Guide.`;
-}
-
-function wrapText(text, maxChars, maxLines) {
-  const words = String(text).split(/\s+/);
-  const lines = [];
-  let line = '';
-  for (const w of words) {
-    const next = line ? line + ' ' + w : w;
-    if (next.length > maxChars && line) { lines.push(line); line = w; }
-    else line = next;
-    if (lines.length === maxLines) break;
-  }
-  if (lines.length < maxLines && line) lines.push(line);
-  if (lines.length > maxLines) lines.length = maxLines;
-  return lines.map((l, i) => i === maxLines - 1 && words.join(' ').length > lines.join(' ').length ? l.replace(/[.,;:!?]*$/, '') + '…' : l);
-}
-
-function visualTheme(category) {
-  if (category === 'Easy Meals') return { bg:'#f8efe3', accent:'#7a4b2e', card:'#fffaf2', label:'DINNER HELP' };
-  if (category === 'Kids Activities') return { bg:'#eef4ef', accent:'#315c48', card:'#fbfff9', label:'KIDS IDEAS' };
-  if (category === 'Home Organization') return { bg:'#eef2f5', accent:'#24384f', card:'#ffffff', label:'HOME RESET' };
-  if (category === 'Family Finance') return { bg:'#f3f1e7', accent:'#4d5635', card:'#fffef7', label:'MONEY HABITS' };
-  return { bg:'#f2edf5', accent:'#4f385c', card:'#fffaff', label:'PARENTING TIP' };
-}
-
-function makeSvg(title, category, file) {
-  const theme = visualTheme(category);
-  const lines = wrapText(title, 22, 4);
-  const subtitle = category;
-  let titleSvg = lines.map((l,i)=>`<text x='90' y='${300+i*78}' font-size='64' font-family='Arial' font-weight='800' fill='#1f2630'>${esc(l)}</text>`).join('\n');
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1500'>
-  <rect width='1000' height='1500' fill='${theme.bg}'/>
-  <rect x='55' y='55' width='890' height='1390' rx='44' fill='${theme.card}'/>
-  <rect x='90' y='100' width='360' height='64' rx='32' fill='${theme.accent}'/>
-  <text x='120' y='142' font-size='28' font-family='Arial' font-weight='700' fill='white'>${theme.label}</text>
-  ${titleSvg}
-  <rect x='90' y='690' width='820' height='330' rx='34' fill='${theme.bg}' stroke='${theme.accent}' stroke-width='4'/>
-  <circle cx='220' cy='855' r='72' fill='${theme.accent}' opacity='0.92'/>
-  <rect x='340' y='780' width='420' height='34' rx='17' fill='${theme.accent}' opacity='0.35'/>
-  <rect x='340' y='850' width='520' height='34' rx='17' fill='${theme.accent}' opacity='0.25'/>
-  <rect x='340' y='920' width='360' height='34' rx='17' fill='${theme.accent}' opacity='0.18'/>
-  <text x='90' y='1110' font-size='34' font-family='Arial' fill='#4b5560'>${esc(subtitle)} • Practical family life</text>
-  <rect x='90' y='1190' width='820' height='128' rx='26' fill='${theme.accent}'/>
-  <text x='132' y='1270' font-size='38' font-family='Arial' font-weight='800' fill='white'>Click for the full guide</text>
-  <text x='90' y='1395' font-size='28' font-family='Arial' fill='#6a7078'>The Modern Family Guide</text>
-</svg>`;
-  fs.writeFileSync(file, svg, 'utf8');
-}
-
-function qualityScore(title) {
-  let score = 100;
-  if (/How to (Bored|Cheap|Easy|Evening|Home|Family)($|\s)/i.test(title)) score -= 30;
-  if (title.length > 92) score -= 10;
-  if (title.length < 18) score -= 8;
-  if (/^Beginner Guide to Save This/i.test(title)) score -= 20;
-  return Math.max(0, score);
-}
-
-(async function main() {
-  const posts = await loadPosts();
-  let rows = [];
-  let n = 1;
-  for (const post of posts) {
-    for (const angle of angles) {
-      if (rows.length >= PIN_COUNT) break;
-      const title = makeTitle(post, angle);
-      const file = `${String(n).padStart(3, '0')}-${slug(title)}.svg`;
-      makeSvg(title, post.category, path.join(pinDir, file));
-      const qs = qualityScore(title);
-      if (qs < 80) runInfo.qualityNotes.push({ title, score: qs });
-      rows.push({ published_ok: '', priority: n <= 10 ? 'A' : 'B', quality_score: qs, source: post.source || 'seed', source_post: post.title, pin_angle: angle, pin_title: title, description: makeDesc(post), url: post.url, board: post.category, primary_keyword: post.primaryKeyword || '', keywords: (post.secondaryKeywords || []).join(' | '), image_file: 'pins/' + file, status: 'Ready' });
-      n++;
-    }
-    if (rows.length >= PIN_COUNT) break;
-  }
-  fs.writeFileSync(path.join(outDir, 'pinterest_queue.json'), JSON.stringify(rows, null, 2));
-  const headers = Object.keys(rows[0]);
-  const csv = [headers.join(',')].concat(rows.map(r => headers.map(h => '"' + String(r[h]).replace(/"/g, '""') + '"').join(','))).join('\n');
-  fs.writeFileSync(path.join(outDir, 'pinterest_queue.csv'), csv);
-  runInfo.postCount = posts.length;
-  runInfo.pinCount = rows.length;
-  fs.writeFileSync(path.join(outDir, 'run_summary.json'), JSON.stringify(runInfo, null, 2));
-  console.log(`Generated ${rows.length} Monster V3.3 pins from ${posts.length} posts using ${runInfo.sourceUsed}`);
-})();
+function makeTitle(post, angle) { const topic = shortTopic(post); if (angle === 'Search Title') return topic; if (angle === 'Problem Hook') { if (post.category === 'Easy Meals') return `Too Tired to Cook? Try These Ideas`; if (post.category === 'Kids Activities') return `Kids Bored at Home? Start Here`; if (post.category === 'Home Organization') return `Messy Home? Try This Simple Fix`; if (post.category === 'Family Finance') return `Money Stress at Home? Start Here`; return `Kids Won’t Listen? Try This`; } if (angle === 'Benefit Hook') return `${topic} That Actually Works`; if (angle === 'List Hook') return post.title; if (angle === 'Quick Fix') return `${topic} for Busy Parents`; return `Save This ${post.category} Guide`; }
+function makeDesc(post) { const kws = (post.secondaryKeywords || []).slice(0, 4).join(', '); return `Practical, realistic help for busy families. Includes ideas around ${kws}. Read the full guide at The Modern Family Guide.`; }
+function wrapText(text, maxChars, maxLines) { const words = String(text).split(/\s+/); const lines = []; let line = ''; for (const w of words) { const next = line ? line + ' ' + w : w; if (next.length > maxChars && line) { lines.push(line); line = w; } else line = next; if (lines.length === maxLines) break; } if (lines.length < maxLines && line) lines.push(line); if (lines.length > maxLines) lines.length = maxLines; return lines; }
+function visualTheme(category) { if (category === 'Easy Meals') return { bg:'#f8efe3', accent:'#7a4b2e', card:'#fffaf2', label:'DINNER HELP' }; if (category === 'Kids Activities') return { bg:'#eef4ef', accent:'#315c48', card:'#fbfff9', label:'KIDS IDEAS' }; if (category === 'Home Organization') return { bg:'#eef2f5', accent:'#24384f', card:'#ffffff', label:'HOME RESET' }; if (category === 'Family Finance') return { bg:'#f3f1e7', accent:'#4d5635', card:'#fffef7', label:'MONEY HABITS' }; return { bg:'#f2edf5', accent:'#4f385c', card:'#fffaff', label:'PARENTING TIP' }; }
+function makeSvg(title, category, file) { const theme = visualTheme(category); const lines = wrapText(title, 22, 4); let titleSvg = lines.map((l,i)=>`<text x='90' y='${300+i*78}' font-size='64' font-family='Arial' font-weight='800' fill='#1f2630'>${esc(l)}</text>`).join('\n'); const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1500'><rect width='1000' height='1500' fill='${theme.bg}'/><rect x='55' y='55' width='890' height='1390' rx='44' fill='${theme.card}'/><rect x='90' y='100' width='360' height='64' rx='32' fill='${theme.accent}'/><text x='120' y='142' font-size='28' font-family='Arial' font-weight='700' fill='white'>${theme.label}</text>${titleSvg}<rect x='90' y='690' width='820' height='330' rx='34' fill='${theme.bg}' stroke='${theme.accent}' stroke-width='4'/><circle cx='220' cy='855' r='72' fill='${theme.accent}' opacity='0.92'/><rect x='340' y='780' width='420' height='34' rx='17' fill='${theme.accent}' opacity='0.35'/><rect x='340' y='850' width='520' height='34' rx='17' fill='${theme.accent}' opacity='0.25'/><rect x='340' y='920' width='360' height='34' rx='17' fill='${theme.accent}' opacity='0.18'/><text x='90' y='1110' font-size='34' font-family='Arial' fill='#4b5560'>${esc(category)} • Practical family life</text><rect x='90' y='1190' width='820' height='128' rx='26' fill='${theme.accent}'/><text x='132' y='1270' font-size='38' font-family='Arial' font-weight='800' fill='white'>Click for the full guide</text><text x='90' y='1395' font-size='28' font-family='Arial' fill='#6a7078'>The Modern Family Guide</text></svg>`; fs.writeFileSync(file, svg, 'utf8'); }
+function makeImagePrompt(title, post) { return `Create a vertical Pinterest pin image, 1000x1500, clean modern Scandinavian family lifestyle style. Topic: ${post.category}. Main readable overlay text: ${title}. Visual: realistic bright family home scene, warm neutral tones, practical everyday family life, no logos, no watermark, high contrast text, mobile readable, Pinterest optimized, professional blog graphic for The Modern Family Guide.`; }
+function qualityScore(title) { let score = 100; if (/How to (Bored|Cheap|Easy|Evening|Home|Family)($|\s)/i.test(title)) score -= 30; if (title.length > 92) score -= 10; if (title.length < 18) score -= 8; return Math.max(0, score); }
+(async function main() { const posts = await loadPosts(); let rows = []; let n = 1; for (const post of posts) { for (const angle of angles) { if (rows.length >= PIN_COUNT) break; const title = makeTitle(post, angle); const file = `${String(n).padStart(3, '0')}-${slug(title)}.svg`; makeSvg(title, post.category, path.join(pinDir, file)); const qs = qualityScore(title); if (qs < 80) runInfo.qualityNotes.push({ title, score: qs }); rows.push({ published_ok: '', priority: n <= 10 ? 'A' : 'B', quality_score: qs, source: post.source || 'seed', source_post: post.title, pin_angle: angle, pin_title: title, description: makeDesc(post), url: post.url, board: post.category, primary_keyword: post.primaryKeyword || '', keywords: (post.secondaryKeywords || []).join(' | '), image_file: 'pins/' + file, image_prompt: makeImagePrompt(title, post), status: 'Ready' }); n++; } if (rows.length >= PIN_COUNT) break; } fs.writeFileSync(path.join(outDir, 'pinterest_queue.json'), JSON.stringify(rows, null, 2)); const headers = Object.keys(rows[0]); const csv = [headers.join(',')].concat(rows.map(r=>headers.map(h=>'"'+String(r[h]).replace(/"/g,'""')+'"').join(','))).join('\n'); fs.writeFileSync(path.join(outDir,'pinterest_queue.csv'),csv); runInfo.postCount=posts.length; runInfo.pinCount=rows.length; fs.writeFileSync(path.join(outDir,'run_summary.json'),JSON.stringify(runInfo,null,2)); console.log(`Generated ${rows.length} Monster V3.4 pins from ${posts.length} posts using ${runInfo.sourceUsed}`); })();
