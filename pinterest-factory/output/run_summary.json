@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T21:16:19.290Z",
+  "generatedAt": "2026-05-08T21:18:21.228Z",
   "site": "https://themodernfamilyguide.wordpress.com",
   "useLive": true,
   "liveAttempted": true,
@@ -11,5 +11,9 @@
   "postCount": 20,
   "pinCount": 24,
   "imageMode": "svg-template-v2",
+  "geminiImageModel": "gemini-2.5-flash-image-preview",
+  "geminiImageLimit": 3,
+  "geminiImagesGenerated": 0,
+  "geminiErrors": [],
   "qualityNotes": []
 }
