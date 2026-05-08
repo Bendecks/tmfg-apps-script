@@ -3,7 +3,8 @@
   <rect x='55' y='55' width='890' height='1390' rx='44' fill='#fffaf2'/>
   <rect x='90' y='100' width='360' height='64' rx='32' fill='#7a4b2e'/>
   <text x='120' y='142' font-size='28' font-family='Arial' font-weight='700' fill='white'>DINNER HELP</text>
-  <text x='90' y='300' font-size='64' font-family='Arial' font-weight='800' fill='#1f2630'>Solo Spotlight Meal</text>
+  <text x='90' y='300' font-size='64' font-family='Arial' font-weight='800' fill='#1f2630'>Save This Easy Meals</text>
+<text x='90' y='378' font-size='64' font-family='Arial' font-weight='800' fill='#1f2630'>Guide</text>
   <rect x='90' y='690' width='820' height='330' rx='34' fill='#f8efe3' stroke='#7a4b2e' stroke-width='4'/>
   <circle cx='220' cy='855' r='72' fill='#7a4b2e' opacity='0.92'/>
   <rect x='340' y='780' width='420' height='34' rx='17' fill='#7a4b2e' opacity='0.35'/>

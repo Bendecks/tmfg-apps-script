@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T21:07:32.303Z",
+  "generatedAt": "2026-05-08T21:12:21.896Z",
   "site": "https://themodernfamilyguide.wordpress.com",
   "useLive": true,
   "liveAttempted": true,
@@ -9,5 +9,7 @@
   "wpComError": "",
   "sourceUsed": "wordpress-com-api",
   "postCount": 20,
-  "pinCount": 24
+  "pinCount": 24,
+  "imageMode": "svg-template-v2",
+  "qualityNotes": []
 }
