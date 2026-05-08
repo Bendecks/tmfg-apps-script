@@ -13,6 +13,10 @@ jobs:
           node-version: '20'
       - name: Generate Pinterest queue
         run: node pinterest-factory/generate-pins.js
+        env:
+          IMAGE_MODE: gemini
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_IMAGE_LIMIT: '3'
       - name: Commit generated output
         run: |
           git config user.name "github-actions[bot]"
