@@ -12,12 +12,12 @@ const outDir = path.join(ROOT, 'output');
 const pinDir = path.join(outDir, 'pins');
 fs.mkdirSync(pinDir, { recursive: true });
 
-const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', wpV2Error: '', wpComError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0 };
-const angles = ['Primary Keyword', 'List Post', 'Pain Point', 'How To', 'Quick Wins', 'Beginner Friendly'];
+const runInfo = { generatedAt: new Date().toISOString(), site: SITE, useLive: USE_LIVE, liveAttempted: false, liveSuccess: false, liveError: '', wpV2Error: '', wpComError: '', sourceUsed: 'seed', postCount: 0, pinCount: 0, imageMode: 'svg-template-v2', qualityNotes: [] };
+const angles = ['Search Title', 'Problem Hook', 'Benefit Hook', 'List Hook', 'Quick Fix', 'Saveable Guide'];
 
 function httpJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.2' } }, res => {
+    https.get(url, { headers: { 'User-Agent': 'TMFG-Pinterest-Factory/3.3' } }, res => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
@@ -97,9 +97,7 @@ async function loadPosts() {
     runInfo.liveSuccess = true;
     runInfo.sourceUsed = 'wordpress-wp-json';
     return live;
-  } catch (e) {
-    runInfo.wpV2Error = e.message;
-  }
+  } catch (e) { runInfo.wpV2Error = e.message; }
   try {
     const live = await fetchWpCom();
     if (!live.length) throw new Error('WordPress.com API returned zero usable posts');
@@ -116,18 +114,24 @@ async function loadPosts() {
 
 function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80); }
 function esc(s) { return String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-function titleCase(s) { return String(s).replace(/\b\w/g, m => m.toUpperCase()); }
-function kw(post) { return post.primaryKeyword || post.title.toLowerCase(); }
-function gerundPhrase(k) { return titleCase(k.replace(/^how to\s+/i,'').replace(/^the\s+/i,'')); }
+function titleCase(s) { return String(s).toLowerCase().replace(/\b\w/g, m => m.toUpperCase()); }
+function compactKeyword(k) { return titleCase(String(k || '').replace(/^how to\s+/i,'').replace(/^the\s+/i,'').replace(/\s+/g,' ').trim()); }
+function shortTopic(post) { return compactKeyword(post.primaryKeyword || inferKeywords(post.title, post.category)[0] || post.title); }
 
 function makeTitle(post, angle) {
-  const k = gerundPhrase(kw(post));
-  if (angle === 'Primary Keyword') return k;
-  if (angle === 'List Post') return post.title;
-  if (angle === 'Pain Point') return `Struggling With ${k}? Try This`;
-  if (angle === 'How To') return `How to Make ${k} Easier`;
-  if (angle === 'Quick Wins') return `${k}: Easy Wins for Busy Parents`;
-  return `Beginner Guide to ${k}`;
+  const topic = shortTopic(post);
+  if (angle === 'Search Title') return topic;
+  if (angle === 'Problem Hook') {
+    if (post.category === 'Easy Meals') return `Too Tired to Cook? Try These Ideas`;
+    if (post.category === 'Kids Activities') return `Kids Bored at Home? Start Here`;
+    if (post.category === 'Home Organization') return `Messy Home? Try This Simple Fix`;
+    if (post.category === 'Family Finance') return `Money Stress at Home? Start Here`;
+    return `Kids Won’t Listen? Try This`;
+  }
+  if (angle === 'Benefit Hook') return `${topic} That Actually Works`;
+  if (angle === 'List Hook') return post.title;
+  if (angle === 'Quick Fix') return `${topic} for Busy Parents`;
+  return `Save This ${post.category} Guide`;
 }
 
 function makeDesc(post) {
@@ -135,23 +139,60 @@ function makeDesc(post) {
   return `Practical, realistic help for busy families. Includes ideas around ${kws}. Read the full guide at The Modern Family Guide.`;
 }
 
-function makeSvg(title, sub, file) {
-  const safeTitle = esc(title.length > 84 ? title.slice(0, 81) + '…' : title);
-  const safeSub = esc(sub);
+function wrapText(text, maxChars, maxLines) {
+  const words = String(text).split(/\s+/);
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const next = line ? line + ' ' + w : w;
+    if (next.length > maxChars && line) { lines.push(line); line = w; }
+    else line = next;
+    if (lines.length === maxLines) break;
+  }
+  if (lines.length < maxLines && line) lines.push(line);
+  if (lines.length > maxLines) lines.length = maxLines;
+  return lines.map((l, i) => i === maxLines - 1 && words.join(' ').length > lines.join(' ').length ? l.replace(/[.,;:!?]*$/, '') + '…' : l);
+}
+
+function visualTheme(category) {
+  if (category === 'Easy Meals') return { bg:'#f8efe3', accent:'#7a4b2e', card:'#fffaf2', label:'DINNER HELP' };
+  if (category === 'Kids Activities') return { bg:'#eef4ef', accent:'#315c48', card:'#fbfff9', label:'KIDS IDEAS' };
+  if (category === 'Home Organization') return { bg:'#eef2f5', accent:'#24384f', card:'#ffffff', label:'HOME RESET' };
+  if (category === 'Family Finance') return { bg:'#f3f1e7', accent:'#4d5635', card:'#fffef7', label:'MONEY HABITS' };
+  return { bg:'#f2edf5', accent:'#4f385c', card:'#fffaff', label:'PARENTING TIP' };
+}
+
+function makeSvg(title, category, file) {
+  const theme = visualTheme(category);
+  const lines = wrapText(title, 22, 4);
+  const subtitle = category;
+  let titleSvg = lines.map((l,i)=>`<text x='90' y='${300+i*78}' font-size='64' font-family='Arial' font-weight='800' fill='#1f2630'>${esc(l)}</text>`).join('\n');
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1500'>
-  <rect width='100%' height='100%' fill='#f4f1ea'/>
-  <rect x='45' y='45' width='910' height='1410' rx='34' fill='white'/>
-  <rect x='45' y='45' width='910' height='190' rx='34' fill='#152536'/>
-  <text x='80' y='165' font-size='50' font-family='Arial' font-weight='700' fill='white'>${safeTitle}</text>
-  <text x='80' y='330' font-size='34' font-family='Arial' fill='#334'>${safeSub}</text>
-  <rect x='80' y='440' width='840' height='600' rx='28' fill='#eef2f5'/>
-  <text x='120' y='720' font-size='44' font-family='Arial' font-weight='700' fill='#223'>Save this idea</text>
-  <text x='120' y='790' font-size='32' font-family='Arial' fill='#556'>Simple family life help</text>
-  <rect x='80' y='1140' width='840' height='160' rx='22' fill='#152536'/>
-  <text x='120' y='1238' font-size='34' font-family='Arial' font-weight='700' fill='white'>Click for the full guide</text>
-  <text x='80' y='1405' font-size='26' font-family='Arial' fill='#777'>The Modern Family Guide</text>
+  <rect width='1000' height='1500' fill='${theme.bg}'/>
+  <rect x='55' y='55' width='890' height='1390' rx='44' fill='${theme.card}'/>
+  <rect x='90' y='100' width='360' height='64' rx='32' fill='${theme.accent}'/>
+  <text x='120' y='142' font-size='28' font-family='Arial' font-weight='700' fill='white'>${theme.label}</text>
+  ${titleSvg}
+  <rect x='90' y='690' width='820' height='330' rx='34' fill='${theme.bg}' stroke='${theme.accent}' stroke-width='4'/>
+  <circle cx='220' cy='855' r='72' fill='${theme.accent}' opacity='0.92'/>
+  <rect x='340' y='780' width='420' height='34' rx='17' fill='${theme.accent}' opacity='0.35'/>
+  <rect x='340' y='850' width='520' height='34' rx='17' fill='${theme.accent}' opacity='0.25'/>
+  <rect x='340' y='920' width='360' height='34' rx='17' fill='${theme.accent}' opacity='0.18'/>
+  <text x='90' y='1110' font-size='34' font-family='Arial' fill='#4b5560'>${esc(subtitle)} • Practical family life</text>
+  <rect x='90' y='1190' width='820' height='128' rx='26' fill='${theme.accent}'/>
+  <text x='132' y='1270' font-size='38' font-family='Arial' font-weight='800' fill='white'>Click for the full guide</text>
+  <text x='90' y='1395' font-size='28' font-family='Arial' fill='#6a7078'>The Modern Family Guide</text>
 </svg>`;
   fs.writeFileSync(file, svg, 'utf8');
+}
+
+function qualityScore(title) {
+  let score = 100;
+  if (/How to (Bored|Cheap|Easy|Evening|Home|Family)($|\s)/i.test(title)) score -= 30;
+  if (title.length > 92) score -= 10;
+  if (title.length < 18) score -= 8;
+  if (/^Beginner Guide to Save This/i.test(title)) score -= 20;
+  return Math.max(0, score);
 }
 
 (async function main() {
@@ -164,7 +205,9 @@ function makeSvg(title, sub, file) {
       const title = makeTitle(post, angle);
       const file = `${String(n).padStart(3, '0')}-${slug(title)}.svg`;
       makeSvg(title, post.category, path.join(pinDir, file));
-      rows.push({ published_ok: '', priority: n <= 10 ? 'A' : 'B', source: post.source || 'seed', source_post: post.title, pin_angle: angle, pin_title: title, description: makeDesc(post), url: post.url, board: post.category, primary_keyword: post.primaryKeyword || '', keywords: (post.secondaryKeywords || []).join(' | '), image_file: 'pins/' + file, status: 'Ready' });
+      const qs = qualityScore(title);
+      if (qs < 80) runInfo.qualityNotes.push({ title, score: qs });
+      rows.push({ published_ok: '', priority: n <= 10 ? 'A' : 'B', quality_score: qs, source: post.source || 'seed', source_post: post.title, pin_angle: angle, pin_title: title, description: makeDesc(post), url: post.url, board: post.category, primary_keyword: post.primaryKeyword || '', keywords: (post.secondaryKeywords || []).join(' | '), image_file: 'pins/' + file, status: 'Ready' });
       n++;
     }
     if (rows.length >= PIN_COUNT) break;
@@ -176,5 +219,5 @@ function makeSvg(title, sub, file) {
   runInfo.postCount = posts.length;
   runInfo.pinCount = rows.length;
   fs.writeFileSync(path.join(outDir, 'run_summary.json'), JSON.stringify(runInfo, null, 2));
-  console.log(`Generated ${rows.length} Monster V3.2 pins from ${posts.length} posts using ${runInfo.sourceUsed}`);
+  console.log(`Generated ${rows.length} Monster V3.3 pins from ${posts.length} posts using ${runInfo.sourceUsed}`);
 })();
