@@ -1,7 +1,11 @@
 {
-  "generatedAt": "2026-05-08T07:58:30.777Z",
+  "generatedAt": "2026-05-08T20:47:04.024Z",
   "site": "https://themodernfamilyguide.wordpress.com",
   "useLive": true,
+  "liveAttempted": true,
+  "liveSuccess": false,
+  "liveError": "HTTP 404: https://themodernfamilyguide.wordpress.com/wp-json/wp/v2/posts?per_page=20&status=publish&_fields=link,title,excerpt,date :: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\" />\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<meta name='robots' content='max-image-preview:large' />\n<meta name=\"google-site-verification\" content=\"GGEwwWDW",
+  "sourceUsed": "seed",
   "postCount": 10,
   "pinCount": 24
 }
