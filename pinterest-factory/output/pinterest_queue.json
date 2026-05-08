@@ -12,8 +12,8 @@
     "board": "Parenting",
     "primary_keyword": "the ‘half-done hub’",
     "keywords": "parenting tips | positive parenting tips | gentle parenting tips | family routines",
-    "image_file": "pins/001-half-done-hub.svg",
-    "ai_image_file": "",
+    "image_file": "ai-pins/001-half-done-hub.png",
+    "ai_image_file": "ai-pins/001-half-done-hub.png",
     "fallback_svg_file": "pins/001-half-done-hub.svg",
     "image_prompt": "Create a vertical Pinterest pin image, 1000x1500, clean modern Scandinavian family lifestyle style. Topic: Parenting. Main readable overlay text: ‘Half-Done Hub’. Visual: realistic bright family home scene, warm neutral tones, practical everyday family life, no logos, no watermark, high contrast text, mobile readable, Pinterest optimized, professional blog graphic for The Modern Family Guide.",
     "status": "Ready"
@@ -31,8 +31,8 @@
     "board": "Parenting",
     "primary_keyword": "the ‘half-done hub’",
     "keywords": "parenting tips | positive parenting tips | gentle parenting tips | family routines",
-    "image_file": "pins/002-kids-won-t-listen-try-this.svg",
-    "ai_image_file": "",
+    "image_file": "ai-pins/002-kids-won-t-listen-try-this.png",
+    "ai_image_file": "ai-pins/002-kids-won-t-listen-try-this.png",
     "fallback_svg_file": "pins/002-kids-won-t-listen-try-this.svg",
     "image_prompt": "Create a vertical Pinterest pin image, 1000x1500, clean modern Scandinavian family lifestyle style. Topic: Parenting. Main readable overlay text: Kids Won’t Listen? Try This. Visual: realistic bright family home scene, warm neutral tones, practical everyday family life, no logos, no watermark, high contrast text, mobile readable, Pinterest optimized, professional blog graphic for The Modern Family Guide.",
     "status": "Ready"
@@ -50,8 +50,8 @@
     "board": "Parenting",
     "primary_keyword": "the ‘half-done hub’",
     "keywords": "parenting tips | positive parenting tips | gentle parenting tips | family routines",
-    "image_file": "pins/003-half-done-hub-that-actually-works.svg",
-    "ai_image_file": "",
+    "image_file": "ai-pins/003-half-done-hub-that-actually-works.png",
+    "ai_image_file": "ai-pins/003-half-done-hub-that-actually-works.png",
     "fallback_svg_file": "pins/003-half-done-hub-that-actually-works.svg",
     "image_prompt": "Create a vertical Pinterest pin image, 1000x1500, clean modern Scandinavian family lifestyle style. Topic: Parenting. Main readable overlay text: ‘Half-Done Hub’ That Actually Works. Visual: realistic bright family home scene, warm neutral tones, practical everyday family life, no logos, no watermark, high contrast text, mobile readable, Pinterest optimized, professional blog graphic for The Modern Family Guide.",
     "status": "Ready"

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T21:27:26.331Z",
+  "generatedAt": "2026-05-08T21:37:05.130Z",
   "site": "https://themodernfamilyguide.wordpress.com",
   "useLive": true,
   "liveAttempted": true,
@@ -11,26 +11,10 @@
   "postCount": 20,
   "pinCount": 24,
   "imageMode": "gemini",
-  "geminiImageModel": "gemini-2.0-flash-preview-image-generation",
+  "geminiImageModel": "gemini-3.1-flash-image-preview",
   "geminiImageLimit": 3,
   "geminiImageAttempts": 3,
-  "geminiImagesGenerated": 0,
-  "geminiErrors": [
-    {
-      "title": "‘Half-Done Hub’",
-      "model": "gemini-2.0-flash-preview-image-generation",
-      "error": "HTTP 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/gemini-2.0-flash-preview-image-generation is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
-    },
-    {
-      "title": "Kids Won’t Listen? Try This",
-      "model": "gemini-2.0-flash-preview-image-generation",
-      "error": "HTTP 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/gemini-2.0-flash-preview-image-generation is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
-    },
-    {
-      "title": "‘Half-Done Hub’ That Actually Works",
-      "model": "gemini-2.0-flash-preview-image-generation",
-      "error": "HTTP 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/gemini-2.0-flash-preview-image-generation is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
-    }
-  ],
+  "geminiImagesGenerated": 3,
+  "geminiErrors": [],
   "qualityNotes": []
 }
