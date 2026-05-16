@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T09:24:45.715Z",
+  "generatedAt": "2026-05-16T08:19:49.035Z",
   "site": "https://themodernfamilyguide.wordpress.com",
   "useLive": true,
   "liveAttempted": true,
@@ -14,7 +14,23 @@
   "geminiImageModel": "gemini-3.1-flash-image-preview",
   "geminiImageLimit": 3,
   "geminiImageAttempts": 3,
-  "geminiImagesGenerated": 3,
-  "geminiErrors": [],
+  "geminiImagesGenerated": 0,
+  "geminiErrors": [
+    {
+      "title": "One Small Parenting Fix",
+      "model": "gemini-3.1-flash-image-preview",
+      "error": "HTTP 403: {\n  \"error\": {\n    \"code\": 403,\n    \"message\": \"Your project has been denied access. Please contact support.\",\n    \"status\": \"PERMISSION_DENIED\"\n  }\n}\n"
+    },
+    {
+      "title": "One Small Parenting Fix",
+      "model": "gemini-3.1-flash-image-preview",
+      "error": "HTTP 403: {\n  \"error\": {\n    \"code\": 403,\n    \"message\": \"Your project has been denied access. Please contact support.\",\n    \"status\": \"PERMISSION_DENIED\"\n  }\n}\n"
+    },
+    {
+      "title": "One Small Parenting Fix",
+      "model": "gemini-3.1-flash-image-preview",
+      "error": "HTTP 403: {\n  \"error\": {\n    \"code\": 403,\n    \"message\": \"Your project has been denied access. Please contact support.\",\n    \"status\": \"PERMISSION_DENIED\"\n  }\n}\n"
+    }
+  ],
   "qualityNotes": []
 }
