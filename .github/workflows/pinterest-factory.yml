@@ -1,8 +1,10 @@
 name: Pinterest Factory
+
+# Automatic/scheduled trigger disabled to prevent GitHub Actions usage.
+# Run manually from the Actions tab only.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '17 6 * * *'
+
 jobs:
   build:
     runs-on: ubuntu-latest
